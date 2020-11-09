@@ -2,4 +2,4 @@
 
 To run:
 * Clone the repository
-* Run `npm run dev` to get the backend running with nodemon (useful for dev purposes), or simply `npm start` otherwise (just until Docker is set up).
+* Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.

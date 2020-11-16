@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const passport = require('passport');
-const localStrategy = require('passport-local').Strategy;
 const StudentModel = require('../models/student.js');
 
 var jwt=require('jsonwebtoken');

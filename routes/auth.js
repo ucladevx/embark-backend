@@ -25,7 +25,6 @@ router.post(
 
                 req.signin(
                     Student,
-                    {session:false},
                     async (error) => {
                         if (error) return next(error);
                         const body={_id:Student._id,name:Student.name,email:Student.email};

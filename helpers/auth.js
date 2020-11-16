@@ -1,4 +1,5 @@
 const studentModel = require('../models/student')
+var bcrypt = require('bcryptjs');
 
 // signin
 // TODO: check credentials + jwt 
@@ -6,6 +7,9 @@ exports.signin = async function (req, res, next) {
     res.status(501).json({
         message: "Signin not implemented yet"
     })
+    const Student=this;
+    const compare=bcrypt.compareSync(password, Student.password);
+
 }
 
 // signup
@@ -17,7 +21,13 @@ exports.signup = async function (req, res, next) {
         name,
         email,
         password
-    })
+    }) 
+
+    const salt=genSaltSync(10);
+    const Student=this;
+    const hash=await hashSync(password, salt);
+    this.password=hash;
+    next();
 
     try {
         await student.save()

@@ -7,8 +7,26 @@ exports.signin = async function (req, res, next) {
     res.status(501).json({
         message: "Signin not implemented yet"
     })
-    const Student=this;
-    const compare=bcrypt.compareSync(password, Student.password);
+    const {email,password}=req.body
+    
+    studentModel.findOne({
+        email:email,
+    }, function(err,studentInfo){
+        if(err){
+            return res.status(401).json({
+                message: "Auth failed"
+            });
+        }
+        else{
+            if(bcrypt.compareSync(password, studentInfo.password)){
+                const token=jwt.sign({id:studentInfo._id});
+            }
+            else{
+                console.log("error!!");
+            }
+        }
+    }
+    )
 
 }
 
@@ -24,10 +42,10 @@ exports.signup = async function (req, res, next) {
     }) 
 
     const salt=genSaltSync(10);
-    const Student=this;
-    const hash=await hashSync(password, salt);
-    this.password=hash;
+    const hash=await bcrypt.hash(password, salt);
+    student.password=hash;
     next();
+
 
     try {
         await student.save()

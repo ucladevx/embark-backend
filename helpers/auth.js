@@ -22,7 +22,9 @@ exports.signin = async function (req, res, next) {
                 const token=jwt.sign({id:studentInfo._id});
             }
             else{
-                console.log("error!!");
+                return res.status(401).json({
+                    message: "Auth failed"
+                });
             }
         }
     }

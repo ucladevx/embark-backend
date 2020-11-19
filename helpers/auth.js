@@ -4,9 +4,6 @@ var bcrypt = require('bcryptjs');
 // signin
 // TODO: check credentials + jwt 
 exports.signin = async function (req, res, next) {
-    res.status(501).json({
-        message: "Signin not implemented yet"
-    })
     const {email,password}=req.body
     
     studentModel.findOne({
@@ -14,7 +11,7 @@ exports.signin = async function (req, res, next) {
     }, function(err,studentInfo){
         if(err){
             return res.status(401).json({
-                message: "Auth failed"
+                message: "Signin authentication failed--bad argument"
             });
         }
         else{
@@ -23,7 +20,7 @@ exports.signin = async function (req, res, next) {
             }
             else{
                 return res.status(401).json({
-                    message: "Auth failed"
+                    message: "Signin authentication failed--passwords don't match."
                 });
             }
         }

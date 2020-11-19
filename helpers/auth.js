@@ -19,7 +19,7 @@ exports.signin = async function (req, res, next) {
         }
         else{
             if(bcrypt.compareSync(password, studentInfo.password)){
-                const token=jwt.sign({id:studentInfo._id});
+                const token=jwt.sign({id:studentInfo._id},req.app.get('secretKey'));
             }
             else{
                 return res.status(401).json({

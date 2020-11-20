@@ -1,10 +1,10 @@
-const studentModel = require('../models/student')
-var bcrypt = require('bcryptjs');
+const studentModel = require('../models/student');
+const bcrypt = require('bcryptjs');
 
 // signin
 // TODO: check credentials + jwt 
 exports.signin = async function (req, res, next) {
-    const {name,email,password,major,year}=req.body
+    const {name,email,password,major,year}=req.body;
     
     studentModel.findOne({
         email:email,
@@ -16,7 +16,7 @@ exports.signin = async function (req, res, next) {
         }
         else{
             if(bcrypt.compareSync(password, studentInfo.password)){
-                const token=jwt.sign({id:studentInfo._id},req.app.get('secretKey'));
+                const token=jwt.sign({id:studentInfo._id},req.app.get('secretKey'),{expiresIn: 8640000});
             }
             else{
                 return res.status(401).json({
@@ -32,7 +32,7 @@ exports.signin = async function (req, res, next) {
 // signup
 // TODO: create jwt, hash password, change fields in studentModel
 exports.signup = async function (req, res, next) {
-    const { name, email, password,major,year } = req.body
+    const { name, email, password,major,year } = req.body;
 
     const student = new studentModel({
         name,
@@ -40,13 +40,13 @@ exports.signup = async function (req, res, next) {
         password,
         major,
         year
-    }) 
+    });
 
-    const salt=genSaltSync(10);
-    const hash=await bcrypt.hash(password, salt);
+    const hash=await bcrypt.hash(password, 10);
     student.password=hash;
-    next();
-
+    const token=jwt.sign({id:student._id},req.app.get('secretKey'),{expiresIn: 8640000});
+    
+    res.status(200).send({ auth: true, token: token });
 
     try {
         await student.save()

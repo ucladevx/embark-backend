@@ -7,6 +7,8 @@ module.exports=(req,res,next) => {
         next();
     }
     catch(error){
-        res.status(401).json({message:"Authentication error in authMiddleware"});
+        res.status(401).json({
+            message: error.message
+        });
     }
 }

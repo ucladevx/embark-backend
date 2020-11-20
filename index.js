@@ -11,9 +11,11 @@ const PORT = process.env.PORT || 9000
 
 //  list all routes here, such as profileRoutes, messageRoutes, etc.
 const authRoutes = require("./routes/auth")
+const postRoutes = require("./routes/posts")
 
 // route them accordingly eg. app.use("/profile", profileRoutes)
-app.use("/auth", authRoutes)
+app.use('/auth', authRoutes)
+app.use('/posts', postRoutes)
 
 app.get('/health', (req, res) => {
     res.status(200).send({

@@ -35,6 +35,7 @@ exports.signin = async function (req, res, next) {
 // TODO: create jwt, hash password, change fields in studentModel
 exports.signup = async function (req, res, next) {
     const { name, email, password,major,year } = req.body;
+    
         const student = new studentModel({
             name,
             email,
@@ -42,29 +43,19 @@ exports.signup = async function (req, res, next) {
             major,
             year
         });
-        const hash=await bcrypt.hash(password, 10);
-        student.password=hash;
+        student.password=await bcrypt.hashSync(password, 10);
         const token=jwt.sign({id:student._id,name:name,email:email,major:major,year:year},req.app.get('secretKey'),{expiresIn: 8640000});
-        //res.status(201).json(student);
-
-        res.status(200).send({ auth: true, token: token });
-
         try {
             await student.save()
-        } catch (err) {
-            if(error.code === 11000) {
-                error_message = 'That email address is already registered';    
+            res.status(200).send({ auth: true, token: token });
+    } catch(e) {
+            if(e.code === 11000) {
+                res.send('That email address is already registered');    
             }
             else{
-            return res.json({
-                message: err.message
-            })
+            return res.json({message: e.message});
+            }
         }
-        }
+    
+}
 
-        res.status(200).json({
-            message: 'Signup successful',
-            name,
-            email
-        })
-    }

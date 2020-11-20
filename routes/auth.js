@@ -7,8 +7,17 @@ const { signin, signup } = require("../helpers/auth")
 
 // implement the jwt check and modify the router.post like so:
 const authorize=require("../helpers/authMiddleware");
-router.post("/signin",authorize,signin);
 
+
+/*
+router.post('/signin', async (req,res)=>{
+    
+    authorize,
+    signin
+    res.send(req.body);
+}
+);
+*/
 
 // probably wanna look into setting up student/signup and club/signup as different endpoints
 router.post("/signin", signin)

@@ -17,7 +17,7 @@ exports.signin = async function (req, res, next) {
         }
         else{
             if(bcrypt.compareSync(password, studentInfo.password)){
-                const token=jwt.sign({id:studentInfo._id},req.app.get('secretKey'),{expiresIn: 8640000});
+                const token=jwt.sign({id:studentInfo._id,name:name,email:email,major:major,year:year},req.app.get('secretKey'),{expiresIn: 8640000});
                 res.send({token:token,password:password});
             }
             else{
@@ -44,7 +44,7 @@ exports.signup = async function (req, res, next) {
         });
         const hash=await bcrypt.hash(password, 10);
         student.password=hash;
-        const token=jwt.sign({id:student._id},req.app.get('secretKey'),{expiresIn: 8640000});
+        const token=jwt.sign({id:student._id,name:name,email:email,major:major,year:year},req.app.get('secretKey'),{expiresIn: 8640000});
         //res.status(201).json(student);
 
         res.status(200).send({ auth: true, token: token });

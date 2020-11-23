@@ -15,6 +15,10 @@ const postSchema = new mongoose.Schema({
     },
     tags: {
         type: [String]
+    },
+    authorEmail: {
+        type: String,
+        required: true
     }
 })
 

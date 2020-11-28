@@ -7,7 +7,7 @@ To run:
 ### /posts
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
-##### POST /posts/create
+##### POST /posts
 
 ```
 {
@@ -26,7 +26,8 @@ Returns:
     "body": <body>,
     "timestamp": <Date_object>,
     "tags": <array_of_tags>,
-    "email": <author_email>
+    "email": <author_email>,
+    "_id": <post_id>
 }
 ```
 

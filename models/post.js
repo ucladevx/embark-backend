@@ -19,7 +19,8 @@ const postSchema = new mongoose.Schema({
     authorEmail: {
         type: String,
         required: true
-    }
+    },
+    // comments + likes fields
 })
 
 const Post = mongoose.model("Post", postSchema);

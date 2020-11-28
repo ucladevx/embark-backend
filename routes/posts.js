@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
-const { create, getPosts } = require("../helpers/posts")
+const { createPosts, getPosts, savePost, getSavedPosts } = require("../helpers/posts")
 
 // router.post("/create", jwtCheck, create)
 
-router.post("/create", create)
+router.post("/", createPosts)
 router.get("/", getPosts)
+router.post("/saved", savePost)
+router.get("/saved", getSavedPosts)
 
 module.exports = router;

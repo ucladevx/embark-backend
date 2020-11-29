@@ -8,29 +8,43 @@ const jwt=require('jsonwebtoken');
 // TODO: check credentials + jwt 
 exports.signin = async function (req, res, next) {
     const {name,email,password}=req.body;
+    let model;
     
 
-    studentModel.findOne({
-        email:email,
-    }, function(err,studentInfo){
-        if(err){
-            return res.status(401).json({
-                message: "Email not found"
-            }); 
+    try {
+        let userInfo;
+        if(req.body.userType==="club"){
+             userInfo= await clubModel.findOne({
+                email:email,
+            })
         }
         else{
-            if(bcrypt.compareSync(password, studentInfo.password)){
-                const token=jwt.sign({id:studentInfo._id,name:name,email:email},req.app.get('secretKey'),{expiresIn: 8640000});
-                res.send({token:token});
-            }
-            else{
-                return res.status(401).json({
-                    message: "Incorrect Password"
-                });
-            }
+            userInfo= await studentModel.findOne({
+                email:email,
+            })
         }
+        
+        console.log(userInfo);
+        if(bcrypt.compare(password, userInfo.password)){
+            const token=jwt.sign({id:userInfo._id,name:name,email:email},req.app.get('secretKey'),{expiresIn: 8640000});
+            res.send({token:token});
+        }
+        else{
+            return res.status(401).json({
+                message: "Incorrect Password"
+            });
+        }
+
+    } catch (err) {
+        console.log(err.message);
+        return res.status(401).json({
+            message: "Email not found"
+            
+        }); 
     }
-    )
+
+   
+    
 
 }
 

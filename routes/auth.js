@@ -9,15 +9,9 @@ const { signin, signup } = require("../helpers/auth")
 const authorize=require("../helpers/authMiddleware");
 
 
-/*
-router.post('/signin', async (req,res)=>{
-    
-    authorize,
-    signin
-    res.send(req.body);
-}
-);
-*/
+
+router.post('/signin',authorize,signin);
+
 
 // probably wanna look into setting up student/signup and club/signup as different endpoints
 router.post("/signin", signin)

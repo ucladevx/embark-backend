@@ -1,9 +1,11 @@
 const jwt=require("jsonwebtoken");
 
 module.exports=(req,res,next) => {
+    //res.send({message:req.headers});
     try{
         const token=req.headers.authorization.split(" ")[1];
-        jwt.verify(token,req.app.get('secretKey'));
+        const decodedToken=jwt.verify(token,req.app.get('secretKey'));
+
         next();
     }
     catch(error){

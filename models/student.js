@@ -4,7 +4,6 @@ const studentSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true
     },
     email: {
         type: String,
@@ -20,6 +19,18 @@ const studentSchema = new mongoose.Schema({
     },
     year: {
         type: Number
+    },
+    posts:{
+        type:String
+    },
+    tags:{
+        type:String
+    },
+    savedPosts:{
+        type:String
+    },
+    clubs: {
+        type:String
     }
 })
 

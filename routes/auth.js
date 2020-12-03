@@ -14,11 +14,11 @@ const authorize = require("../helpers/authMiddleware");
 router.post('/signin', signin);
 router.post("/signup", signup);
 
-router.get('/student/profile',profile);
-router.post('/student/profile',editProfile);
+router.get('/student/profile',authorize,profile);
+router.post('/student/profile',authorize,editProfile);
 
-router.get('club/profile',profileClub);
-router.post('/club/profile',editProfileClub);
+router.get('club/profile',authorize,profileClub);
+router.post('/club/profile',authorize,editProfileClub);
 
 
 module.exports = router;

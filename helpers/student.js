@@ -19,7 +19,7 @@ exports.editProfile = async function (req, res, next) {
         return res.json({message:err.message});
     }
     res.redirect('/profile');
-}
+} 
 
 exports.profile = async function (req, res, next) {
     res.status(501).json({

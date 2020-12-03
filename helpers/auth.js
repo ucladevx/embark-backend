@@ -41,9 +41,6 @@ exports.signin = async function (req, res, next) {
         });
     }
 
-
-
-
 }
 
 // signup
@@ -60,7 +57,13 @@ exports.signup = async function (req, res, next) {
         const student = new studentModel({
             name,
             email,
-            password
+            password,
+            major: "",
+            year: "",
+            posts: [],
+            tags: [],
+            savedPosts: [],
+            clubs: []
         });
         student.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: student._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });

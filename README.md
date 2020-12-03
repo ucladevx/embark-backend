@@ -54,3 +54,23 @@ Returns:
     ]
 }
 ```
+
+### /profile
+Requests to be made with `Authorization` header, in the format `Bearer <token>`.
+
+##### POST /profile
+Edit User profile
+
+In: Authorization header, fields such as:
+```
+{
+     "name": <name>,
+    "email": <email>,
+    "major": <major>,
+    "year": <year>,
+    "tags": <tags>
+}
+```
+Returns:
+Redirects to profile page or error message
+

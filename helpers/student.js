@@ -32,7 +32,6 @@ exports.editProfile = async function (req, res, next) {
 exports.profile = async function (req, res, next) {
     const token=req.headers.authorization.split(" ")[1];
     const student=getStudentFromToken(token);
-    res.status(501).json({
-        message: "Not implemented yet"
-    })
+    res.status(200).send({student});
+    
 }

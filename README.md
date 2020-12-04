@@ -54,23 +54,46 @@ Returns:
     ]
 }
 ```
+### /signup
+Required: Name, Email, Password
+Returns (if successful):
+```
+{
+    "auth":true,
+    "token": <token>
+}
+```
+# /signin
+Requests to be made with `Authorization` header, in the format `Bearer <token>`.
+Required: Email, Password
+
+Returns (if successful):
+```
+{
+    token:<token>
+}
+```
 
 ### /profile
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
 ##### POST /profile
-Edit User profile
+Edit Student profile
 
 In: Authorization header, fields such as:
 ```
 {
-     "name": <name>,
+    "name": <name>,
     "email": <email>,
     "major": <major>,
     "year": <year>,
-    "tags": <tags>
+    "tags": <tags>,
+    "bio":<bioString>,
+    profilePicURL:<profilePicURL>,
+    coverPicURL:<coverPicURL>,
+    linkedIn:<linkedIn>
 }
 ```
 Returns:
-Redirects to profile page or error message
+Redirects to profile page
 

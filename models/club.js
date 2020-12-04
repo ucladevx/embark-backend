@@ -13,6 +13,21 @@ const clubSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    tags:{
+        type:[String]
+    },
+    website:{
+        type:String
+    },
+    description:{
+        type:String
+    },
+    profilePicURL:{
+        type:String
+    },
+    coverPicURL:{
+        type:String
     }
 })
 

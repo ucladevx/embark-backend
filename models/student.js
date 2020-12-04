@@ -20,16 +20,28 @@ const studentSchema = new mongoose.Schema({
     year: {
         type: Number
     },
-    posts:{
-        type:String
+    posts: {
+        type: [String]
     },
-    tags:{
-        type:String
+    tags: {
+        type: [String]
     },
-    savedPosts:{
-        type:String
+    savedPosts: {
+        type: [String]
     },
     clubs: {
+        type: [String]
+    },
+    bio:{
+        type:String
+    },
+    profilePicURL:{
+        type:String
+    },
+    coverPicURL:{
+        type:String
+    },
+    linkedIn:{
         type:String
     }
 })

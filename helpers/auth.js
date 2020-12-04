@@ -60,7 +60,17 @@ exports.signup = async function (req, res, next) {
         const student = new studentModel({
             name,
             email,
-            password
+            password,
+            major:"",
+            year:0000,
+            posts:[],
+            tags:[],
+            savedPosts:[],
+            clubs:[],
+            bio:"",
+            profilePicURL:"",
+            coverPicURL:"",
+            linkedIn:""
         });
         student.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: student._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
@@ -76,7 +86,12 @@ exports.signup = async function (req, res, next) {
         const club = new clubModel({
             name,
             email,
-            password
+            password,
+            tags:[],
+            website:"",
+            description:"",
+            profilePicURL:"",
+            coverPicURL:""
         });
         club.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: club._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });

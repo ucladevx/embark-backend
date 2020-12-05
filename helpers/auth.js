@@ -22,7 +22,6 @@ exports.signin = async function (req, res, next) {
             })
         }
 
-        console.log(userInfo);
         if (bcrypt.compare(password, userInfo.password)) {
             const token = jwt.sign({ id: userInfo._id, name: userInfo.name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
             res.send({ token: token });
@@ -34,7 +33,6 @@ exports.signin = async function (req, res, next) {
         }
 
     } catch (err) {
-        console.log(err.message);
         return res.status(401).json({
             message: "Email not found"
 

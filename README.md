@@ -55,7 +55,7 @@ Returns:
 }
 ```
 ### /signup
-Required: Name, Email, Password
+Required: Name, Email, Password (Password must be 8 characters, must have one Uppercase, one Lowercase, and one special character)
 Returns (if successful):
 ```
 {

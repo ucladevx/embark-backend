@@ -10,22 +10,22 @@ exports.editProfile = async function (req, res, next) {
     const club=await clubModel.findOne({email:decodedToken.email});
     try{
     const updatedFields = {};
-    await Object.keys(editableFields).forEach(key => {
+    Object.keys(editableFields).forEach(key => {
     if (req.body[key]) {
         updatedFields[key] = req.body[key];
     }});
-    console.log(updatedFields)
     const result=await clubModel.updateOne({_id: club._id },updatedFields);
     }
     catch(err){
         return res.json({message:err.message});
     }
-    res.send({club});
+    returnedClub=await clubModel.findOne({email:decodedToken.email});
+    res.send({returnedClub});
 }
 
 exports.profile = async function (req, res, next) {
     const token=req.headers.authorization.split(" ")[1];
-    const decodedToken=jwt.verify(token,req.app.get('secretKey'));
-    const club=clubModel.findOne({email:decodedToken.email});
-    res.status(200).send({club});
+    const decodedToken=await jwt.verify(token,req.app.get('secretKey'));
+    const club=await clubModel.findOne({email:decodedToken.email});
+    res.send({club});
 }

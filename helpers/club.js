@@ -66,8 +66,11 @@ exports.image=async function(req, res, next) {
           });
         }
         else{
-            if(pictureType==="profilePicURL"){
-                return res.send({message:"message","profilePicURL":req.file.location});
+            if(pictureType==="coverPicURL"){
+                return res.send({"coverPicURL":req.file.location});
+            }
+            else{
+                return res.send({"profilePicURL":req.file.location});
             }
         
         }

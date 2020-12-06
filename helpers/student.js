@@ -7,10 +7,17 @@ const multer = require("multer");
 const multerS3 = require("multer-s3");
 const s3 = new aws.S3();
 
+const imageFunction = require("../helpers/image");
 
 exports.editProfile = async function (req, res, next) {
    const {name,major,year,tags,bio,linkedIn}=req.body;
-   editableFields={name,major,year,tags,bio,linkedIn};
+   
+    //imageFunction(req,res,next).then(response => console.log(response))
+    
+    const imageURL=await imageFunction(req,res,next);
+       
+    console.log(imageURL);
+    editableFields={name,major,year,tags,bio,linkedIn};
    const token=req.headers.authorization.split(" ")[1];
    const decodedToken=await jwt.verify(token,req.app.get('secretKey'));
    const student=await studentModel.findOne({email:decodedToken.email});
@@ -80,11 +87,11 @@ exports.image=async function(req, res, next) {
           });
         }
         else{
-            if(pictureType==="profilePicURL"){
-                return res.send({"profilePicURL":req.file.location});
+            if(pictureType==="coverPicURL"){
+                return res.send({"coverPicURL":req.file.location});
             }
             else{
-                return res.send({"coverPicURL":req.file.location});
+                return res.send({"profilePicURL":req.file.location});
             }
         
         }

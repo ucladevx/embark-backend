@@ -29,3 +29,49 @@ exports.profile = async function (req, res, next) {
     const club=await clubModel.findOne({email:decodedToken.email});
     res.send({club});
 }
+
+exports.image=async function(req, res, next) {
+    const {pictureType}=req.body;
+    aws.config.update({
+        secretAccessKey: process.env.S3_ACCESS_SECRET,
+        accessKeyId: process.env.S3_ACCESS_KEY,
+        region: "us-west-2",
+      });
+      const upload = await multer({
+        fileFilter,
+        storage: multerS3({
+          acl: "public-read",
+          s3,
+          bucket: "profile-pictures-embark",
+          metadata: function (req, file, cb) {
+            cb(null, { fieldName: "TESTING_METADATA" });
+          },
+          key: function (req, file, cb) {
+            cb(null, Date.now().toString());
+          },
+        }),
+      });
+
+      const singleUpload = await upload.single("image");
+
+      singleUpload(req, res, function (err) {
+        if (err) {
+          return res.json({
+            success: false,
+            errors: {
+              title: "Image Upload Error",
+              detail: err.message,
+              error: err,
+            },
+          });
+        }
+        else{
+            if(pictureType==="profilePicURL"){
+                return res.send({message:"message","profilePicURL":req.file.location});
+            }
+        
+        }
+    });
+    
+
+}

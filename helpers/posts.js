@@ -1,11 +1,15 @@
 const postModel = require('../models/post')
+const studentModel = require('../models/student')
+const jwt = require("jsonwebtoken")
 
 exports.createPosts = async function (req, res, next) {
-    const { title, body, timestamp, tags, email } = req.body
+    const { title, body, timestamp, tags } = req.body
 
-    // pull email from jwt. rn only accepting email for testing purposes
-
-    // create unique post id
+    // pull email from jwt
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.decode(token, { complete: true });
+    let email = decoded.payload.email;
+    console.log('Request made from:', email)
 
     // save post to db
     const post = new postModel({
@@ -20,6 +24,18 @@ exports.createPosts = async function (req, res, next) {
         await post.save()
     } catch (err) {
         res.status(400).json({
+            message: err.message
+        })
+    }
+
+    // save post._id to the user record
+    try {
+        let user = await studentModel.findOne({ email })
+        console.log('user found', user)
+        user.posts.push(post._id)
+        await user.save()
+    } catch (err) {
+        return res.status(400).json({
             message: err.message
         })
     }

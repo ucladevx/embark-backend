@@ -3,9 +3,6 @@ const clubModel = require('../models/club');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-
-// signin
-// TODO: check credentials + jwt 
 exports.signin = async function (req, res, next) {
     const { email, password } = req.body;
 
@@ -41,9 +38,6 @@ exports.signin = async function (req, res, next) {
         });
     }
 
-
-
-
 }
 
 // signup
@@ -60,7 +54,13 @@ exports.signup = async function (req, res, next) {
         const student = new studentModel({
             name,
             email,
-            password
+            password,
+            major: "",
+            year: "",
+            posts: [],
+            tags: [],
+            savedPosts: [],
+            clubs: []
         });
         student.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: student._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
@@ -76,7 +76,8 @@ exports.signup = async function (req, res, next) {
         const club = new clubModel({
             name,
             email,
-            password
+            password,
+            savedPosts: []
         });
         club.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: club._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });

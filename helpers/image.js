@@ -2,6 +2,7 @@ const aws = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 const s3 = new aws.S3();
+
 const fileFilter = (req, file, cb) => {
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
       cb(null, true);
@@ -11,14 +12,18 @@ const fileFilter = (req, file, cb) => {
   };
 
 module.exports=async(req,res,next) => {
-    console.log(req.file);
+    //console.log(req.file);
+    //if(req.file==undefined){
+      //return null;
+     // console.log();
+    //}
     //if((req.file!==null) && (req.file!==undefined)){
     return new Promise(async function(resolve,reject){ 
         const {pictureType}=req.body;
         aws.config.update({
             secretAccessKey: process.env.S3_ACCESS_SECRET,
             accessKeyId: process.env.S3_ACCESS_KEY,
-            region: "us-west-2",
+            region: "us-west-2", 
           });
           const upload = await multer({
             fileFilter,
@@ -49,9 +54,12 @@ module.exports=async(req,res,next) => {
               });
             }
             else{
-                const fileLocation=req.file.location;
-                console.log("File image",fileLocation);
+                let fileLocation="";
+                if(req.file!=undefined){
+                  fileLocation=req.file.location;
+                }
                 resolve(fileLocation);
+                return fileLocation;
                 
             }
         });

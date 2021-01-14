@@ -14,10 +14,10 @@ exports.editProfile = async function (req, res, next) {
    
     //imageFunction(req,res,next).then(response => console.log(response))
     
-    const imageURL=await imageFunction(req,res,next);
+    //const imageURL=await imageFunction(req,res,next);
        
-    console.log(imageURL);
-    editableFields={name,major,year,tags,bio,linkedIn};
+   // console.log(imageURL);
+  editableFields={name,major,year,tags,bio,linkedIn};
    const token=req.headers.authorization.split(" ")[1];
    const decodedToken=await jwt.verify(token,req.app.get('secretKey'));
    const student=await studentModel.findOne({email:decodedToken.email});
@@ -43,6 +43,27 @@ exports.profile = async function (req, res, next) {
     res.send({student});
 }
 
+exports.image = async function(req, res, next){
+  const {pictureType}=req.body;
+  console.log(pictureType);
+  const imageURL=await imageFunction(req,res,next);   //gets the aws image URL
+  
+  //finds the person and uploads their picture
+  const token=req.headers.authorization.split(" ")[1];
+  const decodedToken=await jwt.verify(token,req.app.get('secretKey'));
+  const student=await studentModel.findOne({email:decodedToken.email});
+  const updatedFields={coverLetterPic:imageURL}
+  const result=await studentModel.updateOne({_id: student._id },updatedFields);
+
+  console.log(imageURL);
+  return res.json({
+    imageURL:imageURL,
+    pictureType:"hello"
+  })
+}
+
+
+/*
 const fileFilter = (req, file, cb) => {
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
       cb(null, true);
@@ -85,7 +106,7 @@ exports.image=async function(req, res, next) {
               error: err,
             },
           });
-        }
+        } 
         else{
             if(pictureType==="coverPicURL"){
                 return res.send({"coverPicURL":req.file.location});
@@ -96,6 +117,6 @@ exports.image=async function(req, res, next) {
         
         }
     });
-    
+  }  
 
-}
+*/

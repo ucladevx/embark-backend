@@ -12,6 +12,7 @@ const fileFilter = (req, file, cb) => {
   };
 
 module.exports=async(req,res,next) => {
+
     //console.log(req.file);
     //if(req.file==undefined){
       //return null;

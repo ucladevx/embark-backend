@@ -1,5 +1,6 @@
 const clubModel = require('../models/club')
 const jwt=require("jsonwebtoken");
+const imageFunction = require("../helpers/image");
 
 
 exports.editProfile = async function (req, res, next) {
@@ -30,51 +31,31 @@ exports.profile = async function (req, res, next) {
     res.send({club});
 }
 
-exports.image=async function(req, res, next) {
-    const {pictureType}=req.body;
-    aws.config.update({
-        secretAccessKey: process.env.S3_ACCESS_SECRET,
-        accessKeyId: process.env.S3_ACCESS_KEY,
-        region: "us-west-2",
-      });
-      const upload = await multer({
-        fileFilter,
-        storage: multerS3({
-          acl: "public-read",
-          s3,
-          bucket: "profile-pictures-embark",
-          metadata: function (req, file, cb) {
-            cb(null, { fieldName: "TESTING_METADATA" });
-          },
-          key: function (req, file, cb) {
-            cb(null, Date.now().toString());
-          },
-        }),
-      });
+exports.image = async function(req, res, next){
+  const {pictureType}= req.query;
+  const imageURL=await imageFunction(req,res,next);   //gets the aws image URL
 
-      const singleUpload = await upload.single("image");
+  try{
+    const token=req.headers.authorization.split(" ")[1];
+    const decodedToken=await jwt.verify(token,req.app.get('secretKey'));
+    const club=await clubModel.findOne({email:decodedToken.email});
+    let updatedFields;
+    if(pictureType==='cover'){
+      updatedFields={coverPicURL:imageURL}
+    }
+    else{
+      updatedFields={profilePicURL:imageURL}
+    }
+  //finds the person and uploads their picture
+  
+  const result=await clubModel.updateOne({_id: club._id },updatedFields);
 
-      singleUpload(req, res, function (err) {
-        if (err) {
-          return res.json({
-            success: false,
-            errors: {
-              title: "Image Upload Error",
-              detail: err.message,
-              error: err,
-            },
-          });
-        }
-        else{
-            if(pictureType==="coverPicURL"){
-                return res.send({"coverPicURL":req.file.location});
-            }
-            else{
-                return res.send({"profilePicURL":req.file.location});
-            }
-        
-        }
-    });
-    
-
+  console.log(imageURL);
+  returnedClub=await clubModel.findOne({email:decodedToken.email});
+   res.send({returnedClub});
+  
+}
+catch(err){
+  return res.json({"message":"ID not found (it is likely the token is incorrect)"});
+}
 }

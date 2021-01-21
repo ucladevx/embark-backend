@@ -55,7 +55,14 @@ Returns:
 }
 ```
 ### /signup
-Required: Name, Email, Password (Password must be 8 characters, must have one Uppercase, one Lowercase, and one special character)
+Post Request:
+    Put the following fields in the body of the request:
+    {
+        "name":string,
+        "email":unique string,
+        "password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
+        userType:"club" or "student"
+    }
 Returns (if successful):
 ```
 {
@@ -65,8 +72,14 @@ Returns (if successful):
 ```
 # /signin
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
-Required: Email, Password
-
+Request body:
+```
+{
+    "email":string,
+    "password":string,
+    "userType":"club" OR "student"
+}
+```
 Returns (if successful):
 ```
 {
@@ -77,10 +90,11 @@ Returns (if successful):
 ### /profile
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
-##### POST /profile
+##### POST /student/profile
 Edit Student profile
 
-In: Authorization header, fields such as:
+In: `Authorization` header, in the format `Bearer <token>`
+Request Body (all fields are optional): 
 ```
 {
     "name": <name>,
@@ -89,11 +103,98 @@ In: Authorization header, fields such as:
     "year": <year>,
     "tags": <tags>,
     "bio":<bioString>,
-    profilePicURL:<profilePicURL>,
-    coverPicURL:<coverPicURL>,
-    linkedIn:<linkedIn>
+    "linkedIn":<linkedIn>
 }
 ```
 Returns:
-Redirects to profile page
+```
+"returnedStudent":
+{
+        "posts": [],
+        "tags": [],
+        "savedPosts": [],
+        "clubs": [],
+        "_id": "",
+        "name": "",
+        "email": "",
+        "password": <hashed password>,
+        "major": "",
+        "year": 2024,
+        "bio": "",
+        "profilePicURL": "",
+        "coverPicURL": "",
+        "linkedIn": "",
+}
+```
+##### POST /club/profile
+Edit Student profile
 
+In: `Authorization` header, in the format `Bearer <token>`
+Request Body (all fields are optional): 
+```
+{
+    "name": <name>,
+    "email": <email>,
+    "major": <major>,
+    "year": <year>,
+    "website":<website>,
+    "description":<descriptionString>,
+    "linkedIn":<linkedIn>
+}
+```
+Returns:
+```
+ "returnedClub": {
+        "tags": [],
+        "_id": "",
+        "name": "",
+        "email": "",
+        "password": "hashed password",
+        "website": "",
+        "description": "",
+        "profilePicURL": "",
+        "coverPicURL": "",
+        "__v": 0
+    }
+```
+##### POST /club/profile/image?pictureType= <either profile or cover>
+In: `Authorization` header, in the format `Bearer <token>`
+Request body: nothing
+
+Returns (updates either profile picture or cover picture depending on what you query):
+```
+"returnedClub": {
+        "tags": [],
+        "_id": "",
+        "name": "",
+        "email": "",
+        "password": "",
+        "website": "",
+        "description": "",
+        "profilePicURL": "",
+        "coverPicURL": ""
+    }
+```
+##### POST /student/profile/image?pictureType= <either profile or cover>
+In: `Authorization` header, in the format `Bearer <token>`
+Request body: nothing
+
+Returns (updates either profile picture or cover picture depending on what you query):
+```
+ "returnedStudent": {
+        "posts": [],
+        "tags": [],
+        "savedPosts": [],
+        "clubs": [],
+        "_id": "",
+        "name": "",
+        "email": "",
+        "password": "",
+        "major": "",
+        "year": 2024,
+        "bio": "",
+        "profilePicURL": "",
+        "coverPicURL": "",
+        "linkedIn": ""
+    }
+```

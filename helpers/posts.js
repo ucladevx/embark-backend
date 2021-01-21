@@ -1,5 +1,7 @@
 const postModel = require('../models/post')
 
+
+
 exports.createPosts = async function (req, res, next) {
     const { title, body, timestamp, tags, email } = req.body
 

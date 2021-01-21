@@ -11,12 +11,6 @@ const imageFunction = require("../helpers/image");
 
 exports.editProfile = async function (req, res, next) {
    const {name,major,year,tags,bio,linkedIn}=req.body;
-   
-    //imageFunction(req,res,next).then(response => console.log(response))
-    
-    //const imageURL=await imageFunction(req,res,next);
-       
-   // console.log(imageURL);
   editableFields={name,major,year,tags,bio,linkedIn};
    const token=req.headers.authorization.split(" ")[1];
    const decodedToken=await jwt.verify(token,req.app.get('secretKey'));

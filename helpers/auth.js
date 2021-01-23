@@ -3,9 +3,6 @@ const clubModel = require('../models/club');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-
-// signin
-// TODO: check credentials + jwt 
 exports.signin = async function (req, res, next) {
     const { email, password } = req.body;
 
@@ -38,9 +35,6 @@ exports.signin = async function (req, res, next) {
 
         });
     }
-
-
-
 
 }
 
@@ -89,7 +83,8 @@ exports.signup = async function (req, res, next) {
             website:"",
             description:"",
             profilePicURL:"",
-            coverPicURL:""
+            coverPicURL:"",
+            savedPosts: [] //is this line necessary? idk why it's on master.
         });
         club.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: club._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });

@@ -6,7 +6,7 @@ const ObjectId=require("mongodb").ObjectId;
 
 
 exports.getPage=async(req,res,next) =>{
-    const {postID}=req.query;
+    const {postID,limitNum}=req.query;
     try{
         const result=await MongoPaging.find(postModel.access().collection("Post"),
         {
@@ -15,7 +15,7 @@ exports.getPage=async(req,res,next) =>{
            //change the serviceID
             },
             paginatedField:"timestamp",
-            limit:10,
+            limit:limitNum,
             sortAscending:true,
             next:req.query.next,
         });

@@ -28,6 +28,9 @@ const clubSchema = new mongoose.Schema({
     },
     coverPicURL:{
         type:String
+    },
+    savedPosts: { //again, not sure if necessary. will remove after testing.
+        type: [String]
     }
 })
 

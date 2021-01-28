@@ -17,7 +17,9 @@ exports.createPosts = async function (req, res, next) {
         body,
         timestamp: new Date(),
         tags,
-        authorEmail: email
+        authorEmail: email,
+        likes,
+        comments
     })
 
     try {
@@ -58,7 +60,6 @@ exports.getPosts = async function (req, res, next) {
 
     // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
     // pass those to the query below
-
     const posts = await postModel.find({
         $or: [{
             tags: {
@@ -76,20 +77,60 @@ exports.getPosts = async function (req, res, next) {
         posts
     })
 }
+exports.addPostLike = async function (req, res, next) {
+    const { authorEmail, post_id } = req.body
+    const post = await postModel.update({
+        $in: {
+            authorEmail: authorEmail,
+            _id: post_id,
+            $inc: {
+                likes: 1
+            }
+        }
+    })
+    try {
+        await post.save()
+    } catch (err) {
+        res.status(400).json({
+            message: err.message
+        })
+    }
+}
+
+exports.getPostLikes = async function (req, res, next) {
+    const { authorEmail, post_id } = req.body 
+    const posts = await postModel.find({
+        authorEmail: authorEmail,
+        _id: post_id,
+    })
+    res.status(200).json({
+        message: "Posts successfully updated.",
+        posts
+    })
+}
+
+exports.getPostComments = async function (req, res, next) {
+    res.status(503).json({
+        message: "Not implemented yet",
+    })
+}
+
+exports.addPostComment = async function (req, res, next) {
+    res.status(503).json({
+        message: "Not implemented yet",
+    })
+}
+
 
 exports.savePost = async function (req, res, next) {
-
     // add postid to saved posts field for student + club
-
     res.status(503).json({
         message: "Not implemented yet",
     })
 }
 
 exports.getSavedPosts = async function (req, res, next) {
-
     // return array of posts
-
     res.status(503).json({
         message: "Not implemented yet",
     })

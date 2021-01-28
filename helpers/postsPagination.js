@@ -5,26 +5,22 @@ const MongoPaging=require("mongo-cursor-pagination")
 const ObjectId=require("mongodb").ObjectId;
 
 
-exports.getPage=async(req,res,next) =>{
-    const {postID,limitNum}=req.query;
+exports.getPostsPage=async(req,res,next) =>{
+    const {previousPage,nextPage,limitNum}=req.query;
+    console.log(limitNum)
     try{
-        const result=await MongoPaging.find(postModel.access().collection("Post"),
+        
+        const result = await MongoPaging.find(postModel.collection, 
         {
-            query:{
-                postID: ObjectId(postID),
-           //change the serviceID
-            },
             paginatedField:"timestamp",
-            limit:limitNum,
-            sortAscending:true,
-            next:req.query.next,
+            limit:parseInt(limitNum),
+            sortAscending:true, 
+            next:nextPage,
+            previous:previousPage
         });
-        res.send({success:true,...result});
+        res.send({result});
     } catch(err){
         console.log(err);
         res.send({message:err.message});
     }
-
-
-
-    }
+}

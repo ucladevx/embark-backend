@@ -19,7 +19,6 @@ exports.signin = async function (req, res, next) {
             })
         }
 
-        console.log(userInfo);
         if (bcrypt.compare(password, userInfo.password)) {
             const token = jwt.sign({ id: userInfo._id, name: userInfo.name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
             res.send({ token: token });
@@ -31,7 +30,6 @@ exports.signin = async function (req, res, next) {
         }
 
     } catch (err) {
-        console.log(err.message);
         return res.status(401).json({
             message: "Email not found"
 
@@ -55,12 +53,16 @@ exports.signup = async function (req, res, next) {
             name,
             email,
             password,
-            major: "",
-            year: "",
-            posts: [],
-            tags: [],
-            savedPosts: [],
-            clubs: []
+            major:"",
+            year:0000,
+            posts:[],
+            tags:[],
+            savedPosts:[],
+            clubs:[],
+            bio:"",
+            profilePicURL:"",
+            coverPicURL:"",
+            linkedIn:""
         });
         student.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: student._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
@@ -77,7 +79,12 @@ exports.signup = async function (req, res, next) {
             name,
             email,
             password,
-            savedPosts: []
+            tags:[],
+            website:"",
+            description:"",
+            profilePicURL:"",
+            coverPicURL:"",
+            savedPosts: [] //is this line necessary? idk why it's on master.
         });
         club.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: club._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });

@@ -31,6 +31,18 @@ const studentSchema = new mongoose.Schema({
     },
     clubs: {
         type: [String]
+    },
+    bio:{
+        type:String
+    },
+    profilePicURL:{
+        type:String
+    },
+    coverPicURL:{
+        type:String
+    },
+    linkedIn:{
+        type:String
     }
 })
 

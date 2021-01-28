@@ -33,27 +33,25 @@ Returns:
 
 
 ##### GET /posts
-Nothing required in request except Authorization header.
-
+In: Authorization header.
+Params (all optional): 
+    limit: (Integer for number of pages queried)
+    nextPage: (put in the nextString from previous page)
+    previousPage: (put in the previousString from previousPage)
 Returns:
 ```
 {
     "message": "Posts successfully queried.",
-    "posts": [
-        {
-            "tags": <array_of_tags>,
-            "_id": <id>,
-            "title": <title>,
-            "body": <body>,
-            "timestamp": <Date_object>,
-            "authorEmail": <email>,
-            "__v": <v>
-        },
-        ... 
-        // array of such posts
-    ]
+    "paginatedPosts": {
+        "results": [],
+        "previous": "<previousString>",
+        "hasPrevious": false or true,
+        "next": "<nextString>",
+        "hasNext": true or true
+    }
 }
 ```
+
 ### /signup
 Post Request:
     Put the following fields in the body of the request:

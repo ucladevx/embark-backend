@@ -1,5 +1,5 @@
 const postModel = require('../models/post')
-
+const {getPostsPage}=require("../helpers/postsPagination")
 
 
 exports.createPosts = async function (req, res, next) {
@@ -40,8 +40,8 @@ exports.createPosts = async function (req, res, next) {
 
 exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
-    const { tags, clubs } = req.body //change to req.query
-
+    //const { tags, clubs } = req.body //change to req.query
+    const {tags,clubs,limit,nextPage,previousPage}=req.query;
     // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
     // pass those to the query below
 
@@ -56,10 +56,10 @@ exports.getPosts = async function (req, res, next) {
             }
         }]
     })
-
+    const paginatedPosts=await getPostsPage(limit,nextPage,previousPage);
     res.status(200).json({
         message: "Posts successfully queried.",
-        posts
+        paginatedPosts
     })
 }
 

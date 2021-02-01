@@ -53,14 +53,17 @@ Returns:
 ```
 
 ### /signup
+### auth/signup
 Post Request:
     Put the following fields in the body of the request:
-    {
-        "name":string,
-        "email":unique string,
-        "password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
-        userType:"club" or "student"
-    }
+```
+{
+    "name":string,
+    "email":unique string,
+    "password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
+    userType:"club" or "student"
+}
+```
 Returns (if successful):
 ```
 {
@@ -68,7 +71,7 @@ Returns (if successful):
     "token": <token>
 }
 ```
-# /signin
+# auth/signin
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 Request body:
 ```
@@ -86,8 +89,47 @@ Returns (if successful):
 ```
 
 ### /profile
-Requests to be made with `Authorization` header, in the format `Bearer <token>`.
+All requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
+### GET /student/profile
+In: `Authorization` header, in the format `Bearer <token>`
+Returns:
+```
+ "student": {
+        "posts": [],
+        "tags": [],
+        "savedPosts": [],
+        "clubs": [],
+        "_id": "",
+        "name": "",
+        "email": "",
+        "password": "",
+        "major": "",
+        "year": 2024,
+        "bio": "",
+        "profilePicURL": "",
+        "coverPicURL": "",
+        "linkedIn": "",
+        "__v": 0
+    }
+```
+### Get /club/profile
+In:In: `Authorization` header, in the format `Bearer <token>`
+Returns:
+```
+"club": {
+        "tags": [],
+        "_id": "6008b841a99a7e438812e08b",
+        "name": "club1",
+        "email": "club1@gmail.com",
+        "password": "$2a$10$pSTtY114EVpLLmpQrbwskO1qNGAMaCB8Tk9YCQWY5AArbsTPpunsi",
+        "website": "",
+        "description": "a club one",
+        "profilePicURL": "",
+        "coverPicURL": "",
+        "__v": 0
+    }
+```
 ##### POST /student/profile
 Edit Student profile
 

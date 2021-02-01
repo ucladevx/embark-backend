@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-app.set('secretKey', 'OUR-SECRET-KEY');
+app.set('secretKey', process.env.JWT_SECRET);
 
 const PORT = process.env.PORT || 9000
 
@@ -31,7 +31,7 @@ app.get('/health', (req, res) => {
 
 const connectToDB = async () => {
     try {
-        await mongoose.connect('mongodb+srv://superuser:devxembark@embark.j4d9k.mongodb.net/users?retryWrites=true&w=majority', {
+        await mongoose.connect(process.env.MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true

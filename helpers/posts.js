@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 
 exports.createPosts = async function (req, res, next) {
     const { title, body, timestamp, tags } = req.body
-
+ 
     // pull email from jwt
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.decode(token, { complete: true });

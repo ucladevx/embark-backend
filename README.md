@@ -57,14 +57,14 @@ Returns:
 ### auth/signup
 Post Request:
     Put the following fields in the body of the request:
-    ```
-    {
-        "name":string,
-        "email":unique string,
-        "password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
-        userType:"club" or "student"
-    }
-    ```
+```
+{
+    "name":string,
+    "email":unique string,
+    "password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
+    userType:"club" or "student"
+}
+```
 Returns (if successful):
 ```
 {

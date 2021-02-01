@@ -5,6 +5,7 @@ const { createPosts, getPosts, savePost, getSavedPosts } = require("../helpers/p
 const {getPostsPage}=require("../helpers/postsPagination")
 // router.post("/create", jwtCheck, create)
 
+const { getPostsPage } = require("../helpers/postsPagination")
 const authorize = require("../helpers/authMiddleware");
 
 router.post("/", authorize, createPosts)
@@ -12,6 +13,6 @@ router.get("/", authorize, getPosts)
 router.post("/saved", authorize, savePost)
 router.get("/saved", authorize, getSavedPosts)
 
-router.get("/postsPage",getPostsPage)
+router.get("/postsPage", authorize, getPostsPage)
 
 module.exports = router;

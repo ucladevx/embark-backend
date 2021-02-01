@@ -52,7 +52,10 @@ Returns:
 }
 ```
 
+<<<<<<< HEAD
 ### /signup
+=======
+>>>>>>> d9b97f30fa0f8d1b92ea23df0928e908b9811c06
 ### auth/signup
 Post Request:
     Put the following fields in the body of the request:

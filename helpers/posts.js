@@ -57,10 +57,11 @@ exports.createPosts = async function (req, res, next) {
 exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
     //const { tags, clubs } = req.body //change to req.query
-    const {tags,clubs,limit,nextPage,previousPage}=req.query;
+    console.log(3)
+    const { tags, clubs, limit, nextPage, previousPage } = req.query;
     // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
     // pass those to the query below
-
+    console.log(2)
     const posts = await postModel.find({
         $or: [{
             tags: {
@@ -72,7 +73,9 @@ exports.getPosts = async function (req, res, next) {
             }
         }]
     })
-    const paginatedPosts=await getPostsPage(limit,nextPage,previousPage);
+    console.log(1)
+    console.log(posts)
+    const paginatedPosts = await getPostsPage(limit, nextPage, previousPage);
     res.status(200).json({
         message: "Posts successfully queried.",
         paginatedPosts

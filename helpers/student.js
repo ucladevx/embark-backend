@@ -24,7 +24,9 @@ const findAndUpdate = async (decodedEmail, updatedFields) => {
 exports.editProfile = async function (req, res, next) {
   const { name, major, year, tags, bio, linkedIn } = req.body;
   editableFields = { name, major, year, tags, bio, linkedIn };
-  const decodedToken = await authorize(req, res, next);
+  // const decodedToken = await authorize(req, res, next);
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(token, req.app.get('secretKey'));
   try {
     const updatedFields = {};
     Object.keys(editableFields).forEach(key => {
@@ -42,7 +44,9 @@ exports.editProfile = async function (req, res, next) {
 }
 
 exports.profile = async function (req, res, next) {
-  const decodedToken = await authorize(req, res, next);
+  // const decodedToken = await authorize(req, res, next);
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(token, req.app.get('secretKey'));
   const student = await studentModel.findOne({ email: decodedToken.email });
   res.send({ student });
 }
@@ -51,7 +55,9 @@ exports.image = async function (req, res, next) {
   const { pictureType } = req.query;
   const imageURL = await imageFunction(req, res, next);   //gets the aws image URL
   try {
-    const decodedToken = await authorize(req, res, next);
+    // const decodedToken = await authorize(req, res, next);
+    const token = req.headers.authorization.split(" ")[1];
+    const decodedToken = jwt.verify(token, req.app.get('secretKey'));
     let updatedFields;
     console.log(pictureType);
     if (pictureType === 'cover') {

@@ -53,25 +53,28 @@ exports.signup = async function (req, res, next) {
             name,
             email,
             password,
-            major:"",
-            year:0000,
-            posts:[],
-            tags:[],
-            savedPosts:[],
-            clubs:[],
-            bio:"",
-            profilePicURL:"",
-            coverPicURL:"",
-            linkedIn:""
+            major: "",
+            year: 0000,
+            posts: [],
+            tags: [],
+            savedPosts: [],
+            clubs: [],
+            bio: "",
+            profilePicURL: "",
+            coverPicURL: "",
+            linkedIn: ""
         });
         student.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: student._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
 
         try {
             await student.save()
-            res.status(200).send({ auth: true, token: token });
+            return res.status(200).send({ auth: true, token: token });
         } catch (e) {
-            return res.json({ message: e.message });
+            if (e.message.includes("duplicate")) {
+                return res.status(400).json({ message: "Account with email already exists. Please use another email." })
+            }
+            return res.status(400).json({ message: e.message });
         }
     }
     if (req.body.userType == "club") {
@@ -79,11 +82,11 @@ exports.signup = async function (req, res, next) {
             name,
             email,
             password,
-            tags:[],
-            website:"",
-            description:"",
-            profilePicURL:"",
-            coverPicURL:"",
+            tags: [],
+            website: "",
+            description: "",
+            profilePicURL: "",
+            coverPicURL: "",
             savedPosts: [] //is this line necessary? idk why it's on master.
         });
         club.password = await bcrypt.hashSync(password, 10);
@@ -91,9 +94,12 @@ exports.signup = async function (req, res, next) {
 
         try {
             await club.save()
-            res.status(200).send({ auth: true, token: token });
+            return res.status(200).send({ auth: true, token: token });
         } catch (e) {
-            return res.json({ message: e.message });
+            if (e.message.includes("duplicate")) {
+                return res.status(400).json({ message: "Account with email already exists. Please use another email." })
+            }
+            return res.status(400).json({ message: e.message });
         }
     }
 

@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 const { createPosts, getPosts, savePost, getSavedPosts } = require("../helpers/posts")
-const {getPostsPage}=require("../helpers/postsPagination")
 // router.post("/create", jwtCheck, create)
 
 const { getPostsPage } = require("../helpers/postsPagination")

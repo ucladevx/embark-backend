@@ -2,6 +2,42 @@ const studentModel = require('../models/student');
 const clubModel = require('../models/club');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20');
+
+passport.use(new GoogleStrategy({
+    //options 
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    passReqToCallback: true,
+    callbackURL: '/auth/google/redirect'
+}, async (req, accessToken, refreshToken, profile, cb) => {
+    const email = profile.emails[0].value;
+
+    try {
+        let userInfo;
+        if (req.body.userType === "club") {
+            userInfo = await clubModel.findOne({
+                email: email,
+            })
+        }
+        else {
+            userInfo = await studentModel.findOne({
+                email: email,
+            })
+        }
+        cb(null, userInfo);
+
+    } catch (err) {
+        cb(null, false, { message: 'Google account not found' });
+    }
+}));
+
+exports.oauthSuccess = function (req, res, next) {
+    const userInfo = req.user;
+    const token = jwt.sign({ id: userInfo._id, name: userInfo.name, email: userInfo.email }, req.app.get('secretKey'), { expiresIn: 8640000 });
+    res.send({ token: token });
+}
 
 exports.signin = async function (req, res, next) {
     const { email, password } = req.body;

@@ -1,8 +1,8 @@
 
 
 const postModel = require('../models/post')
-const MongoPaging=require("mongo-cursor-pagination")
-const ObjectId=require("mongodb").ObjectId;
+const MongoPaging = require("mongo-cursor-pagination")
+const ObjectId = require("mongodb").ObjectId;
 
 
 exports.getPostsPage=async(limitNum, nextPage,previousPage,tags,clubs) =>{
@@ -37,6 +37,6 @@ exports.getPostsPage=async(limitNum, nextPage,previousPage,tags,clubs) =>{
        return result;
     } catch(err){
         console.log(err);
-        res.send({message:err.message});
+        res.send({ message: err.message });
     }
 }

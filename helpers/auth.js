@@ -71,9 +71,13 @@ exports.signup = async function (req, res, next) {
             await student.save()
             return res.status(200).send({ auth: true, token: token });
         } catch (e) {
-            if (e.message.includes("duplicate")) {
+            if (e.message.includes("duplicate") && e.message.includes("name")) {
+                return res.status(400).json({ message: "Account with name already exists. Please use another name." })
+            }
+            else if(e.message.includes("duplicate")){
                 return res.status(400).json({ message: "Account with email already exists. Please use another email." })
             }
+            
             return res.status(400).json({ message: e.message });
         }
     }

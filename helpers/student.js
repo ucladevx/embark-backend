@@ -10,11 +10,9 @@ const s3 = new aws.S3();
 const imageFunction = require("../helpers/image");
 const authorize = require("../helpers/authMiddleware");
 
+
 const findAndUpdate = async (decodedEmail, updatedFields) => {
   const student = await studentModel.findOne({ email: decodedEmail });
-  console.log(1)
-  console.log(decodedEmail)
-  console.log(student)
   const result = await studentModel.updateOne({ _id: student._id }, updatedFields);
   returnedStudent = await studentModel.findOne({ email: decodedEmail }); //to get the updated student
   return returnedStudent;
@@ -24,7 +22,6 @@ const findAndUpdate = async (decodedEmail, updatedFields) => {
 exports.editProfile = async function (req, res, next) {
   const { name, major, year, tags, bio, linkedIn } = req.body;
   editableFields = { name, major, year, tags, bio, linkedIn };
-  // const decodedToken = await authorize(req, res, next);
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, req.app.get('secretKey'));
   try {

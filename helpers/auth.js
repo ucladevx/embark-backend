@@ -4,6 +4,52 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20');
+var LinkedInStrategy = require('passport-linkedin-oauth2').Strategy; // help!!! this won't work. it says can't find module!!
+
+passport.use(new LinkedInStrategy({
+    //options 
+    clientID: process.env.LINKEDIN_CLIENT_ID,
+    clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+    passReqToCallback: true,
+    callbackURL: '/auth/linkedin/redirect'
+}, async (req, accessToken, refreshToken, profile, done) => {
+    if (req.body.type === "signin") {
+        const email = profile.emails[0].value; //TODO: Replace after linkedin api is approved
+        try {
+            let user = await findUser(email, false); //TODO: allow club logins
+            if (user) {
+                done(null, user);
+            } else {
+                done(null, false);
+            }
+        } catch (e) {
+            done(e);
+        }
+    } else if (req.body.type === "signup") {
+        const email = profile.emails[0].value; //TODO: Replace after linkedin api is approved
+        const name = profile.name.givenName; //TODO: Replace after linkedin api is approved
+        const password = null;
+
+        if (req.body.userType == "student") {
+            try {
+                student = await createStudent(name, email, password);
+                done(null, student);
+            } catch (e) {
+                done(e);
+            }
+        }
+        else if (req.body.userType == "club") {
+            try {
+                club = await createClub(name, email, password);
+                done(null, club);
+            } catch (e) {
+                done(e);
+            }
+        }
+    } else {
+        done(new Error('request.body.type invalid'));
+    }
+}));
 
 passport.use(new GoogleStrategy({
     //options 
@@ -11,12 +57,50 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     passReqToCallback: true,
     callbackURL: '/auth/google/redirect'
-}, async (req, accessToken, refreshToken, profile, cb) => {
-    const email = profile.emails[0].value;
+}, async (req, accessToken, refreshToken, profile, done) => {
+    if (req.body.type === "signin") {
+        const email = profile.emails[0].value;
+        try {
+            let user = await findUser(email, false); //TODO: allow club logins
+            if (user) {
+                done(null, user);
+            } else {
+                done(null, false);
+            }
 
+        } catch (e) {
+            done(e);
+        }
+    } else if (req.body.type === "signup") {
+        const email = profile.emails[0].value;
+        const name = profile.name.givenName;
+        const password = null;
+
+        if (req.body.userType == "student") {
+            try {
+                student = await createStudent(name, email, password);
+                done(null, student);
+            } catch (e) {
+                done(e);
+            }
+        }
+        else if (req.body.userType == "club") {
+            try {
+                club = await createClub(name, email, password);
+                done(null, club);
+            } catch (e) {
+                done(e);
+            }
+        }
+    } else {
+        done(new Error('request.body.type invalid'));
+    }
+}));
+
+findUser = async function (email, ifClub) {
     try {
         let userInfo;
-        if (req.body.userType === "club") {
+        if (ifClub) {
             userInfo = await clubModel.findOne({
                 email: email,
             })
@@ -26,12 +110,55 @@ passport.use(new GoogleStrategy({
                 email: email,
             })
         }
-        cb(null, userInfo);
-
-    } catch (err) {
-        cb(null, false, { message: 'Google account not found' });
+        return userInfo;
+    } catch (e) {
+        throw e;
     }
-}));
+}
+
+createStudent = async function (name, email, password) {
+    const student = new studentModel({
+        name,
+        email,
+        password,
+        major: "",
+        year: 0000,
+        posts: [],
+        tags: [],
+        savedPosts: [],
+        clubs: [],
+        bio: "",
+        profilePicURL: "",
+        coverPicURL: "",
+        linkedIn: ""
+    });
+    try {
+        await student.save()
+        return student;
+    } catch (e) {
+        throw e;
+    }
+}
+
+createClub = async function (name, email, password) {
+    const club = new clubModel({
+        name,
+        email,
+        password,
+        tags: [],
+        website: "",
+        description: "",
+        profilePicURL: "",
+        coverPicURL: "",
+        savedPosts: []
+    });
+    try {
+        await club.save()
+        return club;
+    } catch (e) {
+        throw e;
+    }
+}
 
 exports.oauthSuccess = function (req, res, next) {
     const userInfo = req.user;
@@ -41,6 +168,11 @@ exports.oauthSuccess = function (req, res, next) {
 
 exports.signin = async function (req, res, next) {
     const { email, password } = req.body;
+    if (password == null || password === "") {
+        return res.status(401).json({
+            message: "Password required"
+        });
+    }
 
     try {
         let userInfo;
@@ -68,14 +200,12 @@ exports.signin = async function (req, res, next) {
     } catch (err) {
         return res.status(401).json({
             message: "Email not found"
-
         });
     }
 
 }
 
-// signup
-// TODO: create jwt, hash password, change fields in studentModel
+//TODO: create jwt, hash password, change fields in studentModel
 exports.signup = async function (req, res, next) {
     const { name, email, password } = req.body;
 
@@ -89,16 +219,16 @@ exports.signup = async function (req, res, next) {
             name,
             email,
             password,
-            major:"",
-            year:0000,
-            posts:[],
-            tags:[],
-            savedPosts:[],
-            clubs:[],
-            bio:"",
-            profilePicURL:"",
-            coverPicURL:"",
-            linkedIn:""
+            major: "",
+            year: 0000,
+            posts: [],
+            tags: [],
+            savedPosts: [],
+            clubs: [],
+            bio: "",
+            profilePicURL: "",
+            coverPicURL: "",
+            linkedIn: ""
         });
         student.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: student._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
@@ -115,12 +245,12 @@ exports.signup = async function (req, res, next) {
             name,
             email,
             password,
-            tags:[],
-            website:"",
-            description:"",
-            profilePicURL:"",
-            coverPicURL:"",
-            savedPosts: [] //is this line necessary? idk why it's on master.
+            tags: [],
+            website: "",
+            description: "",
+            profilePicURL: "",
+            coverPicURL: "",
+            savedPosts: []
         });
         club.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: club._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });

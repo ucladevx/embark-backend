@@ -130,11 +130,12 @@ Put the following fields in the body of the request:
 ### GET /events/discover
 
 Get request: for clubs and students to discover events by tags/clubs followed
+
 Put the following fields in the body of the request:
 
 ```
 {
-    "user": "student" or "club"
+    "userType": "student" or "club"
 }
 ```
 
@@ -149,23 +150,26 @@ Returns:
 ### POST /events/:eventId/attend
 
 Post request: students and clubs can indicate interest in event
+
+Request parameter, eventId: \_id of event to attend
+
 Put the following fields in the body of the request:
 
 ```
 {
-    "user": "student" or "club"
-    "eventId": _id of event to attend
+    "userType": "student" or "club"
 }
 ```
 
 ### POST /events/:eventId/cancel
 
 Post request: students and clubs can cancel attendance for event
+
 Put the following fields in the body of the request:
 
 ```
 {
-    "user": "student" or "club"
+    "userType": "student" or "club"
     "eventId": _id of event to cancel
 }
 ```
@@ -173,11 +177,12 @@ Put the following fields in the body of the request:
 ### GET /events/going
 
 Get request: students and clubs can return list of events they have indicated interest in
+
 Put the following fields in the body of the request:
 
 ```
 {
-    "user": "student" or "club"
+    "userType": "student" or "club"
 
 }
 ```
@@ -193,11 +198,12 @@ Returns:
 ### GET /events/me
 
 Get request: clubs can see all events they have hosted/are hosting
+
 Put the following fields in the body of the request:
 
 ```
 {
-    "user": "student" or "club"
+    "userType": "student" or "club"
 
 }
 ```
@@ -213,10 +219,12 @@ Returns:
 ### POST /events/create
 
 Post request: clubs can create event
+
 Put the following fields in the body of the request:
 
 ```
 {
+    "userType":"club",
     "name": String,
     "date": Date
     "venue": String,

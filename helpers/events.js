@@ -3,9 +3,9 @@ const eventModel = require('../models/event');
 const studentModel = require('../models/student');
 const clubModel = require('../models/club');
 
-async function findUser(req, decodedToken) {
+async function findUser(req, res, decodedToken) {
     let user;
-    if (req.body.usertype === "student") {
+    if (req.body.userType === "student") {
         try {
             user = await studentModel.findOne({ email: decodedToken.email });
         } catch (err) {
@@ -13,7 +13,7 @@ async function findUser(req, decodedToken) {
                 message: err.message
             });
         }
-    } else if (req.body.usertype === "club") {
+    } else if (req.body.userType === "club") {
         try {
             user = await clubModel.findOne({ email: decodedToken.email });
         } catch (err) {
@@ -22,14 +22,23 @@ async function findUser(req, decodedToken) {
             });
         }
     }
+    if (user == null) {
+        res.status(400).json({
+            message: "User not found"
+        })
+        user = -1;
+    }
     return user;
 }
 exports.discoverEvents = async function (req, res, next) {
     const decodedToken = await authorize(req, res, next);
-    let user = await findUser(req, decodedToken);
-
+    let user = await findUser(req, res, decodedToken);
+    if (user == -1) {
+        return;
+    }
     const clubs = user.toObject().clubs;
     const tags = user.toObject().tags;
+
     try {
         let events = await eventModel.find({
             $or: [{ "tags": { $in: tags } }, { "organizerName": { $in: clubs } }]
@@ -46,13 +55,16 @@ exports.discoverEvents = async function (req, res, next) {
 
 exports.attendEvent = async function (req, res, next) {
     const decodedToken = await authorize(req, res, next);
-    let user = await findUser(req, decodedToken);
+    let user = await findUser(req, res, decodedToken);
+    if (user == -1) {
+        return;
+    }
     const eventId = req.params.eventId;
 
     if (req.body.usertype === "student") {
         try {
             await studentModel.updateOne({ _id: user._id }, { $addToSet: { events: [eventId] } });
-            res.status(200);
+            res.status(200).send('Event added!');
         } catch (err) {
             res.status(400).json({
                 message: err.message
@@ -61,7 +73,7 @@ exports.attendEvent = async function (req, res, next) {
     } else if (req.body.usertype === "club") {
         try {
             await clubModel.updateOne({ _id: user._id }, { $addToSet: { events: [eventId] } })
-            res.status(200);
+            res.status(200).send('Event added!');
         } catch (err) {
             res.status(400).json({
                 message: err.message
@@ -72,13 +84,16 @@ exports.attendEvent = async function (req, res, next) {
 
 exports.cancelEvent = async function (req, res, next) {
     const decodedToken = await authorize(req, res, next);
-    let user = await findUser(req, decodedToken);
+    let user = await findUser(req, res, decodedToken);
+    if (user == -1) {
+        return;
+    }
     const eventId = req.params.eventId;
 
     if (req.body.usertype === "student") {
         try {
             await studentModel.updateOne({ _id: user._id }, { $pullAll: { events: [eventId] } });
-            res.status(200);
+            res.status(200).send('Event cancelled!');
         } catch (err) {
             res.status(400).json({
                 message: err.message
@@ -87,7 +102,7 @@ exports.cancelEvent = async function (req, res, next) {
     } else if (req.body.usertype === "club") {
         try {
             await clubModel.updateOne({ _id: user._id }, { $pullAll: { events: [eventId] } });
-            res.status(200);
+            res.status(200).send('Event cancelled!');
         } catch (err) {
             res.status(400).json({
                 message: err.message
@@ -99,31 +114,51 @@ exports.cancelEvent = async function (req, res, next) {
 exports.goingEvents = async function (req, res, next) {
 
     const decodedToken = await authorize(req, res, next);
-    let user = await findUser(req, decodedToken);
-
-    const events = user.toObject().events;
-    res.status(200).json({
-        events: events
-    })
-
+    let user = await findUser(req, res, decodedToken);
+    if (user == -1) {
+        return;
+    }
+    const eventsIds = user.toObject().events;
+    try {
+        let events = await eventModel.find({ _id: { $in: eventsIds } });
+        res.status(200).json({
+            events: events
+        })
+    } catch (err) {
+        res.status(400).json({
+            message: err.message
+        });
+    }
 }
 
 exports.myEvents = async function (req, res, next) {
 
     const decodedToken = await authorize(req, res, next);
-    let user = await findUser(req, decodedToken);
-
-    const events = user.toObject().events;
-    res.status(200).json({
-        events: events
-    })
-
+    let user = await findUser(req, res, decodedToken);
+    if (user == -1) {
+        return;
+    }
+    const eventsHostIds = user.toObject().eventsHost;
+    try {
+        let events = await eventModel.find({ _id: { $in: eventsHostIds } });
+        res.status(200).json({
+            events: events
+        })
+    } catch (err) {
+        res.status(400).json({
+            message: err.message
+        });
+    }
 }
 
 exports.createEvent = async function (req, res, next) {
 
     const decodedToken = await authorize(req, res, next);
-    let user = await findUser(req, decodedToken);
+    let user = await findUser(req, res, decodedToken);
+
+    if (user == -1) {
+        return;
+    }
 
     const {
         name,
@@ -147,8 +182,10 @@ exports.createEvent = async function (req, res, next) {
 
     try {
         await event.save();
-        await clubModel.updateOne({ _id: user._id }, { $addToSet: { events: [event._id] } })
-        res.status(200);
+        await clubModel.updateOne({ _id: user._id }, { $addToSet: { eventsHost: [event._id] } })
+        res.status(200).json({
+            event: event
+        })
     } catch (err) {
         res.status(400).json({
             message: err.message

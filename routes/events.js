@@ -3,7 +3,7 @@ const router = express.Router();
 const { discoverEvents, createEvent, attendEvent, cancelEvent, goingEvents, myEvents } = require("../helpers/events");
 
 //for clubs + students
-router.get('/events/discover', discoverEvents);
+router.get('/discover', discoverEvents);
 router.post('/:eventId/attend', attendEvent);
 router.post('/:eventId/cancel', cancelEvent);
 router.get('/going', goingEvents);

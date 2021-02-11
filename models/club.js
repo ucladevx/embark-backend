@@ -37,6 +37,9 @@ const clubSchema = new mongoose.Schema({
     },
     events: {
         type: [String]
+    },
+    eventsHost: {
+        type: [String]
     }
 })
 

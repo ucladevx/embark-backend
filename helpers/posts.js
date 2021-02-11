@@ -129,9 +129,12 @@ exports.addPostLike = async function (req, res) {
     resMessage = ""
     try{
         let post = await postModel.findById(post_id);
+        likedUsers = await post.get('userLikes');
+
+        console.log(likedUsers.includes(likedUsers));
         // console.log(post.get('authorEmail'))
         // console.log(authorEmail)
-        if(authorEmail != post.get('authorEmail')) {
+        if(likedUsers.includes(likedUsers)) {
             post = await postModel.findByIdAndUpdate(
                 post_id,
                 {$inc: {'likes': 1} }
@@ -139,7 +142,7 @@ exports.addPostLike = async function (req, res) {
             likes = post.get('likes');
             console.log("likes", likes)
             
-            await post.get('userLikes').push("authorEmail")
+            await post.get('userLikes').push(authorEmail)
             
             await post.save()
             resMessage = "incremented post like"

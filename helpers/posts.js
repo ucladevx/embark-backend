@@ -164,6 +164,46 @@ exports.getPostComments = async function (req, res, next) {
         comments
     })
 }
+exports.addPostLike = async function (req, res) {
+    const { authorEmail, post_id } = req.body
+    try{
+        post = await postModel.findByIdAndUpdate(
+            post_id,
+            {$inc: {'likes': 1} }
+        )
+        likes = post.get('likes');
+        console.log("likes", likes)
+    } catch (err) {
+        return res.status(400).json({
+            message: err.message
+        })
+    }
+    try {
+        await post.save()
+    } catch (err) {
+        res.status(400).json({
+            message: err.message
+        })
+    }
+    res.status(201).json({
+        message: "incremented post like",
+        post
+    })
+}
+
+exports.getPostLikes = async function (req, res, next) {
+    const { post_id } = req.body
+    // console.log(post_id);
+    try {
+        let post = await postModel.findById(post_id);
+        likes = post.get('likes');
+        console.log('likes', likes)
+    } catch (err) {
+        return res.status(400).json({
+            message: err.message
+        })
+    }
+}
 
 
 exports.savePost = async function (req, res) {
@@ -222,14 +262,14 @@ exports.getSavedPosts = async function (req, res, next) {
             let user = await clubModel.findOne({email})
             posts = user.get('savedPosts');
             console.log('savedPosts', posts)
+            res.status(200).json({
+                message: "Club Saved Posts successfully queried.",
+                posts
+            }) 
         } catch (err) {
             return res.status(400).json({
                 message: err.message
             })
-        }
-        res.status(200).json({
-            message: "Club Saved Posts successfully queried.",
-            posts
-        })    
+        }   
     }
 }

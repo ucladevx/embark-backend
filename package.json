@@ -10,7 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+<<<<<<< HEAD
     "aws-sdk": "^2.804.0",
+=======
+    "bcrypt": "^5.0.0",
+>>>>>>> 27bd3df3e884d50b53abe45bea5230a4f8a76d50
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

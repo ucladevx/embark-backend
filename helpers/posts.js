@@ -1,4 +1,5 @@
 const postModel = require('../models/post')
+const { getPostsPage } = require("../helpers/postsPagination")
 const studentModel = require('../models/student')
 const jwt = require("jsonwebtoken")
 
@@ -54,11 +55,12 @@ exports.createPosts = async function (req, res, next) {
 
 exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
-    const { tags, clubs } = req.body //change to req.query
-
+    //const { tags, clubs } = req.body //change to req.query
+    const {limit,nextPage,previousPage}=req.query;
+    const {tags,clubs}=req.body;
     // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
     // pass those to the query below
-
+    
     const posts = await postModel.find({
         $or: [{
             tags: {
@@ -70,10 +72,10 @@ exports.getPosts = async function (req, res, next) {
             }
         }]
     })
-
+    const paginatedPosts=await getPostsPage(limit,nextPage,previousPage,tags,clubs);
     res.status(200).json({
         message: "Posts successfully queried.",
-        posts
+        paginatedPosts
     })
 }
 

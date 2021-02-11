@@ -24,6 +24,10 @@ const postSchema = new mongoose.Schema({
     likes : {
         type : Number,  
     },
+    // emails of users who liked the post
+    userLikes : {
+        type: [String]
+    }, 
     comments : [{
         body: String,
         authorEmail: String,

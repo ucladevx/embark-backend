@@ -20,7 +20,7 @@ exports.createPosts = async function (req, res, next) {
         timestamp: new Date(),
         tags,
         authorEmail: email,
-        likes: 0
+        likes: 0,
     })
 
     try {
@@ -85,46 +85,6 @@ exports.getPosts = async function (req, res, next) {
     }
 }
 
-exports.addPostLike = async function (req, res) {
-    const { authorEmail, post_id } = req.body
-    try{
-        let post = await postModel.findByIdAndUpdate(
-            post_id,
-            {$inc: {'likes': 1} }
-        )
-        likes = post.get('likes');
-        console.log("likes", likes)
-
-        await post.save();
-        res.status(201).json({
-            message: "incremented post like",
-            post
-        })
-    } catch (err) {
-        return res.status(400).json({
-            message: err.message
-        })
-    }
-}
-
-exports.getPostLikes = async function (req, res, next) {
-    const { post_id } = req.body
-    // console.log(post_id);
-    try {
-        let post = await postModel.findById(post_id);
-        likes = post.get('likes');
-        console.log('likes', likes)
-    } catch (err) {
-        return res.status(400).json({
-            message: err.message
-        })
-    }
-
-    res.status(200).json({
-        message: "Get post likes",
-        likes
-    })
-}
 exports.addPostComment = async function (req, res) {
     const { authorEmail, post_id, comment } = req.body 
     try{
@@ -178,6 +138,9 @@ exports.addPostLike = async function (req, res) {
             )
             likes = post.get('likes');
             console.log("likes", likes)
+            
+            await post.get('userLikes').push("authorEmail")
+            
             await post.save()
             resMessage = "incremented post like"
         } else {

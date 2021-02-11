@@ -1,14 +1,48 @@
-## Embark Backend
+# Embark Backend
 
 To run:
 * Clone the repository
 * Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.
 
-### /posts
+## auth/signup
+Post Request:
+    Put the following fields in the body of the request:
+```
+{
+    "name":string,
+    "email":unique string,
+    "password": string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
+    userType: "club" or "student"
+}
+```
+Returns (if successful):
+```
+{
+    "auth":true,
+    "token": <token>
+}
+```
+## auth/signin
+Requests to be made with `Authorization` header, in the format `Bearer <token>`.
+Request body:
+```
+{
+    "email":string,
+    "password":string,
+    "userType":"club" OR "student"
+}
+```
+Returns (if successful):
+```
+{
+    token:<token>
+}
+```
+
+## /posts
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
-##### POST /posts
-
+### POST /posts
 ```
 {
     "title": <title>,
@@ -17,8 +51,8 @@ Requests to be made with `Authorization` header, in the format `Bearer <token>`.
     "tags": <tech/law/medicine/etc>,
 }
 ```
-Returns:
 
+Returns:
 ```
 {
     "message": "Post successfully created.",
@@ -32,7 +66,7 @@ Returns:
 ```
 
 
-##### GET /posts
+### GET /posts
 Nothing required in request except Authorization header.
 
 Returns:
@@ -54,42 +88,7 @@ Returns:
     ]
 }
 ```
-### auth/signup
-Post Request:
-    Put the following fields in the body of the request:
-```
-{
-    "name":string,
-    "email":unique string,
-    "password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
-    userType:"club" or "student"
-}
-```
-Returns (if successful):
-```
-{
-    "auth":true,
-    "token": <token>
-}
-```
-# auth/signin
-Requests to be made with `Authorization` header, in the format `Bearer <token>`.
-Request body:
-```
-{
-    "email":string,
-    "password":string,
-    "userType":"club" OR "student"
-}
-```
-Returns (if successful):
-```
-{
-    token:<token>
-}
-```
-
-### /profile
+## /profile
 All requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
 ### GET /student/profile
@@ -115,7 +114,7 @@ Returns:
     }
 ```
 ### Get /club/profile
-In:In: `Authorization` header, in the format `Bearer <token>`
+In: `Authorization` header, in the format `Bearer <token>`
 Returns:
 ```
 "club": {
@@ -131,7 +130,7 @@ Returns:
         "__v": 0
     }
 ```
-##### POST /student/profile
+### POST /student/profile
 Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
@@ -167,7 +166,7 @@ Returns:
         "linkedIn": "",
 }
 ```
-##### POST /club/profile
+### POST /club/profile
 Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
@@ -198,7 +197,7 @@ Returns:
         "__v": 0
     }
 ```
-##### POST /club/profile/image?pictureType= <either profile or cover>
+### POST /club/profile/image?pictureType= <either profile or cover>
 In: `Authorization` header, in the format `Bearer <token>`
 Request body: nothing
 

@@ -1,5 +1,6 @@
 const postModel = require('../models/post')
 const studentModel = require('../models/student')
+const clubModel = require('../models/club')
 const jwt = require("jsonwebtoken")
 const { post } = require('../routes/posts')
 
@@ -56,28 +57,37 @@ exports.createPosts = async function (req, res, next) {
 
 
 exports.getPosts = async function (req, res, next) {
+    console.log("hello");
+
     // for now, accept tags and clubs to filter by
     const { tags, clubs } = req.body //change to req.query
 
     // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
     // pass those to the query below
-    const posts = await postModel.find({
-        $or: [{
-            tags: {
-                $in: tags
-            }
-        }, {
-            authorEmail: {
-                $in: clubs
-            }
-        }]
-    })
+    try {
+        const posts = await postModel.find({
+            $or: [{
+                tags: {
+                    $in: tags
+                }
+            }, {
+                authorEmail: {
+                    $in: clubs
+                }
+            }]
+        })
+    } catch (err) {
+        return res.status(400).json({
+            message: err.message
+        })
+    }
 
     res.status(200).json({
         message: "Posts successfully queried.",
         posts
     })
 }
+
 exports.addPostLike = async function (req, res) {
     const { authorEmail, post_id } = req.body
     try{
@@ -165,38 +175,68 @@ exports.getPostComments = async function (req, res, next) {
 
 exports.savePost = async function (req, res) {
     // add postid to saved posts field for student + club
-    const {email, post_id} = req.body
+    const {email, accountType, post_id} = req.body
 
-    try {
-        let user = await studentModel.findOne({ email })
-        user.savedPosts.push(post_id)
-        await user.save()
-    } catch (err) {
-        return res.status(400).json({
-            message: err.message
+    if(accountType = "student") {
+        try {
+            let user = await studentModel.findOne({ email })
+            user.savedPosts.push(post_id)
+            await user.save()
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+        res.status(201).json({
+            message: "student created saved post",
+        })
+    } else { // get club saved posts
+        try {
+            let user = await clubModel.findOne({ email })
+            user.savedPosts.push(post_id)
+            await user.save()
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+        res.status(201).json({
+            message: "club created saved post",
         })
     }
-
-    res.status(201).json({
-        message: "saved post",
-    })
 }
 
 exports.getSavedPosts = async function (req, res, next) {
     // return array of posts
     const email = req.body.email;
-    try {
-        let user = await studentModel.findOne({ email })
-        posts = user.get('savedPosts');
-        console.log('savedPosts', posts)
-    } catch (err) {
-        return res.status(400).json({
-            message: err.message
+    const accountType = req.body.accountType;
+    if(accountType == "student") {
+        try {
+            let user = await studentModel.findOne({email})
+            posts = user.get('savedPosts');
+            console.log('savedPosts', posts)
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+        res.status(200).json({
+            message: "Student Saved Posts successfully queried.",
+            posts
         })
+    } else {
+        try {
+            let user = await clubModel.findOne({email})
+            posts = user.get('savedPosts');
+            console.log('savedPosts', posts)
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+        res.status(200).json({
+            message: "Club Saved Posts successfully queried.",
+            posts
+        })    
     }
-
-    res.status(200).json({
-        message: "User Saved Posts successfully queried.",
-        posts
-    })
 }

@@ -5,6 +5,7 @@ const passport = require('passport');
 const { signin, signup, oauthSuccess } = require("../helpers/auth");
 const authorize = require("../helpers/authMiddleware");
 
+
 router.post('/linkedin', passport.authenticate('linkedin', {
     scope: ['r_emailaddress', 'r_liteprofile']
 }));

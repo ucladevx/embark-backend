@@ -249,9 +249,12 @@ exports.signup = async function (req, res, next) {
 
         try {
             await student.save()
-            res.status(200).send({ auth: true, token: token });
+            return res.status(200).send({ auth: true, token: token });
         } catch (e) {
-            return res.json({ message: e.message });
+            if (e.message.includes("duplicate")) {
+                return res.status(400).json({ message: "Account with email already exists. Please use another email." })
+            }
+            return res.status(400).json({ message: e.message });
         }
     }
     if (req.body.userType == "club") {
@@ -265,15 +268,19 @@ exports.signup = async function (req, res, next) {
             profilePicURL: "",
             coverPicURL: "",
             savedPosts: []
+
         });
         club.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: club._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
 
         try {
             await club.save()
-            res.status(200).send({ auth: true, token: token });
+            return res.status(200).send({ auth: true, token: token });
         } catch (e) {
-            return res.json({ message: e.message });
+            if (e.message.includes("duplicate")) {
+                return res.status(400).json({ message: "Account with email already exists. Please use another email." })
+            }
+            return res.status(400).json({ message: e.message });
         }
     }
 

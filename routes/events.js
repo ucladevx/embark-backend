@@ -1,8 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { getEvents, createEvent } = require("../helpers/events");
+const { discoverEvents, createEvent, attendEvent, cancelEvent, goingEvents, myEvents } = require("../helpers/events");
 
-router.get('/events', getEvents);
-router.post('/create/event', createEvent);
+//for clubs + students
+router.get('/events/discover', discoverEvents);
+router.post('/:eventId/attend', attendEvent);
+router.post('/:eventId/cancel', cancelEvent);
+router.get('/going', goingEvents);
+
+// for clubs
+router.get('/me', myEvents);
+router.post('/create', createEvent);
 
 module.exports = router;

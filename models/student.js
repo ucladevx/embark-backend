@@ -42,6 +42,9 @@ const studentSchema = new mongoose.Schema({
     },
     linkedIn: {
         type: String
+    },
+    events: {
+        type: [String]
     }
 })
 

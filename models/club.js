@@ -14,22 +14,28 @@ const clubSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    tags:{
-        type:[String]
+    clubs: {
+        type: [String]
     },
-    website:{
-        type:String
+    tags: {
+        type: [String]
     },
-    description:{
-        type:String
+    website: {
+        type: String
     },
-    profilePicURL:{
-        type:String
+    description: {
+        type: String
     },
-    coverPicURL:{
-        type:String
+    profilePicURL: {
+        type: String
+    },
+    coverPicURL: {
+        type: String
     },
     savedPosts: { //again, not sure if necessary. will remove after testing.
+        type: [String]
+    },
+    events: {
         type: [String]
     }
 })

@@ -166,29 +166,33 @@ exports.getPostComments = async function (req, res, next) {
 }
 exports.addPostLike = async function (req, res) {
     const { authorEmail, post_id } = req.body
+    resMessage = ""
     try{
-        post = await postModel.findByIdAndUpdate(
-            post_id,
-            {$inc: {'likes': 1} }
-        )
-        likes = post.get('likes');
-        console.log("likes", likes)
+        let post = await postModel.findById(post_id);
+        // console.log(post.get('authorEmail'))
+        // console.log(authorEmail)
+        if(authorEmail != post.get('authorEmail')) {
+            post = await postModel.findByIdAndUpdate(
+                post_id,
+                {$inc: {'likes': 1} }
+            )
+            likes = post.get('likes');
+            console.log("likes", likes)
+            await post.save()
+            resMessage = "incremented post like"
+        } else {
+            console.log("User already liked.")
+            resMessage = "User already liked."
+        }
+        res.status(201).json({
+            message: resMessage,
+            post
+        })
     } catch (err) {
         return res.status(400).json({
             message: err.message
         })
     }
-    try {
-        await post.save()
-    } catch (err) {
-        res.status(400).json({
-            message: err.message
-        })
-    }
-    res.status(201).json({
-        message: "incremented post like",
-        post
-    })
 }
 
 exports.getPostLikes = async function (req, res, next) {

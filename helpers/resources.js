@@ -2,15 +2,14 @@ const aws = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 const s3 = new aws.S3();
+const fs = require('fs');
 
+//https://stackabuse.com/uploading-files-to-aws-s3-with-node-js/
 
-/*
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+    
       cb(null, true);
-    } else {
-      cb(new Error("Invalid file type, only JPEG and PNG is allowed!"), false);
-    }
+    
   };
 
 module.exports=async(req,res,next) => {
@@ -23,11 +22,11 @@ module.exports=async(req,res,next) => {
             region: "us-west-2", 
           });
           const upload = await multer({
-            fileFilter,
+           
             storage: multerS3({
               acl: "public-read",
               s3,
-              bucket: "profile-pictures-embark",
+              bucket: "club-resources-embark",
               metadata: function (req, file, cb) {
                 cb(null, { fieldName: "TESTING_METADATA" });
               },
@@ -36,27 +35,32 @@ module.exports=async(req,res,next) => {
               },
             }),
           });
+          var options = { partSize: 5 * 1024 * 1024, queueSize: 10 };  
+
+          const multipleUpload = await upload.array("file",options);
     
-          const singleUpload = await upload.single("image");
-    
-          singleUpload(req, res, function (err) {
+          multipleUpload(req, res, function (err) {
             if (err) {
               return res.json({
                 success: false,
                 errors: {
-                  title: "Image Upload Error",
+                  title: "File Upload Error",
                   detail: err.message,
                   error: err,
                 },
               });
             }
             else{
-                let fileLocation="";
-                if(req.file!=undefined){
-                  fileLocation=req.file.location;
+                let fileLocation=[];
+               // console.log(req.files);
+                if(req.files!=undefined){
+                    for (upFile of req.files){
+                        fileLocation.push(upFile.location);
+                    }
                 }
                 resolve(fileLocation);
-                return fileLocation;
+                //console.log("hello");
+                res.send({"uploadedResources":fileLocation});
                 
             }
         });
@@ -65,4 +69,3 @@ module.exports=async(req,res,next) => {
     
 
 }
-*/

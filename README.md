@@ -113,7 +113,7 @@ Returns:
         "__v": 0
     }
 ```
-### Get /club/profile
+### GET /club/profile
 In: `Authorization` header, in the format `Bearer <token>`
 Returns:
 ```
@@ -237,4 +237,172 @@ Returns (updates either profile picture or cover picture depending on what you q
         "coverPicURL": "",
         "linkedIn": ""
     }
+```
+
+## Likes
+### GET /post/likes
+In: Authorization header, in the format Bearer <token> 
+Request Body:
+```
+{
+    authorEmail: "",
+    post_id: ""
+}
+```
+
+Returns:
+```
+{
+    post_id: ""
+    likes: 1
+}
+```
+### POST /post/likes
+In: Authorization header, in the format Bearer <token> 
+Request Body: 
+```
+{
+    post_id: "",
+    authorEmail: ""
+}
+```
+Returns:
+```
+{
+    "message": "incremented post like",
+    "post": {
+        "tags": [
+            ""
+        ],
+        "_id": "",
+        "title": "",
+        "body": "",
+        "timestamp": "",
+        "authorEmail": "",
+        "likes": ,
+        "comments": "",
+        "__v": ""
+    }
+}
+```
+
+## /post/likes
+### GET /post/likes
+In: Authorization header, in the format Bearer <token> 
+Request Body: 
+```
+{
+    post_id: ""
+}
+```
+Returns:
+```
+{
+    "message": "Get post comments",
+    "comments": [
+        {
+            "_id": "",
+            "authorEmail": "",
+            "body": "",
+            "date": ""
+        }
+    ]
+}
+```
+## /post/comments
+
+### GET /post/comments
+In: Authorization header, in the format Bearer <token> 
+Request Body: 
+```
+{
+    post_id: ""
+}
+```
+Returns: 
+```
+    "message": "Get post comments",
+    "comments": [
+        {
+            "_id": "",
+            "authorEmail": "",
+            "body": "",
+            "date": ""
+        }
+    ]
+```
+
+### POST /post/comments
+In: Authorization header, in the format Bearer <token> 
+Request Body: 
+```
+{
+    authorEmail: "",
+    post_id: "",
+    comment: ""
+}
+```
+Returns: 
+```
+    "comments": [
+        {
+            "_id": "",
+            "authorEmail": "",
+            "body": "",
+            "date": ""
+        }
+    ]
+```
+
+## /post/saved
+### GET /post/saved
+In: Authorization header, in the format Bearer <token> 
+Request Body: 
+```
+{
+    email: ""
+    accountType: ""
+}
+```
+Returns: an array of posts IDs
+```
+{
+    "message": "Student Saved Posts successfully queried.",
+    "posts": [
+        ""
+    ]
+}
+```
+or
+```
+{
+    "message": "Club Saved Posts successfully queried.",
+    "posts": [
+        ""
+    ]
+}
+```
+
+### POST /post/saved
+In: Authorization header, in the format Bearer <token> 
+Request Body:
+```
+{
+    post_id: "",
+    email: "",
+    accountType: ""
+}
+```
+
+Returns:
+```
+{
+    "message": "student created saved post"
+}
+```
+or 
+```
+{
+    "message": "club created saved post"
+}
 ```

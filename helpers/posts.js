@@ -57,8 +57,6 @@ exports.createPosts = async function (req, res, next) {
 
 
 exports.getPosts = async function (req, res, next) {
-    console.log("hello");
-
     // for now, accept tags and clubs to filter by
     const { tags, clubs } = req.body //change to req.query
 
@@ -76,43 +74,37 @@ exports.getPosts = async function (req, res, next) {
                 }
             }]
         })
+        res.status(200).json({
+            message: "Posts successfully queried.",
+            posts
+        })
     } catch (err) {
         return res.status(400).json({
             message: err.message
         })
     }
-
-    res.status(200).json({
-        message: "Posts successfully queried.",
-        posts
-    })
 }
 
 exports.addPostLike = async function (req, res) {
     const { authorEmail, post_id } = req.body
     try{
-        post = await postModel.findByIdAndUpdate(
+        let post = await postModel.findByIdAndUpdate(
             post_id,
             {$inc: {'likes': 1} }
         )
         likes = post.get('likes');
         console.log("likes", likes)
+
+        await post.save();
+        res.status(201).json({
+            message: "incremented post like",
+            post
+        })
     } catch (err) {
         return res.status(400).json({
             message: err.message
         })
     }
-    try {
-        await post.save()
-    } catch (err) {
-        res.status(400).json({
-            message: err.message
-        })
-    }
-    res.status(201).json({
-        message: "incremented post like",
-        post
-    })
 }
 
 exports.getPostLikes = async function (req, res, next) {
@@ -143,15 +135,16 @@ exports.addPostComment = async function (req, res) {
             date: new Date(),
         })
         await post.save()
+        comments = post.get('comments');
+        res.status(201).json({
+            message: "Added Comments",
+            comments
+        })
     } catch (err) {
         return res.status(400).json({
             message: err.message
         })
     }
-
-    res.status(201).json({
-        message: "Add Comments",
-    })
 }
 
 exports.getPostComments = async function (req, res, next) {
@@ -177,19 +170,19 @@ exports.savePost = async function (req, res) {
     // add postid to saved posts field for student + club
     const {email, accountType, post_id} = req.body
 
-    if(accountType = "student") {
+    if(accountType == "student") {
         try {
             let user = await studentModel.findOne({ email })
             user.savedPosts.push(post_id)
             await user.save()
+            res.status(201).json({
+                message: "student created saved post",
+            })
         } catch (err) {
             return res.status(400).json({
                 message: err.message
             })
         }
-        res.status(201).json({
-            message: "student created saved post",
-        })
     } else { // get club saved posts
         try {
             let user = await clubModel.findOne({ email })

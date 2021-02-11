@@ -1,4 +1,4 @@
-const studentModel = require('../models/student')
+const studentModel = require('../models/student');
 const jwt = require("jsonwebtoken");
 const ObjectID = require('mongodb').ObjectID;
 
@@ -67,6 +67,3 @@ exports.image = async function (req, res, next) {
     return res.json({ message: err.message });
   }
 }
-
-
-

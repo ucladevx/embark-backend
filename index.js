@@ -18,12 +18,14 @@ const authRoutes = require("./routes/auth")
 const postRoutes = require("./routes/posts")
 const studentRoutes = require("./routes/student")
 const clubRoutes = require("./routes/club")
+const eventRoutes = require("./routes/events")
 
 // route them accordingly eg. app.use("/profile", profileRoutes)
 app.use('/auth', authRoutes)
 app.use('/posts', postRoutes)
 app.use('/student', studentRoutes)
 app.use('/club', clubRoutes)
+app.use('/events', eventRoutes)
 
 app.get('/health', (req, res) => {
     res.status(200).send({

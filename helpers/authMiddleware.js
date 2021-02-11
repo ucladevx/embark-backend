@@ -5,10 +5,14 @@ module.exports = (req, res, next) => {
     try {
         const token = req.headers.authorization.split(" ")[1];
         const decodedToken = jwt.verify(token, req.app.get('secretKey'));
-        next();
+
+        next()
     }
-    catch (error) {
-        return res.status(401).json({
+    catch(error){
+        if(error.message.includes("split")){
+            return res.status(401).json({message:"Authorization header was not included"});
+        }
+        res.status(401).json({
             message: error.message
         });
     }

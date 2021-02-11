@@ -12,7 +12,6 @@ const studentSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
     },
     major: {
         type: String,
@@ -32,17 +31,17 @@ const studentSchema = new mongoose.Schema({
     clubs: {
         type: [String]
     },
-    bio:{
-        type:String
+    bio: {
+        type: String
     },
-    profilePicURL:{
-        type:String
+    profilePicURL: {
+        type: String
     },
-    coverPicURL:{
-        type:String
+    coverPicURL: {
+        type: String
     },
-    linkedIn:{
-        type:String
+    linkedIn: {
+        type: String
     }
 })
 

@@ -6,5 +6,4 @@ router.post("/profile", editProfile)
 router.get("/profile", profile)
 
 router.post("/profile/image", image)
-// router.get("/profile/image")
 module.exports = router;

@@ -4,64 +4,26 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20');
-var LinkedInStrategy = require('passport-linkedin-oauth2').Strategy; // help!!! this won't work. it says can't find module!!
+const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 
 passport.use(new LinkedInStrategy({
-    //options 
+    //options
     clientID: process.env.LINKEDIN_CLIENT_ID,
     clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
     passReqToCallback: true,
-    callbackURL: '/auth/linkedin/redirect'
+    callbackURL: '/auth/linkedin/redirect',
+    scope: ['r_emailaddress', 'r_liteprofile']
 }, async (req, accessToken, refreshToken, profile, done) => {
-    if (req.body.type === "signin") {
-        const email = profile.emails[0].value; //TODO: Replace after linkedin api is approved
-        try {
-            let user = await findUser(email, false); //TODO: allow club logins
-            if (user) {
-                done(null, user);
-            } else {
-                done(null, false);
-            }
-        } catch (e) {
-            done(e);
-        }
-    } else if (req.body.type === "signup") {
-        const email = profile.emails[0].value; //TODO: Replace after linkedin api is approved
-        const name = profile.name.givenName; //TODO: Replace after linkedin api is approved
-        const password = null;
 
-        if (req.body.userType == "student") {
-            try {
-                student = await createStudent(name, email, password);
-                done(null, student);
-            } catch (e) {
-                done(e);
-            }
-        }
-        else if (req.body.userType == "club") {
-            try {
-                club = await createClub(name, email, password);
-                done(null, club);
-            } catch (e) {
-                done(e);
-            }
-        }
-    } else {
-        done(new Error('request.body.type invalid'));
-    }
-}));
-
-passport.use(new GoogleStrategy({
-    //options 
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    passReqToCallback: true,
-    callbackURL: '/auth/google/redirect'
-}, async (req, accessToken, refreshToken, profile, done) => {
     if (req.body.type === "signin") {
         const email = profile.emails[0].value;
         try {
-            let user = await findUser(email, false); //TODO: allow club logins
+            let user;
+            if (req.body.user === "student")
+                user = await findUser(email, "student");
+            else if (req.body.user === "club")
+                user = await findClub(email, "club");
+
             if (user) {
                 done(null, user);
             } else {
@@ -97,15 +59,67 @@ passport.use(new GoogleStrategy({
     }
 }));
 
-findUser = async function (email, ifClub) {
+passport.use(new GoogleStrategy({
+    //options 
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    passReqToCallback: true,
+    callbackURL: '/auth/google/redirect'
+}, async (req, accessToken, refreshToken, profile, done) => {
+    if (req.body.type === "signin") {
+
+        const email = profile.emails[0].value;
+        try {
+            let user;
+            if (req.body.user === "student")
+                user = await findUser(email, "student");
+            else if (req.body.user === "club")
+                user = await findClub(email, "club");
+
+            if (user) {
+                done(null, user);
+            } else {
+                done(null, false);
+            }
+
+        } catch (e) {
+            done(e);
+        }
+    } else if (req.body.type === "signup") {
+        const email = profile.emails[0].value;
+        const name = profile.name.givenName;
+        const password = null;
+
+        if (req.body.userType == "student") {
+            try {
+                student = await createStudent(name, email, password);
+                done(null, student);
+            } catch (e) {
+                done(e);
+            }
+        }
+        else if (req.body.userType == "club") {
+            try {
+                club = await createClub(name, email, password);
+                done(null, club);
+            } catch (e) {
+                done(e);
+            }
+        }
+    } else {
+        done(new Error('request.body.type invalid'));
+    }
+}));
+
+findUser = async function (email, type) {
     try {
         let userInfo;
-        if (ifClub) {
+        if (type === "club") {
             userInfo = await clubModel.findOne({
                 email: email,
             })
         }
-        else {
+        else if (type === "student") {
             userInfo = await studentModel.findOne({
                 email: email,
             })

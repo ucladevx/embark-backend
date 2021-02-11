@@ -1,10 +1,12 @@
 ## Embark Backend
 
 To run:
-* Clone the repository
-* Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.
+
+- Clone the repository
+- Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.
 
 ### /posts
+
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
 ##### POST /posts
@@ -17,6 +19,7 @@ Requests to be made with `Authorization` header, in the format `Bearer <token>`.
     "tags": <tech/law/medicine/etc>,
 }
 ```
+
 Returns:
 
 ```
@@ -31,11 +34,12 @@ Returns:
 }
 ```
 
-
 ##### GET /posts
+
 Nothing required in request except Authorization header.
 
 Returns:
+
 ```
 {
     "message": "Posts successfully queried.",
@@ -49,30 +53,36 @@ Returns:
             "authorEmail": <email>,
             "__v": <v>
         },
-        ... 
+        ...
         // array of such posts
     ]
 }
 ```
+
 ### auth/signup
+
 Post Request:
-    Put the following fields in the body of the request:
-    {
-        "name":string,
-        "email":unique string,
-        "password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
-        userType:"club" or "student"
-    }
+Put the following fields in the body of the request:
+{
+"name":string,
+"email":unique string,
+"password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
+userType:"club" or "student"
+}
 Returns (if successful):
+
 ```
 {
     "auth":true,
     "token": <token>
 }
 ```
+
 # auth/signin
+
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 Request body:
+
 ```
 {
     "email":string,
@@ -80,19 +90,33 @@ Request body:
     "userType":"club" OR "student"
 }
 ```
+
 Returns (if successful):
+
 ```
 {
     token:<token>
 }
 ```
 
+# auth/google
+
+Post request:
+Put the following fields in the body of the request:
+{
+"type": "signin" or "signup"
+"user": "student" or "club"
+}
+
 ### /profile
+
 All requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
 ### GET /student/profile
+
 In: `Authorization` header, in the format `Bearer <token>`
 Returns:
+
 ```
  "student": {
         "posts": [],
@@ -112,9 +136,12 @@ Returns:
         "__v": 0
     }
 ```
+
 ### Get /club/profile
+
 In:In: `Authorization` header, in the format `Bearer <token>`
 Returns:
+
 ```
 "club": {
         "tags": [],
@@ -129,11 +156,14 @@ Returns:
         "__v": 0
     }
 ```
+
 ##### POST /student/profile
+
 Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
-Request Body (all fields are optional): 
+Request Body (all fields are optional):
+
 ```
 {
     "name": <name>,
@@ -145,7 +175,9 @@ Request Body (all fields are optional):
     "linkedIn":<linkedIn>
 }
 ```
+
 Returns:
+
 ```
 "returnedStudent":
 {
@@ -165,11 +197,14 @@ Returns:
         "linkedIn": "",
 }
 ```
+
 ##### POST /club/profile
+
 Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
-Request Body (all fields are optional): 
+Request Body (all fields are optional):
+
 ```
 {
     "name": <name>,
@@ -181,7 +216,9 @@ Request Body (all fields are optional):
     "linkedIn":<linkedIn>
 }
 ```
+
 Returns:
+
 ```
  "returnedClub": {
         "tags": [],
@@ -196,11 +233,14 @@ Returns:
         "__v": 0
     }
 ```
+
 ##### POST /club/profile/image?pictureType= <either profile or cover>
+
 In: `Authorization` header, in the format `Bearer <token>`
 Request body: nothing
 
 Returns (updates either profile picture or cover picture depending on what you query):
+
 ```
 "returnedClub": {
         "tags": [],
@@ -214,11 +254,14 @@ Returns (updates either profile picture or cover picture depending on what you q
         "coverPicURL": ""
     }
 ```
+
 ##### POST /student/profile/image?pictureType= <either profile or cover>
+
 In: `Authorization` header, in the format `Bearer <token>`
 Request body: nothing
 
 Returns (updates either profile picture or cover picture depending on what you query):
+
 ```
  "returnedStudent": {
         "posts": [],

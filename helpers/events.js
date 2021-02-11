@@ -51,7 +51,8 @@ exports.attendEvent = async function (req, res, next) {
 
     if (req.body.usertype === "student") {
         try {
-            await studentModel.updateOne({ _id: user._id }, { $addToSet: { events: [eventId] } })
+            await studentModel.updateOne({ _id: user._id }, { $addToSet: { events: [eventId] } });
+            res.status(200);
         } catch (err) {
             res.status(400).json({
                 message: err.message
@@ -60,6 +61,7 @@ exports.attendEvent = async function (req, res, next) {
     } else if (req.body.usertype === "club") {
         try {
             await clubModel.updateOne({ _id: user._id }, { $addToSet: { events: [eventId] } })
+            res.status(200);
         } catch (err) {
             res.status(400).json({
                 message: err.message
@@ -75,7 +77,8 @@ exports.cancelEvent = async function (req, res, next) {
 
     if (req.body.usertype === "student") {
         try {
-            await studentModel.updateOne({ _id: user._id }, { $pullAll: { events: [eventId] } })
+            await studentModel.updateOne({ _id: user._id }, { $pullAll: { events: [eventId] } });
+            res.status(200);
         } catch (err) {
             res.status(400).json({
                 message: err.message
@@ -83,7 +86,8 @@ exports.cancelEvent = async function (req, res, next) {
         }
     } else if (req.body.usertype === "club") {
         try {
-            await clubModel.updateOne({ _id: user._id }, { $pullAll: { events: [eventId] } })
+            await clubModel.updateOne({ _id: user._id }, { $pullAll: { events: [eventId] } });
+            res.status(200);
         } catch (err) {
             res.status(400).json({
                 message: err.message
@@ -107,17 +111,9 @@ exports.goingEvents = async function (req, res, next) {
 exports.myEvents = async function (req, res, next) {
 
     const decodedToken = await authorize(req, res, next);
+    let user = await findUser(req, decodedToken);
 
-    let club;
-    try {
-        club = await clubModel.findOne({ email: decodedToken.email });
-    } catch (err) {
-        res.status(400).json({
-            message: err.message
-        });
-    }
-
-    const events = club.toObject().events;
+    const events = user.toObject().events;
     res.status(200).json({
         events: events
     })
@@ -135,7 +131,6 @@ exports.createEvent = async function (req, res, next) {
         venue,
         organizerName,
         organizerEmail,
-        attend,
         tags,
         desc,
     } = req.body;
@@ -146,7 +141,6 @@ exports.createEvent = async function (req, res, next) {
         venue,
         organizerName,
         organizerEmail,
-        attend,
         tags,
         desc,
     });
@@ -154,6 +148,7 @@ exports.createEvent = async function (req, res, next) {
     try {
         await event.save();
         await clubModel.updateOne({ _id: user._id }, { $addToSet: { events: [event._id] } })
+        res.status(200);
     } catch (err) {
         res.status(400).json({
             message: err.message

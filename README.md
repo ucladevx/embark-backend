@@ -1,4 +1,4 @@
-## Embark Backend
+# Embark Backend
 
 To run:
 
@@ -59,6 +59,8 @@ Returns:
 }
 ```
 
+## Authorization
+
 ### auth/signup
 
 Post Request:
@@ -78,7 +80,7 @@ Returns (if successful):
 }
 ```
 
-# auth/signin
+### auth/signin
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 Request body:
@@ -99,16 +101,141 @@ Returns (if successful):
 }
 ```
 
-# auth/google
+### auth/google
 
 Post request:
 Put the following fields in the body of the request:
+
+```
 {
 "type": "signin" or "signup"
 "user": "student" or "club"
 }
+```
 
-### /profile
+### auth/linkedin
+
+Post request:
+Put the following fields in the body of the request:
+
+```
+{
+"type": "signin" or "signup"
+"user": "student" or "club"
+}
+```
+
+## Events
+
+### GET /events/discover
+
+Get request: for clubs and students to discover events by tags/clubs followed
+Put the following fields in the body of the request:
+
+```
+{
+    "user": "student" or "club"
+}
+```
+
+Returns:
+
+```
+{
+    events: [events]
+}
+```
+
+### POST /events/:eventId/attend
+
+Post request: students and clubs can indicate interest in event
+Put the following fields in the body of the request:
+
+```
+{
+    "user": "student" or "club"
+    "eventId": _id of event to attend
+}
+```
+
+### POST /events/:eventId/cancel
+
+Post request: students and clubs can cancel attendance for event
+Put the following fields in the body of the request:
+
+```
+{
+    "user": "student" or "club"
+    "eventId": _id of event to cancel
+}
+```
+
+### GET /events/going
+
+Get request: students and clubs can return list of events they have indicated interest in
+Put the following fields in the body of the request:
+
+```
+{
+    "user": "student" or "club"
+
+}
+```
+
+Returns:
+
+```
+{
+    events: [events]
+}
+```
+
+### GET /events/me
+
+Get request: clubs can see all events they have hosted/are hosting
+Put the following fields in the body of the request:
+
+```
+{
+    "user": "student" or "club"
+
+}
+```
+
+Returns:
+
+```
+{
+    events: [events]
+}
+```
+
+### POST /events/create
+
+Post request: clubs can create event
+Put the following fields in the body of the request:
+
+```
+{
+    "name": String,
+    "date": Date
+    "venue": String,
+    "organizerName": String,
+    "organizerEmail": String,
+    "tags": [String],
+    "desc": String
+}
+```
+
+Returns:
+
+```
+{
+    events: [events]
+}
+```
+
+## /profile
 
 All requests to be made with `Authorization` header, in the format `Bearer <token>`.
 

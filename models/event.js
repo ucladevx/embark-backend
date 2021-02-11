@@ -21,10 +21,6 @@ const eventSchema = new mongoose.Schema({
         type: String,
         //required: true
     },
-    attend: {
-        type: Boolean,
-        //required: true
-    },
     tags: {
         type: [String]
     },

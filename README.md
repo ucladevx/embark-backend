@@ -5,11 +5,55 @@ To run:
 - Clone the repository
 - Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.
 
-### /posts
+## auth/signup
+
+Post Request:
+Put the following fields in the body of the request:
+
+```
+{
+    "name":string,
+    "email":unique string,
+    "password": string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
+    userType: "club" or "student"
+}
+```
+
+Returns (if successful):
+
+```
+{
+    "auth":true,
+    "token": <token>
+}
+```
+
+## auth/signin
+
+Requests to be made with `Authorization` header, in the format `Bearer <token>`.
+Request body:
+
+```
+{
+    "email":string,
+    "password":string,
+    "userType":"club" OR "student"
+}
+```
+
+Returns (if successful):
+
+```
+{
+    token:<token>
+}
+```
+
+## /posts
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
-##### POST /posts
+### POST /posts
 
 ```
 {
@@ -34,7 +78,7 @@ Returns:
 }
 ```
 
-##### GET /posts
+### GET /posts
 
 Nothing required in request except Authorization header.
 
@@ -272,9 +316,10 @@ Returns:
     }
 ```
 
-### Get /club/profile
+### GET /club/profile
 
-In:In: `Authorization` header, in the format `Bearer <token>`
+In: `Authorization` header, in the format `Bearer <token>`
+
 Returns:
 
 ```
@@ -292,7 +337,7 @@ Returns:
     }
 ```
 
-##### POST /student/profile
+### POST /student/profile
 
 Edit Student profile
 
@@ -333,7 +378,7 @@ Returns:
 }
 ```
 
-##### POST /club/profile
+### POST /club/profile
 
 Edit Student profile
 
@@ -369,7 +414,7 @@ Returns:
     }
 ```
 
-##### POST /club/profile/image?pictureType= <either profile or cover>
+### POST /club/profile/image?pictureType= <either profile or cover>
 
 In: `Authorization` header, in the format `Bearer <token>`
 Request body: nothing
@@ -414,4 +459,207 @@ Returns (updates either profile picture or cover picture depending on what you q
         "coverPicURL": "",
         "linkedIn": ""
     }
+```
+
+## Likes
+
+### GET /post/likes
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
+```
+{
+    authorEmail: "",
+    post_id: ""
+}
+```
+
+Returns:
+
+```
+{
+    post_id: ""
+    likes: 1
+}
+```
+
+### POST /post/likes
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
+```
+{
+    post_id: "",
+    authorEmail: ""
+}
+```
+
+Returns:
+
+```
+{
+    "message": "incremented post like",
+    "post": {
+        "tags": [
+            ""
+        ],
+        "_id": "",
+        "title": "",
+        "body": "",
+        "timestamp": "",
+        "authorEmail": "",
+        "likes": ,
+        "comments": "",
+        "__v": ""
+    }
+}
+```
+
+## /post/likes
+
+### GET /post/likes
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
+```
+{
+    post_id: ""
+}
+```
+
+Returns:
+
+```
+{
+    "message": "Get post comments",
+    "comments": [
+        {
+            "_id": "",
+            "authorEmail": "",
+            "body": "",
+            "date": ""
+        }
+    ]
+}
+```
+
+## /post/comments
+
+### GET /post/comments
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
+```
+{
+    post_id: ""
+}
+```
+
+Returns:
+
+```
+    "message": "Get post comments",
+    "comments": [
+        {
+            "_id": "",
+            "authorEmail": "",
+            "body": "",
+            "date": ""
+        }
+    ]
+```
+
+### POST /post/comments
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
+```
+{
+    authorEmail: "",
+    post_id: "",
+    comment: ""
+}
+```
+
+Returns:
+
+```
+    "comments": [
+        {
+            "_id": "",
+            "authorEmail": "",
+            "body": "",
+            "date": ""
+        }
+    ]
+```
+
+## /post/saved
+
+### GET /post/saved
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
+```
+{
+    email: ""
+    accountType: ""
+}
+```
+
+Returns: an array of posts IDs
+
+```
+{
+    "message": "Student Saved Posts successfully queried.",
+    "posts": [
+        ""
+    ]
+}
+```
+
+or
+
+```
+{
+    "message": "Club Saved Posts successfully queried.",
+    "posts": [
+        ""
+    ]
+}
+```
+
+### POST /post/saved
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
+```
+{
+    post_id: "",
+    email: "",
+    accountType: ""
+}
+```
+
+Returns:
+
+```
+{
+    "message": "student created saved post"
+}
+```
+
+or
+
+```
+{
+    "message": "club created saved post"
+}
 ```

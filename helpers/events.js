@@ -32,7 +32,7 @@ async function findUser(req, res, email) {
   return user;
 }
 exports.discoverEvents = async function (req, res, next) {
-  let email = decodeToken(req);
+  let { email } = decodeToken(req);
   let user = await findUser(req, res, email);
   if (user == -1) {
     return;
@@ -55,7 +55,7 @@ exports.discoverEvents = async function (req, res, next) {
 };
 
 exports.attendEvent = async function (req, res, next) {
-  let email = decodeToken(req);
+  let { email } = decodeToken(req);
   let user = await findUser(req, res, email);
   if (user == -1) {
     return;
@@ -90,7 +90,7 @@ exports.attendEvent = async function (req, res, next) {
 };
 
 exports.cancelEvent = async function (req, res, next) {
-  let email = decodeToken(req);
+  let { email } = decodeToken(req);
   let user = await findUser(req, res, email);
   if (user == -1) {
     return;
@@ -125,7 +125,7 @@ exports.cancelEvent = async function (req, res, next) {
 };
 
 exports.goingEvents = async function (req, res, next) {
-  let email = decodeToken(req);
+  let { email } = decodeToken(req);
   let user = await findUser(req, res, email);
   if (user == -1) {
     return;
@@ -144,7 +144,7 @@ exports.goingEvents = async function (req, res, next) {
 };
 
 exports.myEvents = async function (req, res, next) {
-  let email = decodeToken(req);
+  let { email } = decodeToken(req);
   let user = await findUser(req, res, email);
   if (user == -1) {
     return;
@@ -163,7 +163,7 @@ exports.myEvents = async function (req, res, next) {
 };
 
 exports.createEvent = async function (req, res, next) {
-  let email = decodeToken(req);
+  let { email } = decodeToken(req);
   let user = await findUser(req, res, email);
 
   if (user == -1) {

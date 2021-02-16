@@ -1,7 +1,9 @@
 const clubModel = require('../models/club')
+const studentModel = require('../models/student');
 const jwt = require("jsonwebtoken");
 const imageFunction = require("../helpers/image");
 const authorize = require("../helpers/authMiddleware");
+const MongoPaging = require("mongo-cursor-pagination")
 
 const findAndUpdate = async (decodedEmail, updatedFields) => {
   const club = await clubModel.findOne({ email: decodedEmail });
@@ -63,4 +65,48 @@ exports.image = async function (req, res, next) {
   catch (err) {
     return res.json({ "message": "ID not found (it is likely the token is incorrect)" });
   }
+}
+
+exports.discover = async function (req, res, next) {
+  const decodedToken = await authorize(req, res, next);
+  let user;
+  try {
+    user = await studentModel.findOne({ emai: decodedToken.email });
+  } catch (err) {
+    res.status(400).json({
+      message: err.message
+    })
+  }
+  const limit = req.query || 10;
+  const page = req.query || 1;
+
+  let tags = user.toObject().tags;
+  let clubs = user.toObject().clubs;
+  try {
+    const result = await MongoPaging.find(clubModel.collection,
+      {
+        query: {
+          $and: [{
+            tags: {
+              $in: tags
+            }
+          }, {
+            name: { $nin: clubs }
+          }
+          ]
+        },
+        paginatedField: "_id",
+        limit: parseInt(limit),
+        next: req.query.next,
+        previous: req.query.previous
+      });
+    res.status(200).json({
+      result: result
+    })
+  } catch (err) {
+    res.status(400).json({
+      message: err.message
+    });
+  }
+
 }

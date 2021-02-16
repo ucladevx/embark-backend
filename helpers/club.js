@@ -2,7 +2,7 @@ const clubModel = require('../models/club')
 const studentModel = require('../models/student');
 const jwt = require("jsonwebtoken");
 const imageFunction = require("../helpers/image");
-const authorize = require("../helpers/authMiddleware");
+const { decodeToken } = require("../helpers/utils");
 const MongoPaging = require("mongo-cursor-pagination")
 
 const findAndUpdate = async (decodedEmail, updatedFields) => {
@@ -67,18 +67,17 @@ exports.image = async function (req, res, next) {
   }
 }
 
-exports.discover = async function (req, res, next) {
-  const decodedToken = await authorize(req, res, next);
+exports.discover = async function (req, res) {
+  let email = decodeToken(req);
   let user;
   try {
-    user = await studentModel.findOne({ emai: decodedToken.email });
+    user = await studentModel.findOne({ email: email });
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       message: err.message
     })
   }
-  const limit = req.query || 10;
-  const page = req.query || 1;
+  const { limit, next, previous } = req.query
 
   let tags = user.toObject().tags;
   let clubs = user.toObject().clubs;
@@ -97,8 +96,8 @@ exports.discover = async function (req, res, next) {
         },
         paginatedField: "_id",
         limit: parseInt(limit),
-        next: req.query.next,
-        previous: req.query.previous
+        next: next,
+        previous: previous
       });
     res.status(200).json({
       result: result
@@ -108,5 +107,4 @@ exports.discover = async function (req, res, next) {
       message: err.message
     });
   }
-
 }

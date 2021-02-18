@@ -1,4 +1,6 @@
 const studentModel = require('../models/student')
+const clubModel = require('../models/club')
+
 const jwt = require("jsonwebtoken");
 const ObjectID = require('mongodb').ObjectID;
 
@@ -103,5 +105,46 @@ exports.image = async function (req, res, next) {
   }
 }
 
+// POST
+// request body: userEmail, clubEmail (to follow)
+// 
+exports.followClub = async function (req, res, next) {
+  const {userEmail, clubEmail} = req.body;
+  try {
+    // const followedClub 
+    let user = await studentModel.findOne({userEmail})
+    user.savedPosts.push(clubEmail)
+    user.save()
+    res.status(201).json({
+      message: "Successfully followed club",
+      followedClubs
+    })
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    })
+  }
+}
 
+// GET
+// request body: userEmail
+// returns: list of followed clubs
+exports.getFollowedClub = async function (req, res) {
+  const {userEmail} = req.body;
+  try {
+    const user = clubModel.findOne({
+      authorEmail: userEmail
+    })
+    let followedClubs = user.get('followedClubs')
+    console.log('followedClubs', followedClubs)
 
+    res.status(200).json({
+      message: "Get student's followed clubs",
+      followedClubs
+    })
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    })
+  }
+}

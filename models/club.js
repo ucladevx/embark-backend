@@ -31,6 +31,9 @@ const clubSchema = new mongoose.Schema({
     },
     savedPosts: { //again, not sure if necessary. will remove after testing.
         type: [String]
+    },
+    followedClubs : {
+        
     }
 })
 

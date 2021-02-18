@@ -66,17 +66,27 @@ exports.image = async function (req, res, next) {
 }
 
 // POST
-// request body: userEmail, clubEmail (to follow)
-// 
+// request body: userEmail, clubEmail (to follow) 
 exports.followClub = async function (req, res, next) {
   const {userEmail, clubEmail} = req.body;
+  resMessage = ""
   try {
-    // const followedClub 
-    let user = await studentModel.findOne({userEmail})
-    user.savedPosts.push(clubEmail)
-    user.save()
+    let user = await clubModel.findOne({
+      email: userEmail
+    })
+
+    let followedClubs = await user.get('followedClubs')
+    console.log('followedClubs', followedClubs)
+
+    if(followedClubs.includes(clubEmail)){
+      resMessage = "this user already follows this club"
+    } else {
+      await followedClubs.push(clubEmail)
+      await user.save()
+      resMessage = "club successfully follwed club"
+    }
     res.status(201).json({
-      message: "Successfully followed club",
+      message: resMessage,
       followedClubs
     })
   } catch (err) {
@@ -89,17 +99,18 @@ exports.followClub = async function (req, res, next) {
 // GET
 // request body: userEmail
 // returns: list of followed clubs
-exports.getFollowedClub = async function (req, res) {
+exports.getFollowedClubs = async function (req, res) {
   const {userEmail} = req.body;
   try {
-    const user = clubModel.findOne({
-      authorEmail: userEmail
+    const user = await clubModel.findOne({
+      email: userEmail
     })
-    let followedClubs = user.get('followedClubs')
+    console.log(user)
+    let followedClubs = await user.get('followedClubs')
     console.log('followedClubs', followedClubs)
 
     res.status(200).json({
-      message: "Get student's followed clubs",
+      message: "Get club's followed clubs",
       followedClubs
     })
   } catch (err) {

@@ -30,10 +30,10 @@ const clubSchema = new mongoose.Schema({
         type:String
     },
     savedPosts: { //again, not sure if necessary. will remove after testing.
-        type: [String]
+        type:[String]
     },
-    followedClubs : {
-        
+    followedClubs: {
+        type:[String]
     }
 })
 

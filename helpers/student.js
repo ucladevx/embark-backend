@@ -115,8 +115,6 @@ exports.followClub = async function (req, res, next) {
     let user = await studentModel.findOne({
       email: userEmail
     })
-    console.log(userEmail)
-    console.log(user)
     
     let followedClubs = await user.get('followedClubs')
     console.log('followedClubs', followedClubs)

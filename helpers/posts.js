@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken")
 const { post } = require('../routes/posts')
 
 exports.createPosts = async function (req, res, next) {
-    const { title, body, timestamp, tags } = req.body
+    const { title, body, timestamp, tags, accountType } = req.body
 
     // pull email from jwt
     const token = req.headers.authorization.split(" ")[1];
@@ -33,15 +33,28 @@ exports.createPosts = async function (req, res, next) {
     }
 
     // save post._id to the user record
-    try {
-        let user = await studentModel.findOne({ email })
-        console.log('user found', user)
-        user.posts.push(post._id)
-        await user.save()
-    } catch (err) {
-        return res.status(400).json({
-            message: err.message
-        })
+    if(accountType == "student") {
+        try {
+            let user = await studentModel.findOne({ email })
+            console.log('student user found', user)
+            user.posts.push(post._id)
+            await user.save()
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+    } else {
+        try {
+            let user = await clubModel.findOne({ email })
+            console.log('club user found', user)
+            user.posts.push(post._id)
+            await user.save()
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
     }
 
     // also return email of author here.
@@ -212,7 +225,7 @@ exports.savePost = async function (req, res) {
     }
 }
 
-exports.getSavedPosts = async function (req, res, next) {
+exports.getSavedPosts = async function (req, res) {
     // return array of posts
     const email = req.body.email;
     const accountType = req.body.accountType;
@@ -244,5 +257,45 @@ exports.getSavedPosts = async function (req, res, next) {
                 message: err.message
             })
         }   
+    }
+}
+
+// GET
+// req body: user's email
+// returns: post IDs of posts authored by user 
+exports.getPostsbyUser = async function (req, res) {
+    const {accountType, userEmail} = req.body;
+    if(accountType == "student") {
+        try {
+            let user = await studentModel.findOne({
+                email: userEmail
+            })
+            let posts = await user.get('posts');
+            console.log('authoredPosts: ', posts)
+            res.status(200).json({
+                message: "Student authored posts successfully queried.",
+                posts
+            }) 
+        }catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+    } else {
+        try {
+            let user = await clubModel.findOne({
+                email: userEmail
+            })
+            let posts = await user.get('posts');
+            console.log('authoredPosts: ', posts)
+            res.status(200).json({
+                message: "Club authored posts successfully queried.",
+                posts
+            }) 
+        }catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
     }
 }

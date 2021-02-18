@@ -446,3 +446,20 @@ or
     "message": "club created saved post"
 }
 ```
+
+### GET /post/me
+In: Authorization header, in the format Bearer <token> 
+Request Body:
+```
+{
+    userEmail: "",
+    accountType: "student"
+}
+```
+
+Returns: a list of post IDs
+```
+{
+    "posts": ""
+}
+```

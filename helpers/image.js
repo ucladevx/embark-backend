@@ -1,10 +1,39 @@
-const aws = require("aws-sdk");
+
+/*const aws = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 const s3 = new aws.S3();
 
+module.exports=async(req,res,next) => {
 
-/*
+  var multipartParams = {
+    Bucket: "profile-pictures-embark",
+    Key: "file",
+    ContentType: file.type
+  };
+  s3.createMultipartUpload(multipartParams, function(mpErr, multipart) {
+    if (mpErr) return console.error('Error!', mpErr);
+    console.log('Got upload ID', multipart.UploadId);
+
+    for (var start = 0; start < buffer.length; start += partSize) {
+      partNum++;
+      var end = Math.min(start + partSize, buffer.length);
+      var partParams = {
+        Body: buffer.slice(start, end),
+        Bucket: multipartParams.Bucket,
+        Key: multipartParams.Key,
+        PartNumber: String(partNum),
+        UploadId: multipart.UploadId
+      };
+
+      console.log('Uploading part: #', partParams.PartNumber, ', Start:', start);
+      uploadPart(s3, multipart, partParams);
+    }
+  });
+}*/
+
+
+
 const fileFilter = (req, file, cb) => {
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
       cb(null, true);
@@ -65,4 +94,3 @@ module.exports=async(req,res,next) => {
     
 
 }
-*/

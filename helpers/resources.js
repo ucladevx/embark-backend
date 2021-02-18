@@ -1,21 +1,18 @@
 const aws = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
-const s3 = new aws.S3();
+
+const s3 = new aws.S3({ httpOptions: { timeout: 10 * 60 * 1000 }});
 const fs = require('fs');
+
 
 //https://stackabuse.com/uploading-files-to-aws-s3-with-node-js/
 
-const fileFilter = (req, file, cb) => {
-    
-      cb(null, true);
-    
-  };
+
 
 module.exports=async(req,res,next) => {
 
     return new Promise(async function(resolve,reject){ 
-        const {pictureType}=req.body;
         aws.config.update({
             secretAccessKey: process.env.S3_ACCESS_SECRET,
             accessKeyId: process.env.S3_ACCESS_KEY,
@@ -35,9 +32,12 @@ module.exports=async(req,res,next) => {
               },
             }),
           });
+          //var readStream = fs.createReadStream(req.files.location);  
+         // var params = {Body: readStream};
           var options = { partSize: 5 * 1024 * 1024, queueSize: 10 };  
 
           const multipleUpload = await upload.array("file",options);
+          
     
           multipleUpload(req, res, function (err) {
             if (err) {

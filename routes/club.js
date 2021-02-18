@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { editProfile, profile, image } = require("../helpers/club")
-const resourceFunction = require("../helpers/resources");
+const resourceFunction = require("../helpers/resources-busboy");
 
 
 router.post("/profile", editProfile)

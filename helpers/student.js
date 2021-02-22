@@ -10,7 +10,24 @@ const s3 = new aws.S3();
 const imageFunction = require("../helpers/image");
 const authorize = require("../helpers/authMiddleware");
 
-
+exports.changeField=function(inputArray,studentField,changeArray){
+  for (item of inputArray){
+    if(item.substring(0,2)=="rm" && studentField.includes(item.substring(2,item.length))){
+     changeArray.splice(changeArray.indexOf(item.substring(2,item.length)),1); //delete the tag
+      
+    }
+    else{
+      if(item.substring(0,2)!="rm"){
+        if(!studentField.includes(item)){
+          changeArray.push(item);
+        }
+        
+      }
+    }  
+  }
+  return changeArray;
+}
+const {changeField}=require('../helpers/student');
 
 exports.profile = async function (req, res, next) {
   const token = req.headers.authorization.split(" ")[1];
@@ -44,23 +61,7 @@ exports.editProfile = async function (req, res, next) {
     const student = await studentModel.findOne({ email: decodedToken.email });
     var changeTags=student.tags;
     var changeClubs=student.clubs;
-    function changeField(inputArray,studentField,changeArray){
-      for (item of inputArray){
-        if(item.substring(0,2)=="rm" && studentField.includes(item.substring(2,item.length))){
-         changeArray.splice(changeArray.indexOf(item.substring(2,item.length)),1); //delete the tag
-          
-        }
-        else{
-          if(item.substring(0,2)!="rm"){
-            if(!studentField.includes(item)){
-              changeArray.push(item);
-            }
-            
-          }
-        }  
-      }
-      return changeArray;
-    }
+    
     if(tags){
       changeTags=changeField(tags,student.tags,changeTags);
       updatedFields["tags"]=changeTags;

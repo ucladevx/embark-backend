@@ -10,27 +10,7 @@ const s3 = new aws.S3();
 const imageFunction = require("../helpers/image");
 const authorize = require("../helpers/authMiddleware");
 
-exports.editProfile = async function (req, res, next) {
-  const { name, major, year, tags, bio, linkedIn } = req.body;
-  editableFields = { name, major, year, tags, bio, linkedIn };
-  const token = req.headers.authorization.split(" ")[1];
-  const decodedToken = await jwt.verify(token, req.app.get('secretKey'));
-  const student = await studentModel.findOne({ email: decodedToken.email });
-  try {
-    const updatedFields = {};
-    Object.keys(editableFields).forEach(key => {
-      if (req.body[key]) {
-        updatedFields[key] = req.body[key];
-      }
-    });
-    const result = await studentModel.updateOne({ _id: student._id }, updatedFields);
-  }
-  catch (err) {
-    return res.json({ message: err.message });
-  }
-  returnedStudent = await studentModel.findOne({ email: decodedToken.email });
-  res.send({ returnedStudent });
-}
+
 
 exports.profile = async function (req, res, next) {
   const token = req.headers.authorization.split(" ")[1];
@@ -41,9 +21,6 @@ exports.profile = async function (req, res, next) {
 
 const findAndUpdate = async (decodedEmail, updatedFields) => {
   const student = await studentModel.findOne({ email: decodedEmail });
-  console.log(1)
-  console.log(decodedEmail)
-  console.log(student)
   const result = await studentModel.updateOne({ _id: student._id }, updatedFields);
   returnedStudent = await studentModel.findOne({ email: decodedEmail }); //to get the updated student
   return returnedStudent;
@@ -51,8 +28,8 @@ const findAndUpdate = async (decodedEmail, updatedFields) => {
 
 
 exports.editProfile = async function (req, res, next) {
-  const { name, major, year, tags, bio, linkedIn } = req.body;
-  editableFields = { name, major, year, tags, bio, linkedIn };
+  const { name, major, year, tags,clubs, bio, linkedIn } = req.body;
+  editableFields = { name, major, year, bio, linkedIn };
   // const decodedToken = await authorize(req, res, next);
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, req.app.get('secretKey'));
@@ -63,7 +40,41 @@ exports.editProfile = async function (req, res, next) {
         updatedFields[key] = req.body[key];
       }
     });
+    //UPDATES THE TAGS AND CLUBS (deletes tags that have rm before it)
+    const student = await studentModel.findOne({ email: decodedToken.email });
+    var changeTags=student.tags;
+    var changeClubs=student.clubs;
+    function changeField(inputArray,studentField,changeArray){
+      for (item of inputArray){
+        if(item.substring(0,2)=="rm" && studentField.includes(item.substring(2,item.length))){
+         changeArray.splice(changeArray.indexOf(item.substring(2,item.length)),1); //delete the tag
+          
+        }
+        else{
+          if(item.substring(0,2)!="rm"){
+            if(!studentField.includes(item)){
+              changeArray.push(item);
+            }
+            
+          }
+        }  
+      }
+      return changeArray;
+    }
+    if(tags){
+      changeTags=changeField(tags,student.tags,changeTags);
+      updatedFields["tags"]=changeTags;
+    }
+    if(clubs){
+      changeClubs=changeField(clubs,student.clubs,changeClubs);
+      updatedFields["clubs"]=changeClubs;
+    }
+   // updates the clubs
+
+
     const updatedStudent = await findAndUpdate(decodedToken.email, updatedFields);
+    //update tags and clubs
+    
     return res.send({ updatedStudent });
   }
   catch (err) {

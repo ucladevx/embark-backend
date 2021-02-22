@@ -69,17 +69,24 @@ Returns:
 
 ### GET /posts
 
-Nothing required in request except Authorization header.
-
+Requests to be made with `Authorization` header, in the format `Bearer <token>`.
+Query Parameters: 
+``
+limitNum (type:int)
+optional: next (type:next string-- you can get this from a previous GET request of /posts)
+optional: previous(type: previous string -- -- you can get this from a previous GET request of /posts)
+``
 Returns:
 
 ```
 {
     "message": "Posts successfully queried.",
-    "posts": [
+     "paginatedPosts": {
+        "results": [
+    
         {
-            "tags": <array_of_tags>,
             "_id": <id>,
+            "tags": <array_of_tags>,
             "title": <title>,
             "body": <body>,
             "timestamp": <Date_object>,
@@ -88,7 +95,8 @@ Returns:
         },
         ...
         // array of such posts
-    ]
+        ]
+     }
 }
 ```
 ### auth/signup
@@ -193,14 +201,16 @@ Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
 Request Body (all fields are optional):
-
+NOTE: for adding tags and clubs, you only need to include the tags you would like to add into the user tags, and
+if you want to remove a tag/club, you can pass in a "rm<tag/club>" for example, "rmlaw" will remove the law tag
 ```
 {
     "name": <name>,
     "email": <email>,
     "major": <major>,
     "year": <year>,
-    "tags": <tags>,
+    "tags": [array of strings],
+    "clubs":[array of strings],
     "bio":<bioString>,
     "linkedIn":<linkedIn>
 }

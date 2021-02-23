@@ -7,7 +7,12 @@ const ObjectId = require("mongodb").ObjectId;
 
 exports.getPostsPage = async (limitNum, nextPage, previousPage, tags, clubs) => {
     //const {limitNum,nextPage,previousPage}=req.query;
-    console.log(limitNum);
+    /*tags=tags.substring(1, -1);
+    console.log(tags);
+    tags=tags.split(",");
+    console.log(typeof tags);
+    console.log(tags);*/
+    
     try {
         console.log(tags);
         const result = await MongoPaging.find(postModel.collection,
@@ -22,7 +27,6 @@ exports.getPostsPage = async (limitNum, nextPage, previousPage, tags, clubs) => 
                             $in: clubs
                         }
                     }]
-
 
                 },
                 paginatedField: "timestamp",

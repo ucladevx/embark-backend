@@ -2,6 +2,7 @@ const clubModel = require('../models/club')
 const studentModel = require('../models/student');
 const jwt = require("jsonwebtoken");
 const imageFunction = require("../helpers/image");
+const {changeField}=require('../helpers/student');
 const { decodeToken } = require("../helpers/utils");
 const MongoPaging = require("mongo-cursor-pagination")
 
@@ -13,8 +14,8 @@ const findAndUpdate = async (decodedEmail, updatedFields) => {
 }
 
 exports.editProfile = async function (req, res, next) {
-  const { name, tags, description, profilePicURL, coverPicURL, website } = req.body;
-  editableFields = { name, tags, description, profilePicURL, coverPicURL, website };
+  const { name, description, tags,profilePicURL, coverPicURL, website } = req.body;
+  editableFields = { name, description, profilePicURL, coverPicURL, website };
   // const decodedToken=await authorize(req,res,next);
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, req.app.get('secretKey'));
@@ -25,6 +26,13 @@ exports.editProfile = async function (req, res, next) {
         updatedFields[key] = req.body[key];
       }
     });
+    //changing tags
+    const club = await clubModel.findOne({ email: decodedToken.email });
+    var changeTags=club.tags;
+    if(tags){
+      changeTags=changeField(tags,club.tags,changeTags);
+      updatedFields["tags"]=changeTags;
+    }
     const updatedClub = await findAndUpdate(decodedToken.email, updatedFields);
     res.send({ updatedClub });
   }

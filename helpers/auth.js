@@ -285,4 +285,3 @@ exports.signup = async function (req, res, next) {
     }
 
 }
-

@@ -53,4 +53,8 @@ router.post('/signin', signin);
 
 router.post("/signup", signup);
 
+router.post("/forgotPassword");
+router.get("/resetPassword/:token");
+router.patch("/changePassword/:token");
+
 module.exports = router;

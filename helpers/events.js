@@ -1,4 +1,3 @@
-const authorize = require("../helpers/authMiddleware");
 const eventModel = require("../models/event");
 const studentModel = require("../models/student");
 const clubModel = require("../models/club");
@@ -10,7 +9,7 @@ async function findUser(req, res, email) {
     try {
       user = await studentModel.findOne({ email: email });
     } catch (err) {
-      res.status(400).json({
+      return res.status(400).json({
         message: err.message,
       });
     }
@@ -18,13 +17,13 @@ async function findUser(req, res, email) {
     try {
       user = await clubModel.findOne({ email: email });
     } catch (err) {
-      res.status(400).json({
+      return res.status(400).json({
         message: err.message,
       });
     }
   }
   if (user == null) {
-    res.status(400).json({
+    return res.status(400).json({
       message: "User not found",
     });
     user = -1;
@@ -44,11 +43,11 @@ exports.discoverEvents = async function (req, res, next) {
     let events = await eventModel.find({
       $or: [{ tags: { $in: tags } }, { organizerName: { $in: clubs } }],
     });
-    res.status(200).json({
+    return res.status(200).json({
       events: events,
     });
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       message: err.message,
     });
   }
@@ -60,29 +59,35 @@ exports.attendEvent = async function (req, res, next) {
   if (user == -1) {
     return;
   }
-  const eventId = req.params.eventId;
 
-  if (req.body.usertype === "student") {
+  const eventId = req.params.eventId;
+  if ((await findEvent(eventId)) === false) {
+    return res.status(400).json({
+      message: `Event of id: ${eventId} not found!`,
+    });
+  }
+
+  if (req.body.userType === "student") {
     try {
       await studentModel.updateOne(
         { _id: user._id },
         { $addToSet: { events: [eventId] } }
       );
-      res.status(200).send("Event added!");
+      return res.status(200).send("Event added!");
     } catch (err) {
-      res.status(400).json({
+      return res.status(400).json({
         message: err.message,
       });
     }
-  } else if (req.body.usertype === "club") {
+  } else if (req.body.userType === "club") {
     try {
       await clubModel.updateOne(
         { _id: user._id },
         { $addToSet: { events: [eventId] } }
       );
-      res.status(200).send("Event added!");
+      return res.status(200).send("Event added!");
     } catch (err) {
-      res.status(400).json({
+      return res.status(400).json({
         message: err.message,
       });
     }
@@ -96,28 +101,33 @@ exports.cancelEvent = async function (req, res, next) {
     return;
   }
   const eventId = req.params.eventId;
+  if ((await findEvent(eventId)) === false) {
+    return res.status(400).json({
+      message: `Event of id: ${eventId} not found!`,
+    });
+  }
 
-  if (req.body.usertype === "student") {
+  if (req.body.userType === "student") {
     try {
       await studentModel.updateOne(
         { _id: user._id },
         { $pullAll: { events: [eventId] } }
       );
-      res.status(200).send("Event cancelled!");
+      return res.status(200).send("Event cancelled!");
     } catch (err) {
-      res.status(400).json({
+      return res.status(400).json({
         message: err.message,
       });
     }
-  } else if (req.body.usertype === "club") {
+  } else if (req.body.userType === "club") {
     try {
       await clubModel.updateOne(
         { _id: user._id },
         { $pullAll: { events: [eventId] } }
       );
-      res.status(200).send("Event cancelled!");
+      return res.status(200).send("Event cancelled!");
     } catch (err) {
-      res.status(400).json({
+      return res.status(400).json({
         message: err.message,
       });
     }
@@ -133,11 +143,11 @@ exports.goingEvents = async function (req, res, next) {
   const eventsIds = user.toObject().events;
   try {
     let events = await eventModel.find({ _id: { $in: eventsIds } });
-    res.status(200).json({
+    return res.status(200).json({
       events: events,
     });
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       message: err.message,
     });
   }
@@ -152,11 +162,11 @@ exports.myEvents = async function (req, res, next) {
   const eventsHostIds = user.toObject().eventsHost;
   try {
     let events = await eventModel.find({ _id: { $in: eventsHostIds } });
-    res.status(200).json({
+    return res.status(200).json({
       events: events,
     });
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       message: err.message,
     });
   }
@@ -196,12 +206,21 @@ exports.createEvent = async function (req, res, next) {
       { _id: user._id },
       { $addToSet: { eventsHost: [event._id] } }
     );
-    res.status(200).json({
+    return res.status(200).json({
       event: event,
     });
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       message: err.message,
     });
   }
 };
+
+async function findEvent(eventID) {
+  try {
+    await eventModel.findOne({ _id: eventID });
+    return true;
+  } catch (err) {
+    return false;
+  }
+}

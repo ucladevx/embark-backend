@@ -38,6 +38,11 @@ passport.use(new LinkedInStrategy({
         const name = profile.name.givenName;
         const password = null;
 
+        const regExpEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        if (!regExpEmail.test(email)) {
+            return res.status(400).send({ message: "Invalid email" });
+        }
+
         if (req.body.userType == "student") {
             try {
                 student = await createStudent(name, email, password);
@@ -89,6 +94,11 @@ passport.use(new GoogleStrategy({
         const email = profile.emails[0].value;
         const name = profile.name.givenName;
         const password = null;
+
+        const regExpEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        if (!regExpEmail.test(email)) {
+            return res.status(400).send({ message: "Invalid email" });
+        }
 
         if (req.body.userType == "student") {
             try {
@@ -201,7 +211,7 @@ exports.signin = async function (req, res, next) {
             })
         }
 
-        if (bcrypt.compare(password, userInfo.password)) {
+        if (await bcrypt.compare(password, userInfo.password)) {
             const token = jwt.sign({ id: userInfo._id, name: userInfo.name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
             res.send({ token: token });
         }
@@ -223,6 +233,10 @@ exports.signin = async function (req, res, next) {
 exports.signup = async function (req, res, next) {
     const { name, email, password } = req.body;
 
+    const regExpEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    if (!regExpEmail.test(email)) {
+        return res.status(400).send({ message: "Invalid email" });
+    }
 
     const regExpPassword = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
     if (!regExpPassword.test(password)) {

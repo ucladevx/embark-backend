@@ -5,11 +5,16 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 const studentModel = require('../models/student')
 const clubModel = require('../models/club')
-const PasswordResetHTML = require('../mjml/paasswordReset.js');
+const PasswordResetTemplate = require('../mjml/passwordReset');
 
 exports.forgotPass = async function (req, res, next) {
     const email = req.body.email;
     if (email !== undefined) {
+        const regExpEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        if (!regExpEmail.test(email)) {
+            return res.status(400).send({ message: "Invalid email" });
+        }
+
         const token = jwt.sign({ email: email }, req.app.get('secretKey'), { expiresIn: 8640000 })
         try {
             const msg = {
@@ -18,9 +23,9 @@ exports.forgotPass = async function (req, res, next) {
                 subject: 'Embark: Password Reset',
                 substitutionWrappers: ['{{', '}}'],
                 substitutions: {
-                    resetLink: `http://localhost:8000/${token}`
+                    resetLink: `http://localhost:9000/auth/resetPassword/${token}`
                 },
-                html: PasswordResetHTML
+                html: PasswordResetTemplate.html
             }
             await sendMail(msg);
             return res.status(200).json({
@@ -43,7 +48,9 @@ exports.resetPass = async function (req, res, next) {
     if (token !== undefined) {
         try {
             const decodedToken = jwt.verify(token, req.app.get('secretKey'));
-            res.redirect(`/changePassword:/${token}`);
+            return res.status(200).json({
+                token: token
+            })
         } catch (err) {//maybe redirect to login page
             return res.status(401).json({
                 message: error.message
@@ -58,12 +65,17 @@ exports.changePass = async function (req, res, next) {
     if (token !== undefined) {
         try {
             const decodedToken = jwt.verify(token, req.app.get('secretKey'));
-            let password = await bcrypt.hashSync(req.body.password, 10)
+            const regExpPassword = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+            if (!regExpPassword.test(req.body.password)) {
+                return res.status(400).send({ message: "Password must be 8 characters, must have one Uppercase, one Lowercase, and one special character" });
+            }
+            let hashPassword = await bcrypt.hashSync(req.body.password, 10);
             let student = await studentModel.findOneAndUpdate({ email: decodedToken.email }, {
-                password = password
+                password: hashPassword
             });
-
-            return res.status(200).send({ auth: true, token: token });
+            return res.status(200).json({
+                message: "Password reset successful"
+            })
         } catch (err) {//maybe redirect to login page
             return res.status(401).json({
                 message: error.message

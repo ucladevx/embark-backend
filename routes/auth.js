@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 
 const { signin, signup, oauthSuccess } = require("../helpers/auth");
+const { forgotPass, resetPass, changePass } = require("../helpers/emails");
 const authorize = require("../helpers/authMiddleware");
 
 
@@ -53,8 +54,8 @@ router.post('/signin', signin);
 
 router.post("/signup", signup);
 
-router.post("/forgotPassword");
-router.get("/resetPassword/:token");
-router.patch("/changePassword/:token");
+router.post("/forgotPassword", forgotPass);
+router.get("/resetPassword/:token", resetPass);
+router.patch("/changePassword/:token", changePass);
 
 module.exports = router;

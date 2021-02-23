@@ -1,5 +1,4 @@
-import mjml2html from 'mjml'
-
+const mjml2html = require('mjml')
 
 const htmlOutput = mjml2html(`<mjml>
   <mj-body background-color="#f8f8f8" color="#797e82" font-family="Open Sans, Helvetica, Arial, sans-serif">

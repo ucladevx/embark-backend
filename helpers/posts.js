@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken")
 const { post } = require('../routes/posts')
 
 exports.createPosts = async function (req, res, next) {
+
     const { title, body, timestamp, tags, accountType } = req.body
 
     // pull email from jwt
@@ -74,25 +75,23 @@ exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
     //const { tags, clubs } = req.body //change to req.query
     const {limit,nextPage,previousPage}=req.query;
-    const {tags,clubs}=req.body;
+   // const {tags,clubs}=req.query;
+    
     // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
     // pass those to the query below
 
     try {
-        const posts = await postModel.find({
-            $or: [{
-                tags: {
-                    $in: tags
-                }
-            }, {
-                authorEmail: {
-                    $in: clubs
-                }
-            }]
-        })
+        
+        const token = req.headers.authorization.split(" ")[1];
+        const decoded = jwt.decode(token, { complete: true });
+        let sID = decoded.payload.id;
+        const {tags,clubs}=await studentModel.findById(sID, 'tags clubs');
+
+        const paginatedPosts=await getPostsPage(limit,nextPage,previousPage,tags,clubs);
+
         res.status(200).json({
             message: "Posts successfully queried.",
-            posts
+            paginatedPosts
         })
     } catch (err) {
         return res.status(400).json({

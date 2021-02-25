@@ -22,7 +22,7 @@ router.get("/likes", authorize, getPostLikes)
 router.post("/comments", authorize, addPostComment)
 router.get("/comments", authorize, getPostComments)
 
-router.get("/postsPage", authorize, getPostsPage)
+//router.get("/postsPage", authorize, getPostsPage)
 
 // posts authored by user
 router.get("/me", authorize, getPostsbyUser)

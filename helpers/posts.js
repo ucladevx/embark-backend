@@ -147,10 +147,10 @@ exports.addPostLike = async function (req, res) {
         let post = await postModel.findById(post_id);
         likedUsers = await post.get('userLikes');
 
-        console.log(likedUsers.includes(likedUsers));
+        console.log(likedUsers.includes(authorEmail));
         // console.log(post.get('authorEmail'))
         // console.log(authorEmail)
-        if(likedUsers.includes(likedUsers)) {
+        if(!likedUsers.includes(authorEmail)) {
             post = await postModel.findByIdAndUpdate(
                 post_id,
                 {$inc: {'likes': 1} }
@@ -184,6 +184,10 @@ exports.getPostLikes = async function (req, res, next) {
         let post = await postModel.findById(post_id);
         likes = post.get('likes');
         console.log('likes', likes)
+        res.status(200).json({
+            message: 'Likes for post queried',
+            likes
+        })
     } catch (err) {
         return res.status(400).json({
             message: err.message

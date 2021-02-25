@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const { createPosts, getPosts, savePost, getSavedPosts,  
-    addPostLike, getPostLikes, addPostComment, getPostComments } = require("../helpers/posts")
+    addPostLike, getPostLikes, addPostComment, getPostComments,
+    getPostsbyUser } = require("../helpers/posts")
 
 const { getPostsPage } = require("../helpers/postsPagination")
 const authorize = require("../helpers/authMiddleware");
@@ -22,5 +23,8 @@ router.post("/comments", authorize, addPostComment)
 router.get("/comments", authorize, getPostComments)
 
 //router.get("/postsPage", authorize, getPostsPage)
+
+// posts authored by user
+router.get("/me", authorize, getPostsbyUser)
 
 module.exports = router;

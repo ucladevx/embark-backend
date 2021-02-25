@@ -6,8 +6,9 @@ const jwt = require("jsonwebtoken")
 //const { post } = require('../routes/posts') <- this creates a circular dependency 
 
 exports.createPosts = async function (req, res, next) {
-    const { title, body, timestamp, tags } = req.body
- 
+
+    const { title, body, timestamp, tags, accountType } = req.body
+
     // pull email from jwt
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.decode(token, { complete: true });
@@ -33,15 +34,28 @@ exports.createPosts = async function (req, res, next) {
     }
 
     // save post._id to the user record
-    try {
-        let user = await studentModel.findOne({ email })
-        console.log('user found', user)
-        user.posts.push(post._id)
-        await user.save()
-    } catch (err) {
-        return res.status(400).json({
-            message: err.message
-        })
+    if (accountType == "student") {
+        try {
+            let user = await studentModel.findOne({ email })
+            console.log('student user found', user)
+            user.posts.push(post._id)
+            await user.save()
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+    } else {
+        try {
+            let user = await clubModel.findOne({ email })
+            console.log('club user found', user)
+            user.posts.push(post._id)
+            await user.save()
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
     }
 
     // also return email of author here.
@@ -61,20 +75,20 @@ exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
     //const { tags, clubs } = req.body //change to req.query
 
-    const {limit,nextPage,previousPage}=req.query;
-   // const {tags,clubs}=req.query;
-    
+    const { limit, nextPage, previousPage } = req.query;
+    // const {tags,clubs}=req.query;
+
     // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
     // pass those to the query below
 
     try {
-        
+
         const token = req.headers.authorization.split(" ")[1];
         const decoded = jwt.decode(token, { complete: true });
         let sID = decoded.payload.id;
-        const {tags,clubs}=await studentModel.findById(sID, 'tags clubs');
+        const { tags, clubs } = await studentModel.findById(sID, 'tags clubs');
 
-        const paginatedPosts=await getPostsPage(limit,nextPage,previousPage,tags,clubs);
+        const paginatedPosts = await getPostsPage(limit, nextPage, previousPage, tags, clubs);
 
         res.status(200).json({
             message: "Posts successfully queried.",
@@ -133,10 +147,10 @@ exports.addPostLike = async function (req, res) {
         let post = await postModel.findById(post_id);
         likedUsers = await post.get('userLikes');
 
-        console.log(likedUsers.includes(likedUsers));
+        console.log(likedUsers.includes(authorEmail));
         // console.log(post.get('authorEmail'))
         // console.log(authorEmail)
-        if (likedUsers.includes(likedUsers)) {
+        if (!likedUsers.includes(authorEmail)) {
             post = await postModel.findByIdAndUpdate(
                 post_id,
                 { $inc: { 'likes': 1 } }
@@ -170,6 +184,10 @@ exports.getPostLikes = async function (req, res, next) {
         let post = await postModel.findById(post_id);
         likes = post.get('likes');
         console.log('likes', likes)
+        res.status(200).json({
+            message: 'Likes for post queried',
+            likes
+        })
     } catch (err) {
         return res.status(400).json({
             message: err.message
@@ -211,7 +229,7 @@ exports.savePost = async function (req, res) {
     }
 }
 
-exports.getSavedPosts = async function (req, res, next) {
+exports.getSavedPosts = async function (req, res) {
     // return array of posts
     const email = req.body.email;
     const accountType = req.body.accountType;
@@ -236,6 +254,46 @@ exports.getSavedPosts = async function (req, res, next) {
             console.log('savedPosts', posts)
             res.status(200).json({
                 message: "Club Saved Posts successfully queried.",
+                posts
+            })
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+    }
+}
+
+// GET
+// req body: user's email
+// returns: post IDs of posts authored by user 
+exports.getPostsbyUser = async function (req, res) {
+    const { accountType, userEmail } = req.body;
+    if (accountType == "student") {
+        try {
+            let user = await studentModel.findOne({
+                email: userEmail
+            })
+            let posts = await user.get('posts');
+            console.log('authoredPosts: ', posts)
+            res.status(200).json({
+                message: "Student authored posts successfully queried.",
+                posts
+            })
+        } catch (err) {
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+    } else {
+        try {
+            let user = await clubModel.findOne({
+                email: userEmail
+            })
+            let posts = await user.get('posts');
+            console.log('authoredPosts: ', posts)
+            res.status(200).json({
+                message: "Club authored posts successfully queried.",
                 posts
             })
         } catch (err) {

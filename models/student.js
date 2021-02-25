@@ -45,6 +45,9 @@ const studentSchema = new mongoose.Schema({
     },
     events: {
         type: [String]
+    },
+    followedClubs: {
+        type: [String]
     }
 })
 

@@ -1,9 +1,8 @@
 # Embark Backend
 
 To run:
-
-- Clone the repository
-- Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.
+* Clone the repository
+* Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.
 
 ## auth/signup
 
@@ -29,7 +28,6 @@ Returns (if successful):
 ```
 
 ## auth/signin
-
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 Request body:
 
@@ -78,7 +76,6 @@ Returns:
 }
 ```
 
-### GET /posts
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 Query Parameters: 
@@ -88,7 +85,6 @@ optional: next (type:next string-- you can get this from a previous GET request 
 optional: previous(type: previous string -- -- you can get this from a previous GET request of /posts)
 ``
 Returns:
-
 ```
 {
     "message": "Posts successfully queried.",
@@ -104,7 +100,7 @@ Returns:
             "authorEmail": <email>,
             "__v": <v>
         },
-        ...
+        ... 
         // array of such posts
         ]
      }
@@ -296,14 +292,11 @@ Returns:
 ```
 
 ## /profile
-
 All requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
 ### GET /student/profile
-
 In: `Authorization` header, in the format `Bearer <token>`
 Returns:
-
 ```
  "student": {
         "posts": [],
@@ -327,9 +320,7 @@ Returns:
 ### GET /club/profile
 
 In: `Authorization` header, in the format `Bearer <token>`
-
 Returns:
-
 ```
 "club": {
         "tags": [],
@@ -346,7 +337,6 @@ Returns:
 ```
 
 ### POST /student/profile
-
 Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
@@ -365,9 +355,7 @@ if you want to remove a tag/club, you can pass in a "rm<tag/club>" for example, 
     "linkedIn":<linkedIn>
 }
 ```
-
 Returns:
-
 ```
 "returnedStudent":
 {
@@ -389,12 +377,10 @@ Returns:
 ```
 
 ### POST /club/profile
-
 Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
-Request Body (all fields are optional):
-
+Request Body (all fields are optional): 
 ```
 {
     "name": <name>,
@@ -406,9 +392,7 @@ Request Body (all fields are optional):
     "linkedIn":<linkedIn>
 }
 ```
-
 Returns:
-
 ```
  "returnedClub": {
         "tags": [],
@@ -425,12 +409,10 @@ Returns:
 ```
 
 ### POST /club/profile/image?pictureType= <either profile or cover>
-
 In: `Authorization` header, in the format `Bearer <token>`
 Request body: nothing
 
 Returns (updates either profile picture or cover picture depending on what you query):
-
 ```
 "returnedClub": {
         "tags": [],
@@ -444,14 +426,11 @@ Returns (updates either profile picture or cover picture depending on what you q
         "coverPicURL": ""
     }
 ```
-
 ##### POST /student/profile/image?pictureType= <either profile or cover>
-
 In: `Authorization` header, in the format `Bearer <token>`
 Request body: nothing
 
 Returns (updates either profile picture or cover picture depending on what you query):
-
 ```
  "returnedStudent": {
         "posts": [],
@@ -469,6 +448,43 @@ Returns (updates either profile picture or cover picture depending on what you q
         "coverPicURL": "",
         "linkedIn": ""
     }
+```
+
+
+### POST /student/following
+### POST /club/following
+In: Authorization header, in the format Bearer <token> 
+Request Body:
+```
+{
+    userEmail: ""
+    clubEmail: ""
+}
+```
+
+Returns:
+```
+{
+    followedClubs: ""
+}
+```
+
+### GET /student/following
+### GET /club/following
+
+In: Authorization header, in the format Bearer <token> 
+Request Body:
+```
+{
+    userEmail: ""
+}
+```
+
+Returns:
+```
+{    
+    followedClubs: ""
+}
 ```
 
 ## Likes
@@ -513,6 +529,9 @@ Returns:
     "message": "incremented post like",
     "post": {
         "tags": [
+            ""
+        ],
+        "userLikes": [
             ""
         ],
         "_id": "",
@@ -671,5 +690,22 @@ or
 ```
 {
     "message": "club created saved post"
+}
+```
+
+### GET /post/me
+In: Authorization header, in the format Bearer <token> 
+Request Body:
+```
+{
+    userEmail: "",
+    accountType: "student"
+}
+```
+
+Returns: a list of post IDs
+```
+{
+    "posts": ""
 }
 ```

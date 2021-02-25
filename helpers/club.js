@@ -73,6 +73,62 @@ exports.image = async function (req, res, next) {
   }
 }
 
+// POST
+// request body: userEmail, clubEmail (to follow) 
+exports.followClub = async function (req, res, next) {
+  const { userEmail, clubEmail } = req.body;
+  resMessage = ""
+  try {
+    let user = await clubModel.findOne({
+      email: userEmail
+    })
+
+    let followedClubs = await user.get('followedClubs')
+    console.log('followedClubs', followedClubs)
+
+    if (followedClubs.includes(clubEmail)) {
+      resMessage = "this user already follows this club"
+    } else {
+      await followedClubs.push(clubEmail)
+      await user.save()
+      resMessage = "club successfully follwed club"
+    }
+    res.status(201).json({
+      message: resMessage,
+      followedClubs
+    })
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    })
+  }
+}
+
+
+// GET
+// request body: userEmail
+// returns: list of followed clubs
+exports.getFollowedClubs = async function (req, res) {
+  const { userEmail } = req.body;
+  try {
+    const user = await clubModel.findOne({
+      email: userEmail
+    })
+    console.log(user)
+    let followedClubs = await user.get('followedClubs')
+    console.log('followedClubs', followedClubs)
+
+    res.status(200).json({
+      message: "Get club's followed clubs",
+      followedClubs
+    })
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    })
+  }
+}
+
 exports.discover = async function (req, res) {
   let email = decodeToken(req);
   let user;

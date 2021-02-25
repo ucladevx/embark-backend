@@ -2,8 +2,6 @@ const postModel = require('../models/post');
 const studentModel = require('../models/student');
 const clubModel = require('../models/club');
 const { getPostsPage } = require("../helpers/postsPagination")
-const studentModel = require('../models/student')
-const clubModel = require('../models/club')
 const jwt = require("jsonwebtoken")
 const { decodeToken } = require('../helpers/utils');
 //const { post } = require('../routes/posts') <- this creates a circular dependency 
@@ -76,7 +74,7 @@ exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
     //const { tags, clubs } = req.body //change to req.query
 
-    const { limit, nextPage, previousPage } = req.query;
+    const { limit, nextPage, previousPage,userType } = req.query;
     const reachedEnd = req.body.reachedEnd;
     // const {tags,clubs}=req.query;
 
@@ -90,7 +88,7 @@ exports.getPosts = async function (req, res, next) {
         let sID = decoded.payload.id;
         const { tags, clubs } = await studentModel.findById(sID, 'tags clubs');
 
-        const paginatedPosts = await getPostsPage(limit, nextPage, previousPage, tags, clubs, reachedEnd, email);
+        const paginatedPosts = await getPostsPage(limit, nextPage, previousPage, tags, clubs, reachedEnd, email, userType);
 
         res.status(200).json({
             message: "Posts successfully queried.",
@@ -116,8 +114,10 @@ exports.addPostComment = async function (req, res) {
             date: new Date(),
         })
         await post.save()
-        user.commentedPosts.push(post._id);
-        await user.save();
+        if (!user.get('commentedPosts').includes(post._id)) {
+            user.get('commentedPosts').push(post._id);
+            await user.save();
+        }
         comments = post.get('comments');
         res.status(201).json({
             message: "Added Comments",
@@ -167,10 +167,12 @@ exports.addPostLike = async function (req, res) {
             likes = post.get('likes');
             console.log("likes", likes)
 
-            await post.get('userLikes').push(authorEmail)
-            user.likedPosts.push(post._id);
-            await user.save();
+            await post.get('userLikes').push(authorEmail);
             await post.save();
+            if (!user.get('likedPosts').includes(post._id)) {
+                user.get('likedPosts').push(post._id);
+                await user.save();
+            }
             resMessage = "incremented post like"
         } else {
             console.log("User already liked.")

@@ -1,4 +1,5 @@
 const studentModel = require('../models/student');
+const clubModel = require('../models/club');
 const postModel = require('../models/post')
 const MongoPaging = require("mongo-cursor-pagination")
 const ObjectId = require("mongodb").ObjectId;
@@ -15,9 +16,15 @@ exports.getPostsPage = async (limitNum, nextPage, previousPage, tags, clubs, rea
     try {
 
         if (reachedEnd) {
-            let student = await studentModel.findOne({ email: email });
-            let likedPosts = student.toObject().likedPosts;
-            let commentedPosts = student.toObject().commentedPosts;
+            let user;
+            if (userType === "student") {
+                user = await studentModel.findOne({ email: email });
+            } else if (userType === "club") {
+
+            } user = await clubModel.findOne({ email: email });
+
+            let likedPosts = user.toObject().likedPosts;
+            let commentedPosts = user.toObject().commentedPosts;
             const result = await MongoPaging.find(postModel.collection,
                 {
                     query: {

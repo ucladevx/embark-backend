@@ -90,7 +90,7 @@ exports.profile = async function (req, res, next) {
   // const decodedToken = await authorize(req, res, next);
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, req.app.get('secretKey'));
-  const student = await studentModel.findOne({ email: decodedToken.email });
+  let student = await studentModel.findOne({ email: decodedToken.email }, { password: 0 });
   res.send({ student });
 }
 

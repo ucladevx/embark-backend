@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 
 const { signin, signup, oauthSuccess } = require("../helpers/auth");
+const { forgotPass, resetPass, changePass } = require("../helpers/emails");
 const authorize = require("../helpers/authMiddleware");
 
 
@@ -52,5 +53,9 @@ router.get('/google/redirect', function (req, res, next) {
 router.post('/signin', signin);
 
 router.post("/signup", signup);
+
+router.post("/forgotPassword", forgotPass);
+router.get("/resetPassword/:token", resetPass);
+router.patch("/changePassword/:token", changePass);
 
 module.exports = router;

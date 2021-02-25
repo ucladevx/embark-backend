@@ -3,7 +3,6 @@ const { getPostsPage } = require("../helpers/postsPagination")
 const studentModel = require('../models/student')
 const clubModel = require('../models/club')
 const jwt = require("jsonwebtoken")
-//const { post } = require('../routes/posts') <- this creates a circular dependency 
 
 exports.createPosts = async function (req, res, next) {
 
@@ -70,7 +69,6 @@ exports.createPosts = async function (req, res, next) {
     })
 }
 
-
 exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
     //const { tags, clubs } = req.body //change to req.query
@@ -82,7 +80,6 @@ exports.getPosts = async function (req, res, next) {
     // pass those to the query below
 
     try {
-
         const token = req.headers.authorization.split(" ")[1];
         const decoded = jwt.decode(token, { complete: true });
         let sID = decoded.payload.id;
@@ -96,10 +93,10 @@ exports.getPosts = async function (req, res, next) {
         })
     } catch (err) {
         return res.status(400).json({
-            message: err.message
-        })
+            message: err.message,
+        });
     }
-}
+};
 
 exports.addPostComment = async function (req, res) {
     const { authorEmail, post_id, comment } = req.body
@@ -137,9 +134,10 @@ exports.getPostComments = async function (req, res, next) {
 
     res.status(200).json({
         message: "Get post comments",
-        comments
-    })
-}
+        comments,
+    });
+};
+
 exports.addPostLike = async function (req, res) {
     const { authorEmail, post_id } = req.body
     resMessage = ""
@@ -178,7 +176,7 @@ exports.addPostLike = async function (req, res) {
 }
 
 exports.getPostLikes = async function (req, res, next) {
-    const { post_id } = req.body
+    const { post_id } = req.body;
     // console.log(post_id);
     try {
         let post = await postModel.findById(post_id);
@@ -190,11 +188,10 @@ exports.getPostLikes = async function (req, res, next) {
         })
     } catch (err) {
         return res.status(400).json({
-            message: err.message
-        })
+            message: err.message,
+        });
     }
-}
-
+};
 
 exports.savePost = async function (req, res) {
     // add postid to saved posts field for student + club

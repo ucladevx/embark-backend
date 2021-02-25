@@ -12,24 +12,24 @@ const s3 = new aws.S3();
 const imageFunction = require("../helpers/image");
 const authorize = require("../helpers/authMiddleware");
 
-exports.changeField=function(inputArray,studentField,changeArray){
-  for (item of inputArray){
-    if(item.substring(0,2)=="rm" && studentField.includes(item.substring(2,item.length))){
-     changeArray.splice(changeArray.indexOf(item.substring(2,item.length)),1); //delete the tag
-      
+exports.changeField = function (inputArray, studentField, changeArray) {
+  for (item of inputArray) {
+    if (item.substring(0, 2) == "rm" && studentField.includes(item.substring(2, item.length))) {
+      changeArray.splice(changeArray.indexOf(item.substring(2, item.length)), 1); //delete the tag
+
     }
-    else{
-      if(item.substring(0,2)!="rm"){
-        if(!studentField.includes(item)){
+    else {
+      if (item.substring(0, 2) != "rm") {
+        if (!studentField.includes(item)) {
           changeArray.push(item);
         }
-        
+
       }
-    }  
+    }
   }
   return changeArray;
 }
-const {changeField}=require('../helpers/student');
+const { changeField } = require('../helpers/student');
 
 exports.profile = async function (req, res, next) {
   const token = req.headers.authorization.split(" ")[1];
@@ -47,7 +47,7 @@ const findAndUpdate = async (decodedEmail, updatedFields) => {
 
 
 exports.editProfile = async function (req, res, next) {
-  const { name, major, year, tags,clubs, bio, linkedIn } = req.body;
+  const { name, major, year, tags, clubs, bio, linkedIn } = req.body;
   editableFields = { name, major, year, bio, linkedIn };
   // const decodedToken = await authorize(req, res, next);
   const token = req.headers.authorization.split(" ")[1];
@@ -61,23 +61,23 @@ exports.editProfile = async function (req, res, next) {
     });
     //UPDATES THE TAGS AND CLUBS (deletes tags that have rm before it)
     const student = await studentModel.findOne({ email: decodedToken.email });
-    var changeTags=student.tags;
-    var changeClubs=student.clubs;
-    
-    if(tags){
-      changeTags=changeField(tags,student.tags,changeTags);
-      updatedFields["tags"]=changeTags;
+    var changeTags = student.tags;
+    var changeClubs = student.clubs;
+
+    if (tags) {
+      changeTags = changeField(tags, student.tags, changeTags);
+      updatedFields["tags"] = changeTags;
     }
-    if(clubs){
-      changeClubs=changeField(clubs,student.clubs,changeClubs);
-      updatedFields["clubs"]=changeClubs;
+    if (clubs) {
+      changeClubs = changeField(clubs, student.clubs, changeClubs);
+      updatedFields["clubs"] = changeClubs;
     }
-   // updates the clubs
+    // updates the clubs
 
 
     const updatedStudent = await findAndUpdate(decodedToken.email, updatedFields);
     //update tags and clubs
-    
+
     return res.send({ updatedStudent });
   }
   catch (err) {
@@ -121,17 +121,17 @@ exports.image = async function (req, res, next) {
 // request body: userEmail, clubEmail (to follow)
 // 
 exports.followClub = async function (req, res, next) {
-  const {userEmail, clubEmail} = req.body;
+  const { userEmail, clubEmail } = req.body;
   resMessage = ""
   try {
     let user = await studentModel.findOne({
       email: userEmail
     })
-    
+
     let followedClubs = await user.get('followedClubs')
     console.log('followedClubs', followedClubs)
 
-    if(followedClubs.includes(clubEmail)){
+    if (followedClubs.includes(clubEmail)) {
       resMessage = "this user already follows this club"
     } else {
       await followedClubs.push(clubEmail)
@@ -154,7 +154,7 @@ exports.followClub = async function (req, res, next) {
 // request body: userEmail
 // returns: list of followed clubs
 exports.getFollowedClubs = async function (req, res) {
-  const {userEmail} = req.body;
+  const { userEmail } = req.body;
   try {
     const user = await studentModel.findOne({
       email: userEmail

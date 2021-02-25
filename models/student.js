@@ -28,6 +28,12 @@ const studentSchema = new mongoose.Schema({
     savedPosts: {
         type: [String]
     },
+    likedPosts: {
+        type: [String]
+    },
+    commentedPosts: {
+        type: [String]
+    },
     clubs: {
         type: [String]
     },

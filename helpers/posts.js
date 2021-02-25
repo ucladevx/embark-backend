@@ -1,13 +1,16 @@
-const postModel = require('../models/post')
+const postModel = require('../models/post');
+const studentModel = require('../models/student');
+const clubModel = require('../models/club');
 const { getPostsPage } = require("../helpers/postsPagination")
 const studentModel = require('../models/student')
 const clubModel = require('../models/club')
 const jwt = require("jsonwebtoken")
+const { decodeToken } = require('../helpers/utils');
 //const { post } = require('../routes/posts') <- this creates a circular dependency 
 
 exports.createPosts = async function (req, res, next) {
     const { title, body, timestamp, tags } = req.body
- 
+
     // pull email from jwt
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.decode(token, { complete: true });
@@ -56,25 +59,38 @@ exports.createPosts = async function (req, res, next) {
     })
 }
 
-
+async function findUser(email, userType) {
+    try {
+        if (userType === "student") {
+            return await studentModel.findOne({ email: email });
+        } else if (userType === "club") {
+            return await clubModel.findOne({ email: email });
+        } else {
+            return -1;
+        }
+    } catch (err) {
+        return -1;
+    }
+}
 exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
     //const { tags, clubs } = req.body //change to req.query
 
-    const {limit,nextPage,previousPage}=req.query;
-   // const {tags,clubs}=req.query;
-    
+    const { limit, nextPage, previousPage } = req.query;
+    const reachedEnd = req.body.reachedEnd;
+    // const {tags,clubs}=req.query;
+
     // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
     // pass those to the query below
-
+    const email = decodeToken(req).email;
     try {
-        
+
         const token = req.headers.authorization.split(" ")[1];
         const decoded = jwt.decode(token, { complete: true });
         let sID = decoded.payload.id;
-        const {tags,clubs}=await studentModel.findById(sID, 'tags clubs');
+        const { tags, clubs } = await studentModel.findById(sID, 'tags clubs');
 
-        const paginatedPosts=await getPostsPage(limit,nextPage,previousPage,tags,clubs);
+        const paginatedPosts = await getPostsPage(limit, nextPage, previousPage, tags, clubs, reachedEnd, email);
 
         res.status(200).json({
             message: "Posts successfully queried.",
@@ -88,7 +104,10 @@ exports.getPosts = async function (req, res, next) {
 }
 
 exports.addPostComment = async function (req, res) {
-    const { authorEmail, post_id, comment } = req.body
+    const { authorEmail, post_id, comment, userType } = req.body;
+
+    const email = decodeToken(req);
+    let user = findUser(email, userType);
     try {
         let post = await postModel.findById(post_id)
         await post.get('comments').push({
@@ -97,6 +116,8 @@ exports.addPostComment = async function (req, res) {
             date: new Date(),
         })
         await post.save()
+        user.commentedPosts.push(post._id);
+        await user.save();
         comments = post.get('comments');
         res.status(201).json({
             message: "Added Comments",
@@ -127,7 +148,9 @@ exports.getPostComments = async function (req, res, next) {
     })
 }
 exports.addPostLike = async function (req, res) {
-    const { authorEmail, post_id } = req.body
+    const { authorEmail, post_id, userType } = req.body
+    const email = decodeToken(req);
+    let user = findUser(email, userType);
     resMessage = ""
     try {
         let post = await postModel.findById(post_id);
@@ -145,8 +168,9 @@ exports.addPostLike = async function (req, res) {
             console.log("likes", likes)
 
             await post.get('userLikes').push(authorEmail)
-
-            await post.save()
+            user.likedPosts.push(post._id);
+            await user.save();
+            await post.save();
             resMessage = "incremented post like"
         } else {
             console.log("User already liked.")

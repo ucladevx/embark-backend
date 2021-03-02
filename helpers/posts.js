@@ -74,7 +74,7 @@ exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
     //const { tags, clubs } = req.body //change to req.query
 
-    const { limit, nextPage, previousPage,userType } = req.query;
+    const { limit, nextPage, previousPage, userType } = req.query;
     const reachedEnd = req.body.reachedEnd;
     // const {tags,clubs}=req.query;
 
@@ -88,9 +88,9 @@ exports.getPosts = async function (req, res, next) {
         let sID = decoded.payload.id;
         const { tags, clubs } = await studentModel.findById(sID, 'tags clubs');
 
-        const paginatedPosts = await getPostsPage(limit, nextPage, previousPage, tags, clubs, reachedEnd, email, userType);
+        const paginatedPosts = await getPostsPage(res, limit, nextPage, previousPage, tags, clubs, reachedEnd, email, userType);
 
-        res.status(200).json({
+        return res.status(200).json({
             message: "Posts successfully queried.",
             paginatedPosts
         })
@@ -102,22 +102,33 @@ exports.getPosts = async function (req, res, next) {
 }
 
 exports.addPostComment = async function (req, res) {
-    const { authorEmail, post_id, comment, userType } = req.body;
+    const { post_id, comment, userType } = req.body;
 
-    const email = decodeToken(req);
-    let user = findUser(email, userType);
+    const email = decodeToken(req).email;
+    let user = findUser(email, userType, res);
+    if (user === -1) {
+        return res.status(404).json({
+            message: `Could not find user with email ${email}`
+        });
+    }
+
     try {
-        let post = await postModel.findById(post_id)
-        await post.get('comments').push({
-            authorEmail: authorEmail,
+        //save comment to post
+        let post = await postModel.findById(post_id);
+        let updatedPostComments = await post.get('comments');
+        post.comments = updatedPostComments.push({
+            authorEmail: email,
             body: comment,
             date: new Date(),
-        })
-        await post.save()
+        });
+        await post.save();
+
+        //save comment to user's comments
         if (!user.get('commentedPosts').includes(post._id)) {
-            user.get('commentedPosts').push(post._id);
+            user.commentedPosts = user.get('commentedPosts').push(post._id);
             await user.save();
         }
+
         comments = post.get('comments');
         res.status(201).json({
             message: "Added Comments",
@@ -148,34 +159,39 @@ exports.getPostComments = async function (req, res, next) {
     })
 }
 exports.addPostLike = async function (req, res) {
-    const { authorEmail, post_id, userType } = req.body
-    const email = decodeToken(req);
+
+    const { post_id, userType } = req.body
+    const email = decodeToken(req).email;
     let user = findUser(email, userType);
+    if (user === -1) {
+        return res.status(404).json({
+            message: `Could not find user with email ${email}`
+        });
+    }
     resMessage = ""
+
     try {
         let post = await postModel.findById(post_id);
         likedUsers = await post.get('userLikes');
 
-        console.log(likedUsers.includes(likedUsers));
-        // console.log(post.get('authorEmail'))
-        // console.log(authorEmail)
-        if (likedUsers.includes(likedUsers)) {
+        if (!likedUsers.includes(email)) {
+            //increment post like
             post = await postModel.findByIdAndUpdate(
                 post_id,
                 { $inc: { 'likes': 1 } }
             )
-            likes = post.get('likes');
-            console.log("likes", likes)
-
-            await post.get('userLikes').push(authorEmail);
+            //add like user's email to the post's userLikes
+            let updatedUserLikes = await post.get('userLikes');
+            post.userLikes = updatedUserLikes.push(email);
             await post.save();
+
+            //add post id to user's likedPosts
             if (!user.get('likedPosts').includes(post._id)) {
-                user.get('likedPosts').push(post._id);
+                user.likedPosts = user.get('likedPosts').push(post._id);
                 await user.save();
             }
             resMessage = "incremented post like"
         } else {
-            console.log("User already liked.")
             resMessage = "User already liked."
         }
         res.status(201).json({

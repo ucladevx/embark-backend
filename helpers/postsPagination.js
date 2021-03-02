@@ -5,7 +5,7 @@ const MongoPaging = require("mongo-cursor-pagination")
 const ObjectId = require("mongodb").ObjectId;
 
 
-exports.getPostsPage = async (limitNum, nextPage, previousPage, tags, clubs, reachedEnd, email) => {
+exports.getPostsPage = async (res, limitNum, nextPage, previousPage, tags, clubs, reachedEnd, email) => {
     //const {limitNum,nextPage,previousPage}=req.query;
     /*tags=tags.substring(1, -1);
     console.log(tags);
@@ -20,8 +20,8 @@ exports.getPostsPage = async (limitNum, nextPage, previousPage, tags, clubs, rea
             if (userType === "student") {
                 user = await studentModel.findOne({ email: email });
             } else if (userType === "club") {
-
-            } user = await clubModel.findOne({ email: email });
+                user = await clubModel.findOne({ email: email });
+            }
 
             let likedPosts = user.toObject().likedPosts;
             let commentedPosts = user.toObject().commentedPosts;
@@ -73,11 +73,10 @@ exports.getPostsPage = async (limitNum, nextPage, previousPage, tags, clubs, rea
                     previous: previousPage
 
                 });
+            return result;
         }
 
-        return result;
     } catch (err) {
-        console.log(err);
-        res.send({ message: err.message });
+        return res.send({ message: err.message });
     }
 }

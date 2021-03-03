@@ -28,7 +28,7 @@ exports.createPosts = async function (req, res, next) {
     try {
         await post.save()
     } catch (err) {
-        res.status(400).json({
+        return res.status(400).json({
             message: err.message
         })
     }
@@ -46,7 +46,7 @@ exports.createPosts = async function (req, res, next) {
     }
 
     // also return email of author here.
-    res.status(201).json({
+    return res.status(201).json({
         message: "Post successfully created.",
         title,
         body,
@@ -130,7 +130,7 @@ exports.addPostComment = async function (req, res) {
         }
 
         comments = post.get('comments');
-        res.status(201).json({
+        return res.status(201).json({
             message: "Added Comments",
             comments
         })
@@ -153,7 +153,7 @@ exports.getPostComments = async function (req, res, next) {
         })
     }
 
-    res.status(200).json({
+    return res.status(200).json({
         message: "Get post comments",
         comments
     })
@@ -194,7 +194,7 @@ exports.addPostLike = async function (req, res) {
         } else {
             resMessage = "User already liked."
         }
-        res.status(201).json({
+        return res.status(201).json({
             message: resMessage,
             post
         })
@@ -229,7 +229,7 @@ exports.savePost = async function (req, res) {
             let user = await studentModel.findOne({ email })
             user.savedPosts.push(post_id)
             await user.save()
-            res.status(201).json({
+            return res.status(201).json({
                 message: "student created saved post",
             })
         } catch (err) {
@@ -247,7 +247,7 @@ exports.savePost = async function (req, res) {
                 message: err.message
             })
         }
-        res.status(201).json({
+        return res.status(201).json({
             message: "club created saved post",
         })
     }
@@ -267,7 +267,7 @@ exports.getSavedPosts = async function (req, res, next) {
                 message: err.message
             })
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: "Student Saved Posts successfully queried.",
             posts
         })
@@ -276,7 +276,7 @@ exports.getSavedPosts = async function (req, res, next) {
             let user = await clubModel.findOne({ email })
             posts = user.get('savedPosts');
             console.log('savedPosts', posts)
-            res.status(200).json({
+            return res.status(200).json({
                 message: "Club Saved Posts successfully queried.",
                 posts
             })

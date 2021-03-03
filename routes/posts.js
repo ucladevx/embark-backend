@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { createPosts, getPosts, savePost, getSavedPosts,
+  addPostLike, getPostLikes, addPostComment, getPostComments } = require("../helpers/posts")
 
 const { getPostsPage } = require("../helpers/postsPagination")
 const authorize = require("../helpers/authMiddleware");
@@ -20,5 +21,6 @@ router.get("/likes", authorize, getPostLikes)
 router.post("/comments", authorize, addPostComment)
 router.get("/comments", authorize, getPostComments)
 
+router.get("/postsPage", authorize, getPostsPage)
 
 module.exports = router;

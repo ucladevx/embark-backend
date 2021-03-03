@@ -18,6 +18,7 @@ module.exports=async(req,res,next) => {
             accessKeyId: process.env.S3_ACCESS_KEY,
             region: "us-west-2", 
           });
+          let files=[]
           const upload = await multer({
            
             storage: multerS3({
@@ -26,6 +27,7 @@ module.exports=async(req,res,next) => {
               bucket: "club-resources-embark",
               metadata: function (req, file, cb) {
                 cb(null, { fieldName: "TESTING_METADATA" });
+                files.push(file);
               },
               key: function (req, file, cb) {
                 cb(null, Date.now().toString());
@@ -59,8 +61,11 @@ module.exports=async(req,res,next) => {
                     }
                 }
                 resolve(fileLocation);
+                for(i=0;i<fileLocation.length;i++){
+                  files[i]["location"]=fileLocation[i];
+                }
                 //console.log("hello");
-                res.send({"uploadedResources":fileLocation});
+                res.send({"files":files});
                 
             }
         });

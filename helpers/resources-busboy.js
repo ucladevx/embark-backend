@@ -3,6 +3,61 @@ const Busboy = require('busboy');
 AWS.config.update({ accessKeyId: process.env.S3_ACCESS_KEY, secretAccessKey: process.env.S3_ACCESS_SECRET });
 const S3 = new AWS.S3();
 
+
+const parseForm = async req => {
+  return new Promise((resolve, reject) => {
+    const form = new Busboy({ headers: req.headers })
+    const files = [] // create an empty array to hold the processed files
+    const buffers = {} // create an empty object to contain the buffers
+    form.on('file', (field, file, filename, enc, mime) => {
+      buffers[field] = [] // add a new key to the buffers object
+      file.on('data', data => {
+        buffers[field].push(data)
+      })
+      file.on('end', () => {
+        files.push({
+          fileBuffer: Buffer.concat(buffers[field]),
+          fileType: mime,
+          fileName: filename,
+          fileEnc: enc,
+        })
+      })
+    })
+    form.on('error', err => {
+      reject(err)
+    })
+    form.on('finish', () => {
+      resolve(files)
+    })
+    req.pipe(form) // pipe the request to the form handler
+  })
+}
+const uploadFile = require("../helpers/upload");
+
+module.exports = async (req, res) => {
+// or module.exports = async (req, res) => {
+  try {
+    const files = await parseForm(req)
+    const fileUrls = []
+    let urls=[]
+    for (const file of files) {
+      const { fileBuffer, ...fileParams } = file
+      const result = uploadFile(fileBuffer, fileParams)
+      urls.push({ filename: result.key, url: result.Location })
+    }
+    res.status(200).json({ success: true, fileUrls: urls })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+
+
+
+
+
+
 /**
  * route where we get multipart form data
  * capture file and upload files to s3
@@ -29,6 +84,7 @@ module.exports=async(req,res,next) => {
             console.log('File [' + filename + '] Finished');
         });
     });
+    req.pipe(busboy);
     busboy.on('finish', function() {
         const params = {
             Bucket: 'club-resources-embark', // your s3 bucket name
@@ -48,18 +104,46 @@ module.exports=async(req,res,next) => {
         });
         
     });
-    req.pipe(busboy);
+    
 }
-*/ 
+*/
+/*
+function printTheS3(s3info){
+    console.log(s3info);
+}
+async function uploadToMyS3(fname,fbuffers,enc,ftype){
+    return new Promise(async function(resolve,reject){ 
+
+        console.log("Uploading to S3..."+fname);
+          const params = {
+            Bucket: 'club-resources-embark', 
+            Key: `${fname}`,//+Date.now().toString(), REMEMBER TO ADD THIS COMMENT BACK IN!!!!!!!!!!!!!!
+            Body: fbuffers, 
+            ACL: 'public-read',
+            ContentEncoding: enc, // optional
+            ContentType: ftype // required
+        }    
+        
+        S3.upload(params, (err, s3res) => {
+            if (err){
+                reject(err)
+            } else{
+                resolve(s3res);
+                return s3res;
+            }
+            
+        });
+    })
+}
 
 module.exports=async(req,res,next) => {
     return new Promise((resolve, reject) => {
     const busboy = new Busboy({ headers: req.headers })
     const files = [] // create an empty array to hold the processed files
     const buffers = {}
-    const locations=[]
+    const s3info=[]
     let fname, fbuffers,ftype;
-
+    let fileInfo;
     // create an empty object to contain the buffers
     busboy.on('file', (field, file, filename, enc, mime) => {
         ftype=mime;
@@ -79,34 +163,23 @@ module.exports=async(req,res,next) => {
                 fileEnc: enc,
             })
             console.log("Finished with "+filename);
-             
-            console.log("Uploading to S3..."+fname);
-              const params = {
-                Bucket: 'club-resources-embark', // your s3 bucket name
-                Key: `${fname}`, 
-                Body: fbuffers, // concatinating all chunks
-                ACL: 'public-read',
-                ContentEncoding: enc, // optional
-                ContentType: ftype // required
-            }    
-            // we are sending buffer data to s3.
-            
-            S3.upload(params, (err, s3res) => {
-                if (err){
-                    reject(err)
-                } 
-                resolve(s3res);
-                return s3res;
-            });
+            fileInfo=uploadToMyS3(fname,fbuffers,enc,ftype);
+            fileInfo.then(function(result) {
+                //console.log(result) // "Some User token"
+                s3info.push(result);
+                //console.log(s3info);//this works?
+            })
+            console.log(s3info);
         })
     })
     busboy.on('error', err => {
         reject(err)
     })
     busboy.on('finish', function() {
-        res.send({data:files, status: 'success', msg: 'Files successfully uploaded.'});
+        res.send({data:s3info, status: 'success', msg: 'Files successfully uploaded.'});
    });
 
     req.pipe(busboy) // pipe the request to the form handler
     })
 }
+*/

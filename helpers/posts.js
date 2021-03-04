@@ -21,6 +21,7 @@ exports.createPosts = async function (req, res, next) {
         timestamp: new Date(),
         tags,
         authorEmail: email,
+        authorName: decoded.payload.name,
         likes: 0,
     })
 
@@ -60,12 +61,7 @@ exports.createPosts = async function (req, res, next) {
     // also return email of author here.
     res.status(201).json({
         message: "Post successfully created.",
-        title,
-        body,
-        timestamp,
-        tags,
-        email,
-        _id: post._id
+        post
     })
 }
 

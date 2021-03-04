@@ -67,15 +67,22 @@ Returns:
 ```
 {
     "message": "Post successfully created.",
-    "title": <title>,
-    "body": <body>,
-    "timestamp": <Date_object>,
-    "tags": <array_of_tags>,
-    "email": <author_email>,
-    "_id": <post_id>
+    "post": {
+        "tags": <array_of_tags>,
+        "userLikes": <array_of_users_that_like_the_post>,
+        "_id": <post_id>,
+        "title": <post_title>,
+        "body": <post_body>,
+        "timestamp": <Date() object>,
+        "authorEmail": <author_email>, # possibly author ID in the future
+        "authorName": <author_name>,
+        "likes": <num_likes>,
+        "comments": <array_of_comments>
+        "__v": 0
+    }
 }
 ```
-
+### GET /posts
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 Query Parameters: 

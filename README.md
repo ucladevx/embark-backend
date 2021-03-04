@@ -6,8 +6,10 @@ To run:
 - Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.
 
 ## auth/signup
+
 Post Request:
-    Put the following fields in the body of the request:
+Put the following fields in the body of the request:
+
 ```
 {
     "name":string,
@@ -16,17 +18,21 @@ Post Request:
     userType: "club" or "student"
 }
 ```
+
 Returns (if successful):
+
 ```
 {
     "auth":true,
     "token": <token>
 }
 ```
+
 ## auth/signin
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 Request body:
+
 ```
 {
     "email":string,
@@ -34,7 +40,9 @@ Request body:
     "userType":"club" OR "student"
 }
 ```
+
 Returns (if successful):
+
 ```
 {
     token:<token>
@@ -42,9 +50,11 @@ Returns (if successful):
 ```
 
 ## /posts
+
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
 ### POST /posts
+
 ```
 {
     "title": <title>,
@@ -55,6 +65,7 @@ Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 ```
 
 Returns:
+
 ```
 {
     "message": "Post successfully created.",
@@ -67,19 +78,20 @@ Returns:
 }
 ```
 
-### GET /posts
-
-Nothing required in request except Authorization header.
-
+Requests to be made with `Authorization` header, in the format `Bearer <token>`.
+Query Parameters:
+`limitNum (type:int) optional: next (type:next string-- you can get this from a previous GET request of /posts) optional: previous(type: previous string -- -- you can get this from a previous GET request of /posts)`
 Returns:
 
 ```
 {
     "message": "Posts successfully queried.",
-    "posts": [
+     "paginatedPosts": {
+        "results": [
+
         {
-            "tags": <array_of_tags>,
             "_id": <id>,
+            "tags": <array_of_tags>,
             "title": <title>,
             "body": <body>,
             "timestamp": <Date_object>,
@@ -88,17 +100,28 @@ Returns:
         },
         ...
         // array of such posts
-    ]
+        ]
+     }
 }
 ```
+
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 <<<<<<< HEAD
+
 ### /signup
+
 =======
->>>>>>> d9b97f30fa0f8d1b92ea23df0928e908b9811c06
-=======
->>>>>>> d540e6de8874e3f0093ac013744f3d063056e14c
+
+> > > > > > > # d9b97f30fa0f8d1b92ea23df0928e908b9811c06
+> > > > > > >
+> > > > > > > # d540e6de8874e3f0093ac013744f3d063056e14c
+
+## Authorization
+
+> > > > > > > e84bbb0f177c3086a893de13961364e6eb1d437c
+
 ### auth/signup
 
 Post Request:
@@ -118,7 +141,7 @@ Returns (if successful):
 }
 ```
 
-# auth/signin
+### auth/signin
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 Request body:
@@ -139,14 +162,147 @@ Returns (if successful):
 }
 ```
 
-# auth/google
+### auth/google
 
 Post request:
 Put the following fields in the body of the request:
+
+```
 {
 "type": "signin" or "signup"
 "user": "student" or "club"
 }
+```
+
+### auth/linkedin
+
+Post request:
+Put the following fields in the body of the request:
+
+```
+{
+"type": "signin" or "signup"
+"user": "student" or "club"
+}
+```
+
+## Events
+
+### GET /events/discover
+
+Get request: for clubs and students to discover events by tags/clubs followed
+
+Put the following fields in the body of the request:
+
+```
+{
+    "userType": "student" or "club"
+}
+```
+
+Returns:
+
+```
+{
+    events: [events]
+}
+```
+
+### POST /events/:eventId/attend
+
+Post request: students and clubs can indicate interest in event
+
+Request parameter, eventId: \_id of event to attend
+
+Put the following fields in the body of the request:
+
+```
+{
+    "userType": "student" or "club"
+}
+```
+
+### POST /events/:eventId/cancel
+
+Post request: students and clubs can cancel attendance for event
+
+Put the following fields in the body of the request:
+
+```
+{
+    "userType": "student" or "club"
+    "eventId": _id of event to cancel
+}
+```
+
+### GET /events/going
+
+Get request: students and clubs can return list of events they have indicated interest in
+
+Put the following fields in the body of the request:
+
+```
+{
+    "userType": "student" or "club"
+
+}
+```
+
+Returns:
+
+```
+{
+    events: [events]
+}
+```
+
+### GET /events/me
+
+Get request: clubs can see all events they have hosted/are hosting
+
+Put the following fields in the body of the request:
+
+```
+{
+    "userType": "student" or "club"
+
+}
+```
+
+Returns:
+
+```
+{
+    events: [events]
+}
+```
+
+### POST /events/create
+
+Post request: clubs can create event
+
+Put the following fields in the body of the request:
+
+```
+{
+    "userType":"club",
+    "name": String,
+    "date": Date
+    "venue": String,
+    "organizerName": String,
+    "organizerEmail": String,
+    "tags": [String],
+    "desc": String
+}
+```
+
+Returns:
+
+```
+{
+    events: [events]
+}
+```
 
 ## /profile
 
@@ -176,9 +332,10 @@ Returns:
         "__v": 0
     }
 ```
-### GET /club/profile
-In: `Authorization` header, in the format `Bearer <token>`
 
+### GET /club/profile
+
+In: `Authorization` header, in the format `Bearer <token>`
 Returns:
 
 ```
@@ -195,12 +352,15 @@ Returns:
         "__v": 0
     }
 ```
+
 ### POST /student/profile
 
 Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
 Request Body (all fields are optional):
+NOTE: for adding tags and clubs, you only need to include the tags you would like to add into the user tags, and
+if you want to remove a tag/club, you can pass in a "rm<tag/club>" for example, "rmlaw" will remove the law tag
 
 ```
 {
@@ -208,7 +368,8 @@ Request Body (all fields are optional):
     "email": <email>,
     "major": <major>,
     "year": <year>,
-    "tags": <tags>,
+    "tags": [array of strings],
+    "clubs":[array of strings],
     "bio":<bioString>,
     "linkedIn":<linkedIn>
 }
@@ -235,6 +396,7 @@ Returns:
         "linkedIn": "",
 }
 ```
+
 ### POST /club/profile
 
 Edit Student profile
@@ -270,6 +432,7 @@ Returns:
         "__v": 0
     }
 ```
+
 ### POST /club/profile/image?pictureType= <either profile or cover>
 
 In: `Authorization` header, in the format `Bearer <token>`
@@ -317,10 +480,56 @@ Returns (updates either profile picture or cover picture depending on what you q
     }
 ```
 
-## Likes
-### GET /post/likes
-In: Authorization header, in the format Bearer <token> 
+### POST /student/following
+
+### POST /club/following
+
+In: Authorization header, in the format Bearer <token>
 Request Body:
+
+```
+{
+    userEmail: ""
+    clubEmail: ""
+}
+```
+
+Returns:
+
+```
+{
+    followedClubs: ""
+}
+```
+
+### GET /student/following
+
+### GET /club/following
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
+```
+{
+    userEmail: ""
+}
+```
+
+Returns:
+
+```
+{
+    followedClubs: ""
+}
+```
+
+## Likes
+
+### GET /post/likes
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
 ```
 {
     authorEmail: "",
@@ -329,27 +538,36 @@ Request Body:
 ```
 
 Returns:
+
 ```
 {
     post_id: ""
     likes: 1
 }
 ```
+
 ### POST /post/likes
-In: Authorization header, in the format Bearer <token> 
-Request Body: 
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
 ```
 {
     post_id: "",
     authorEmail: ""
 }
 ```
+
 Returns:
+
 ```
 {
     "message": "incremented post like",
     "post": {
         "tags": [
+            ""
+        ],
+        "userLikes": [
             ""
         ],
         "_id": "",
@@ -365,15 +583,20 @@ Returns:
 ```
 
 ## /post/likes
+
 ### GET /post/likes
-In: Authorization header, in the format Bearer <token> 
-Request Body: 
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
 ```
 {
     post_id: ""
 }
 ```
+
 Returns:
+
 ```
 {
     "message": "Get post comments",
@@ -387,17 +610,22 @@ Returns:
     ]
 }
 ```
+
 ## /post/comments
 
 ### GET /post/comments
-In: Authorization header, in the format Bearer <token> 
-Request Body: 
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
 ```
 {
     post_id: ""
 }
 ```
-Returns: 
+
+Returns:
+
 ```
     "message": "Get post comments",
     "comments": [
@@ -411,8 +639,10 @@ Returns:
 ```
 
 ### POST /post/comments
-In: Authorization header, in the format Bearer <token> 
-Request Body: 
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
 ```
 {
     authorEmail: "",
@@ -420,7 +650,9 @@ Request Body:
     comment: ""
 }
 ```
-Returns: 
+
+Returns:
+
 ```
     "comments": [
         {
@@ -433,16 +665,21 @@ Returns:
 ```
 
 ## /post/saved
+
 ### GET /post/saved
-In: Authorization header, in the format Bearer <token> 
-Request Body: 
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
 ```
 {
     email: ""
     accountType: ""
 }
 ```
+
 Returns: an array of posts IDs
+
 ```
 {
     "message": "Student Saved Posts successfully queried.",
@@ -451,7 +688,9 @@ Returns: an array of posts IDs
     ]
 }
 ```
+
 or
+
 ```
 {
     "message": "Club Saved Posts successfully queried.",
@@ -462,8 +701,10 @@ or
 ```
 
 ### POST /post/saved
-In: Authorization header, in the format Bearer <token> 
+
+In: Authorization header, in the format Bearer <token>
 Request Body:
+
 ```
 {
     post_id: "",
@@ -473,14 +714,37 @@ Request Body:
 ```
 
 Returns:
+
 ```
 {
     "message": "student created saved post"
 }
 ```
-or 
+
+or
+
 ```
 {
     "message": "club created saved post"
+}
+```
+
+### GET /post/me
+
+In: Authorization header, in the format Bearer <token>
+Request Body:
+
+```
+{
+    userEmail: "",
+    accountType: "student"
+}
+```
+
+Returns: a list of post IDs
+
+```
+{
+    "posts": ""
 }
 ```

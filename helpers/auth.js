@@ -247,6 +247,13 @@ exports.signup = async function (req, res, next) {
         student.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: student._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
 
+        //check if in clubModel
+        const userInClub=await clubModel.exists({email:email});
+        //console.log(userInClub);
+        if(userInClub){
+            return res.status(400).json({message: "A club account with that email already exists. Please use another email."})
+        }
+
         try {
             await student.save()
             return res.status(200).send({ auth: true, token: token });
@@ -276,7 +283,13 @@ exports.signup = async function (req, res, next) {
         });
         club.password = await bcrypt.hashSync(password, 10);
         const token = jwt.sign({ id: club._id, name: name, email: email }, req.app.get('secretKey'), { expiresIn: 8640000 });
-
+        
+        //check if email in studentModel
+        const userInStudent=await studentModel.exists({email:email});
+        if(userInStudent){
+            return res.status(400).json({message: "A student account with that email already exists. Please use another email."})
+        }
+        
         try {
             await club.save()
             return res.status(200).send({ auth: true, token: token });

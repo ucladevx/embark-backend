@@ -3,6 +3,28 @@ const Busboy = require('busboy');
 AWS.config.update({ accessKeyId: process.env.S3_ACCESS_KEY, secretAccessKey: process.env.S3_ACCESS_SECRET });
 const S3 = new AWS.S3();
 
+async function uploadFile (buffer, fileParams) {
+  return new Promise((resolve, reject) => {
+  // or module.exports = (buffer, fileParams) => {
+   // let mkey=parseInt(Math.random()*1000).toString()+fileParams.fileName; //just to make sure files with same name are differentiated
+    let mmkey=parseInt(Date.now()).toString()+fileParams.fileName;
+        const params = {
+          Bucket: 'club-resources-embark',
+          Key: mmkey,
+          Body: buffer,
+          ACL: 'public-read',
+          ContentType: fileParams.fileType,
+          ContentEncoding: fileParams.fileEnc,
+        }
+    console.log("starting upload for..."+fileParams.fileName);
+    try{
+      resolve(S3.upload(params).promise()) 
+    }
+    catch(err){
+      reject(err);
+    }
+  })
+  }
 
 const parseForm = async req => {
   return new Promise((resolve, reject) => {
@@ -18,7 +40,7 @@ const parseForm = async req => {
         files.push({
           fileBuffer: Buffer.concat(buffers[field]),
           fileType: mime,
-          fileName: filename,
+          fileName:filename,
           fileEnc: enc,
         })
       })
@@ -32,20 +54,31 @@ const parseForm = async req => {
     req.pipe(form) // pipe the request to the form handler
   })
 }
-const uploadFile = require("../helpers/upload");
+//const uploadFile = require("../helpers/upload");
 
 module.exports = async (req, res) => {
 // or module.exports = async (req, res) => {
   try {
     const files = await parseForm(req)
-    const fileUrls = []
-    let urls=[]
-    for (const file of files) {
-      const { fileBuffer, ...fileParams } = file
-      const result = uploadFile(fileBuffer, fileParams)
-      urls.push({ filename: result.key, url: result.Location })
+    //storing the names and the types of the files
+    const fileResult=[]
+    for (file of files){
+      fileResult.push({"file":file.fileName,"fileType":file.fileType});
     }
-    res.status(200).json({ success: true, fileUrls: urls })
+
+    //figure this one out
+    let locations=[]
+    
+    for (i=0;i<files.length;i++) {
+      file=files[i];
+      const { fileBuffer, ...fileParams } = file
+      const result = await uploadFile(fileBuffer, fileParams)
+      //console.log(result)
+      //fileResult[i]["location"].push(result.Location)
+      locations.push(result)
+    }
+
+    res.status(200).json({ success: true,fileUrls: locations })
   } catch (err) {
     console.error(err)
     res.status(500).json({ success: false, error: err.message })

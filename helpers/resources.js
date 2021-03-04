@@ -66,5 +66,8 @@ module.exports=async(req,res,next) => {
         
     })
     
+    //get the token and add the resources to the clubModel
+    //const token = req.headers.authorization.split(" ")[1];
+    //const decodedToken = jwt.verify(token, req.app.get('secretKey'));
 
 }

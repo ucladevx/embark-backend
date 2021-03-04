@@ -108,20 +108,20 @@ exports.image = async function (req, res, next) {
   try {
     // const decodedToken = await authorize(req, res, next);
     const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, req.app.get("secretKey"));
+    const decodedToken = jwt.verify(token, req.app.get('secretKey'));
+    console.log(decodedToken)
     let updatedFields;
-    console.log(pictureType);
-    if (pictureType === "cover") {
-      updatedFields = { coverPicURL: imageURL };
-    } else {
-      updatedFields = { profilePicURL: imageURL };
+    console.log("picture", pictureType);
+    if (pictureType === 'cover') {
+      updatedFields = { coverPicURL: imageURL }
     }
-    const updatedStudent = await findAndUpdate(
-      decodedToken.email,
-      updatedFields
-    );
-    res.send({ updatedStudent });
-  } catch (err) {
+    else {
+      updatedFields = { profilePicURL: imageURL }
+    }
+    const updatedStudent = await studentModel.findOneAndUpdate({ email: decodedToken.email }, updatedFields);
+    return res.status(200).json({ updatedStudent });
+  }
+  catch (err) {
     return res.json({ message: err.message });
   }
 };

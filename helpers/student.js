@@ -101,16 +101,17 @@ exports.image = async function (req, res, next) {
     // const decodedToken = await authorize(req, res, next);
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, req.app.get('secretKey'));
+    console.log(decodedToken)
     let updatedFields;
-    console.log(pictureType);
+    console.log("picture", pictureType);
     if (pictureType === 'cover') {
       updatedFields = { coverPicURL: imageURL }
     }
     else {
       updatedFields = { profilePicURL: imageURL }
     }
-    const updatedStudent = await findAndUpdate(decodedToken.email, updatedFields);
-    res.send({ updatedStudent });
+    const updatedStudent = await studentModel.findOneAndUpdate({ email: decodedToken.email }, updatedFields);
+    return res.status(200).json({ updatedStudent });
   }
   catch (err) {
     return res.json({ message: err.message });

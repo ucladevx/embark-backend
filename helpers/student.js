@@ -105,7 +105,7 @@ exports.image = async function (req, res, next) {
 }
 
 exports.getClubs = async function (req, res) {
-  
+
   // pull email from jwt
   const token = req.headers.authorization.split(" ")[1];
   const decoded = jwt.decode(token, { complete: true });
@@ -113,59 +113,32 @@ exports.getClubs = async function (req, res) {
   console.log('Request made from:', email)
 
   // Find which clubs the student follows
-  let clubs = []
+  let clubs
   try {
-    clubs = await studentModel.findOne({ email: email }, 'clubs');
-    console.log('Clubs:', clubs)
+    clubs = await studentModel.findOne({ email }, 'clubs');
   }
   catch (err) {
     return res.status(400).json({
-      message: err.message 
+      message: err.message
     })
   }
 
   let clubDetails = []
 
-  // Find details of each followed club
-  clubs.clubs.forEach(async (club) => {
-    const clubQuery = await clubModel.findOne({email: club});
-    clubDetails.push({
-      website: clubQuery.website,
-      description: clubQuery.description,
-      profilePicURL: clubQuery.profilePicURL
-    })
-  })
-
-  return res.status(200).json({
-    message: "Query successful",
-    clubDetails
-  })
-}
-
-  /*
-  if (clubs) {
-    try {
-      const clubsQueried = await clubModel.findOne({ email: clubs })
-      clubsQueried.forEach(club => {
-        clubDetails.push({
-          website: club.website,
-          description: club.description,
-          profilePicURL: club.profilePicURL
-        })
-      }) 
-      return res.status(200).json({
-        message: "Clubs queried successfully.",
-        clubDetails
+  for (const club of clubs.clubs) {
+    const clubQuery = await clubModel.findOne({ email: club })
+    if (clubQuery) {
+      clubDetails.push({
+        name: clubQuery.name,
+        website: clubQuery.website,
+        description: clubQuery.description,
+        profilePicURL: clubQuery.profilePicURL
       })
-    }
-    catch (err) {
-      return res.status(400).json({
-        message: err.message 
-      })
+    } else {
+      clubDetails.push("Club not found in club database.") // possibly throw Error or return early with status 500
     }
   }
-  return res.status(200).json({
-    message: "No clubs.",
-    clubDetails
-  })
-*/
+
+  return res.status(200).json(clubDetails)
+
+}

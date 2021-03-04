@@ -433,10 +433,39 @@ Returns:
     }
 ```
 
+## POST /club/resources
+
+In:Authorization`header, in the format`Bearer <token>`
+Request Body: files with key 'file'
+Returns: if Successful:
+
+```
+{
+    "success": true,
+    "files": [
+        {
+            "file": <fileName>,
+            "fileType": "text/plain" or "application/vnd.openxmlformats-officedocument.presentationml.presentation" or "application/pdf"
+        },
+        ... other files
+    ],
+    "fileUrls": [
+        {
+            "ETag": "\"d41d8cd98f00b204e9800998ecf8427e\"",
+            "Location": <URL OF THE LOCATION OF THE FILE IN AWS>,
+            "key": <FILE KEY>,
+            "Key": <FILE KEY>,
+            "Bucket": "club-resources-embark"
+        },
+        ... other files
+    ]
+}
+```
+
 ### POST /club/profile/image?pictureType= <either profile or cover>
 
 In: `Authorization` header, in the format `Bearer <token>`
-Request body: nothing
+Request body: image file with key 'image'
 
 Returns (updates either profile picture or cover picture depending on what you query):
 

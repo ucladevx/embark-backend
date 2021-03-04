@@ -92,7 +92,9 @@ module.exports = async (req, res) => {
     updatedFields["resources"] = urls;
     await clubModel.findOneAndUpdate(decodedToken.id, updatedFields);
 
-    res.status(200).json({ success: true, fileUrls: locations });
+    res
+      .status(200)
+      .json({ success: true, files: fileResult, fileUrls: locations });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.message });

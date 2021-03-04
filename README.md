@@ -1,8 +1,9 @@
 # Embark Backend
 
 To run:
-* Clone the repository
-* Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.
+
+- Clone the repository
+- Run `docker-compose up --build`. If you've modified the docker files, run `docker-compose down && docker-compose up --build`.
 
 ## auth/signup
 
@@ -28,6 +29,7 @@ Returns (if successful):
 ```
 
 ## auth/signin
+
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
 Request body:
 
@@ -85,19 +87,16 @@ Returns:
 ### GET /posts
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
-Query Parameters: 
-``
-limitNum (type:int)
-optional: next (type:next string-- you can get this from a previous GET request of /posts)
-optional: previous(type: previous string -- -- you can get this from a previous GET request of /posts)
-``
+Query Parameters:
+`limitNum (type:int) optional: next (type:next string-- you can get this from a previous GET request of /posts) optional: previous(type: previous string -- -- you can get this from a previous GET request of /posts)`
 Returns:
+
 ```
 {
     "message": "Posts successfully queried.",
      "paginatedPosts": {
         "results": [
-    
+
         {
             "_id": <id>,
             "tags": <array_of_tags>,
@@ -107,14 +106,29 @@ Returns:
             "authorEmail": <email>,
             "__v": <v>
         },
-        ... 
+        ...
         // array of such posts
         ]
      }
 }
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+<<<<<<< HEAD
+
+### /signup
+
+=======
+
+> > > > > > > # d9b97f30fa0f8d1b92ea23df0928e908b9811c06
+> > > > > > >
+> > > > > > > # d540e6de8874e3f0093ac013744f3d063056e14c
+
 ## Authorization
+
+> > > > > > > e84bbb0f177c3086a893de13961364e6eb1d437c
 
 ### auth/signup
 
@@ -299,11 +313,14 @@ Returns:
 ```
 
 ## /profile
+
 All requests to be made with `Authorization` header, in the format `Bearer <token>`.
 
 ### GET /student/profile
+
 In: `Authorization` header, in the format `Bearer <token>`
 Returns:
+
 ```
  "student": {
         "posts": [],
@@ -328,6 +345,7 @@ Returns:
 
 In: `Authorization` header, in the format `Bearer <token>`
 Returns:
+
 ```
 "club": {
         "tags": [],
@@ -344,12 +362,14 @@ Returns:
 ```
 
 ### POST /student/profile
+
 Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
 Request Body (all fields are optional):
 NOTE: for adding tags and clubs, you only need to include the tags you would like to add into the user tags, and
 if you want to remove a tag/club, you can pass in a "rm<tag/club>" for example, "rmlaw" will remove the law tag
+
 ```
 {
     "name": <name>,
@@ -362,7 +382,9 @@ if you want to remove a tag/club, you can pass in a "rm<tag/club>" for example, 
     "linkedIn":<linkedIn>
 }
 ```
+
 Returns:
+
 ```
 "returnedStudent":
 {
@@ -384,10 +406,12 @@ Returns:
 ```
 
 ### POST /club/profile
+
 Edit Student profile
 
 In: `Authorization` header, in the format `Bearer <token>`
-Request Body (all fields are optional): 
+Request Body (all fields are optional):
+
 ```
 {
     "name": <name>,
@@ -399,7 +423,9 @@ Request Body (all fields are optional):
     "linkedIn":<linkedIn>
 }
 ```
+
 Returns:
+
 ```
  "returnedClub": {
         "tags": [],
@@ -415,11 +441,42 @@ Returns:
     }
 ```
 
+## POST /club/resources
+
+In:Authorization`header, in the format`Bearer <token>`
+Request Body: files with key 'file'
+Returns: if Successful:
+
+```
+{
+    "success": true,
+    "files": [
+        {
+            "file": <fileName>,
+            "fileType": "text/plain" or "application/vnd.openxmlformats-officedocument.presentationml.presentation" or "application/pdf"
+        },
+        ... other files
+    ],
+    "fileUrls": [
+        {
+            "ETag": "\"d41d8cd98f00b204e9800998ecf8427e\"",
+            "Location": <URL OF THE LOCATION OF THE FILE IN AWS>,
+            "key": <FILE KEY>,
+            "Key": <FILE KEY>,
+            "Bucket": "club-resources-embark"
+        },
+        ... other files
+    ]
+}
+```
+
 ### POST /club/profile/image?pictureType= <either profile or cover>
+
 In: `Authorization` header, in the format `Bearer <token>`
-Request body: nothing
+Request body: image file with key 'image'
 
 Returns (updates either profile picture or cover picture depending on what you query):
+
 ```
 "returnedClub": {
         "tags": [],
@@ -433,11 +490,14 @@ Returns (updates either profile picture or cover picture depending on what you q
         "coverPicURL": ""
     }
 ```
+
 ##### POST /student/profile/image?pictureType= <either profile or cover>
+
 In: `Authorization` header, in the format `Bearer <token>`
 Request body: nothing
 
 Returns (updates either profile picture or cover picture depending on what you query):
+
 ```
  "returnedStudent": {
         "posts": [],
@@ -457,11 +517,13 @@ Returns (updates either profile picture or cover picture depending on what you q
     }
 ```
 
-
 ### POST /student/following
+
 ### POST /club/following
-In: Authorization header, in the format Bearer <token> 
+
+In: Authorization header, in the format Bearer <token>
 Request Body:
+
 ```
 {
     userEmail: ""
@@ -470,6 +532,7 @@ Request Body:
 ```
 
 Returns:
+
 ```
 {
     followedClubs: ""
@@ -477,10 +540,12 @@ Returns:
 ```
 
 ### GET /student/following
+
 ### GET /club/following
 
-In: Authorization header, in the format Bearer <token> 
+In: Authorization header, in the format Bearer <token>
 Request Body:
+
 ```
 {
     userEmail: ""
@@ -488,8 +553,9 @@ Request Body:
 ```
 
 Returns:
+
 ```
-{    
+{
     followedClubs: ""
 }
 ```
@@ -698,9 +764,16 @@ or
 }
 ```
 
+<<<<<<< HEAD
+### GET /post/me
+
+In: Authorization header, in the format Bearer <token>
+=======
 ### GET /posts/me
 In: Authorization header, in the format Bearer <token> 
+>>>>>>> master
 Request Body:
+
 ```
 {
     accountType: "student"
@@ -708,6 +781,7 @@ Request Body:
 ```
 
 Returns: a list of post IDs
+
 ```
 {
     "posts": ""

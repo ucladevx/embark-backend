@@ -191,7 +191,11 @@ exports.getPostLikes = async function (req, res, next) {
 
 exports.savePost = async function (req, res) {
     // add postid to saved posts field for student + club
-    const { email, accountType, post_id } = req.body
+    const { accountType, post_id } = req.body
+
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.decode(token, { complete: true });
+    let email = decoded.payload.email;
 
     if (accountType == "student") {
         try {
@@ -224,8 +228,12 @@ exports.savePost = async function (req, res) {
 
 exports.getSavedPosts = async function (req, res) {
     // return array of posts
-    const email = req.body.email;
-    const accountType = req.body.accountType;
+    const accountType = req.query.accountType;
+
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.decode(token, { complete: true });
+    let email = decoded.payload.email;
+
     if (accountType == "student") {
         try {
             let user = await studentModel.findOne({ email })
@@ -261,11 +269,16 @@ exports.getSavedPosts = async function (req, res) {
 // req body: user's email
 // returns: post IDs of posts authored by user 
 exports.getPostsbyUser = async function (req, res) {
-    const { accountType, userEmail } = req.body;
+    const { accountType } = req.query;
+
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.decode(token, { complete: true });
+    let email = decoded.payload.email;
+
     if (accountType == "student") {
         try {
             let user = await studentModel.findOne({
-                email: userEmail
+                email
             })
             let posts = await user.get('posts');
             console.log('authoredPosts: ', posts)
@@ -281,7 +294,7 @@ exports.getPostsbyUser = async function (req, res) {
     } else {
         try {
             let user = await clubModel.findOne({
-                email: userEmail
+                email
             })
             let posts = await user.get('posts');
             console.log('authoredPosts: ', posts)

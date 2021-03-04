@@ -637,14 +637,13 @@ Returns:
 
 ## /post/saved
 
-### GET /post/saved
+### GET /posts/saved
 
 In: Authorization header, in the format Bearer <token>
 Request Body:
 
 ```
 {
-    email: ""
     accountType: ""
 }
 ```
@@ -671,7 +670,7 @@ or
 }
 ```
 
-### POST /post/saved
+### POST /posts/saved
 
 In: Authorization header, in the format Bearer <token>
 Request Body:
@@ -679,7 +678,6 @@ Request Body:
 ```
 {
     post_id: "",
-    email: "",
     accountType: ""
 }
 ```
@@ -700,12 +698,11 @@ or
 }
 ```
 
-### GET /post/me
+### GET /posts/me
 In: Authorization header, in the format Bearer <token> 
 Request Body:
 ```
 {
-    userEmail: "",
     accountType: "student"
 }
 ```

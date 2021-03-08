@@ -49,6 +49,10 @@ const studentSchema = new mongoose.Schema({
   followedClubs: {
     type: [String],
   },
+  active: {
+    type: Boolean,
+    default: "false",
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

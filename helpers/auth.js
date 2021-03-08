@@ -217,6 +217,13 @@ exports.signin = async function (req, res, next) {
       });
     }
 
+    const activeStatus = userInfo.active;
+    if (activeStatus === false) {
+      return res.status(401).json({
+        message: "Account email not verified",
+      });
+    }
+
     if (await bcrypt.compare(password, userInfo.password)) {
       const token = jwt.sign(
         { id: userInfo._id, name: userInfo.name, email: email },

@@ -3,7 +3,11 @@ const router = express.Router();
 const passport = require("passport");
 
 const { signin, signup, oauthSuccess } = require("../helpers/auth");
-const { forgotPass, resetPass, changePass } = require("../helpers/emails");
+const {
+  forgotPass,
+  resetPass,
+  changePass,
+} = require("../helpers/emails/password");
 const authorize = require("../helpers/authMiddleware");
 
 router.post(

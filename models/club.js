@@ -51,6 +51,10 @@ const clubSchema = new mongoose.Schema({
   resources: {
     type: [String],
   },
+  active: {
+    type: Boolean,
+    default: "false",
+  },
 });
 
 const Club = mongoose.model("Club", clubSchema);

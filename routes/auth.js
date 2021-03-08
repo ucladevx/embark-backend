@@ -8,6 +8,7 @@ const {
   resetPass,
   changePass,
 } = require("../helpers/emails/password");
+const { verifyAccount } = require("../helpers/emails/accountVerify");
 const authorize = require("../helpers/authMiddleware");
 
 router.post(
@@ -68,6 +69,8 @@ router.get("/google/redirect", function (req, res, next) {
 router.post("/signin", signin);
 
 router.post("/signup", signup);
+
+router.get("/verifyAccount/:token", verifyAccount);
 
 router.post("/forgotPassword", forgotPass);
 router.get("/resetPassword/:token", resetPass);

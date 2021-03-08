@@ -1,10 +1,11 @@
-const postModel = require("../models/post");
-const { getPostsPage } = require("../helpers/postsPagination");
-
 const studentModel = require("../models/student");
 const clubModel = require("../models/club");
 const commentModel = require("../models/comment");
+const postModel = require("../models/post");
+
+const { getPostsPage } = require("../helpers/postsPagination");
 const jwt = require("jsonwebtoken");
+const MongoPaging = require("mongo-cursor-pagination");
 
 exports.createPosts = async function (req, res, next) {
   const { title, body, timestamp, tags, accountType } = req.body;
@@ -104,14 +105,17 @@ exports.getPosts = async function (req, res, next) {
 exports.addPostComment = async function (req, res) {
   const { authorEmail, post_id, comment } = req.body;
   try {
-    const comment = new commentModel({});
-    let post = await postModel.findById(post_id);
-    await post.get("comments").push({
-      authorEmail: authorEmail,
-      body: comment,
-      date: new Date(),
+    const newComment = new commentModel({
+      post_id,
+      authorEmail,
+      comment,
     });
+    await newComment.save();
+
+    let post = await postModel.findById(post_id);
+    await post.get("comments").push(newComment.id);
     await post.save();
+
     comments = post.get("comments");
     res.status(201).json({
       message: "Added Comments",

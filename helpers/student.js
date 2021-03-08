@@ -84,12 +84,10 @@ exports.profile = async function (req, res, next) {
 exports.image = async function (req, res, next) {
   const { pictureType } = req.query;
   const imageURL = await imageFunction(req, res, next);   //gets the aws image URL
-  const token = req.headers.authorization.split(" ")[1];
-  console.log(token);
-  const decoded = jwt.decode(token);
   try {
-    // const decodedToken = await authorize(req, res, next);
-    //let id = decoded.payload.id;
+    const token = req.headers.authorization.split(" ")[1];
+    console.log(token);
+    const decoded = jwt.decode(token);
     console.log(decoded);
     let updatedFields;
     console.log(pictureType);
@@ -99,19 +97,16 @@ exports.image = async function (req, res, next) {
     else {
       updatedFields = { profilePicURL: imageURL }
     }
-    console.log("it made it here")
     const updatedStudent = await studentModel.findOneAndUpdate({email: decoded.email}, updatedFields);
-    //const updatedStudent = await studentModel.findOne({email: decoded.email})
     return res.status(200).json(updatedStudent)
   }
   catch (err) {
-    console.log("something")
     return res.status(400).json({ message: err.message });
   }
 }
 
 exports.getClubs = async function (req, res) {
-  
+
   // pull email from jwt
   const token = req.headers.authorization.split(" ")[1];
   const decoded = jwt.decode(token, { complete: true });
@@ -119,62 +114,34 @@ exports.getClubs = async function (req, res) {
   console.log('Request made from:', id)
 
   // Find which clubs the student follows
-  let clubs = []
+  let clubs
   try {
-    clubs = await studentModel.findOne({ _id: id }, 'clubs');
-    console.log('Clubs:', clubs)
+    clubs = await studentModel.findOne({ email }, 'clubs');
   }
   catch (err) {
     return res.status(400).json({
-      message: err.message 
+      message: err.message
     })
   }
 
   let clubDetails = []
 
-  // Find details of each followed club
-  clubs.clubs.forEach(async (club) => {
-    const clubQuery = await clubModel.findOne({email: club});
-    clubDetails.push({
-      website: clubQuery.website,
-      description: clubQuery.description,
-      profilePicURL: clubQuery.profilePicURL
-    })
-  })
-
-  return res.status(200).json({
-    message: "Query successful",
-    clubDetails
-  })
-}
-
-  /*
-  if (clubs) {
-    try {
-      const clubsQueried = await clubModel.findOne({ email: clubs })
-      clubsQueried.forEach(club => {
-        clubDetails.push({
-          website: club.website,
-          description: club.description,
-          profilePicURL: club.profilePicURL
-        })
-      }) 
-      return res.status(200).json({
-        message: "Clubs queried successfully.",
-        clubDetails
+  for (const club of clubs.clubs) {
+    const clubQuery = await clubModel.findOne({ email: club })
+    if (clubQuery) {
+      clubDetails.push({
+        name: clubQuery.name,
+        website: clubQuery.website,
+        description: clubQuery.description,
+        profilePicURL: clubQuery.profilePicURL
       })
-    }
-    catch (err) {
-      return res.status(400).json({
-        message: err.message 
-      })
+    } else {
+      clubDetails.push("Club not found in club database.") // possibly throw Error or return early with status 500
     }
   }
-  return res.status(200).json({
-    message: "No clubs.",
-    clubDetails
-  })
-*/
+
+  return res.status(200).json(clubDetails)
+}
 
 exports.getIndustries = async function (req, res) {
   
@@ -201,3 +168,5 @@ exports.getIndustries = async function (req, res) {
   }
 }
 
+
+  

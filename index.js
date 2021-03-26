@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const rateLimit = require("express-rate-limit");
 const maintenance = require('@zrpaplicacoes/maintenance_mode');
+const mongoSanitize = require("express-mongo-sanitize");
 const xss = require('xss-clean');
 require("dotenv").config();
 
@@ -54,6 +55,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(maintenance(app, options));
 app.use(xss());
+app.use(mongoSanitize());
 app.set("secretKey", process.env.JWT_SECRET);
 
 const PORT = process.env.PORT || 9000;

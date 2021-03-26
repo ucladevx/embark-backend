@@ -14,23 +14,23 @@ const allLimiter = rateLimit({
 });
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 10 // limit each IP to 100 requests per windowMs
 });
 const postLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 50 // limit each IP to 100 requests per windowMs
 });
 const studentLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 25 // limit each IP to 100 requests per windowMs
 });
 const clubLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 50 // limit each IP to 100 requests per windowMs
 });
 const eventLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 25 // limit each IP to 100 requests per windowMs
 });
 
 //  maintenance mode settings

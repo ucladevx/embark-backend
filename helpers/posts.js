@@ -13,12 +13,6 @@ exports.createPosts = async function (req, res, next) {
   const token = req.headers.authorization.split(" ")[1];
   const decoded = jwt.decode(token, { complete: true });
   let email = decoded.payload.email;
-  console.log("Request made from:", email);
-
-  // pull email from jwt
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded = jwt.decode(token, { complete: true });
-  let email = decoded.payload.email;
 
   // save post to db
   const post = new postModel({
@@ -156,20 +150,15 @@ exports.addPostLike = async function (req, res) {
     let post = await postModel.findById(post_id);
     likedUsers = await post.get("userLikes");
 
-    console.log(likedUsers.includes(authorEmail));
-    // console.log(post.get('authorEmail'))
-    // console.log(authorEmail)
     if (!likedUsers.includes(authorEmail)) {
-      post = await postModel.findByIdAndUpdate(post_id, { $inc: { likes: 1 } });
-      likes = post.get("likes");
-      console.log("likes", likes);
-
-      await post.get("userLikes").push(authorEmail);
-
-      await post.save();
+      post = await postModel.findByIdAndUpdate(
+        post_id,
+        { $inc: { likes: 1 } },
+        { new: true }
+      );
+      await post.update({ $push: { userLikes: authorEmail } });
       resMessage = "incremented post like";
     } else {
-      console.log("User already liked.");
       resMessage = "User already liked.";
     }
     res.status(201).json({
@@ -189,7 +178,6 @@ exports.getPostLikes = async function (req, res, next) {
   try {
     let post = await postModel.findById(post_id);
     likes = post.get("likes");
-    console.log("likes", likes);
     res.status(200).json({
       message: "Likes for post queried",
       likes,

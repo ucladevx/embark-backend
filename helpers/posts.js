@@ -2,7 +2,7 @@ const postModel = require("../models/post");
 const commentModel = require("../models/comment");
 const studentModel = require("../models/student");
 const clubModel = require("../models/club");
-const { getPostsPage } = require("../helpers/postsPagination");
+const { getPostsPage, getComments } = require("../helpers/postsPagination");
 const jwt = require("jsonwebtoken");
 const MongoPaging = require("mongo-cursor-pagination");
 
@@ -28,7 +28,7 @@ exports.createPosts = async function (req, res, next) {
   try {
     await post.save();
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       message: err.message,
     });
   }
@@ -89,7 +89,7 @@ exports.getPosts = async function (req, res, next) {
       clubs
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Posts successfully queried.",
       paginatedPosts,
     });
@@ -126,21 +126,23 @@ exports.addPostComment = async function (req, res) {
 };
 
 exports.getPostComments = async function (req, res, next) {
-  const { post_id } = req.body;
+  const { post_id, limit, nextPage, prevPage } = req.body;
   try {
-    let post = await postModel.findById(post_id);
-    comments = post.get("comments");
-    console.log("comments", comments);
+    let paginatedComments = await getComments(
+      post_id,
+      limit,
+      nextPage,
+      prevPage
+    );
+    return res.status(200).json({
+      message: "Comments successfully queried.",
+      paginatedComments,
+    });
   } catch (err) {
     return res.status(400).json({
       message: err.message,
     });
   }
-
-  res.status(200).json({
-    message: "Get post comments",
-    comments,
-  });
 };
 
 exports.addPostLike = async function (req, res) {

@@ -1,8 +1,7 @@
+const postModel = require("../models/post");
+const commentModel = require("../models/comment");
 const studentModel = require("../models/student");
 const clubModel = require("../models/club");
-const commentModel = require("../models/comment");
-const postModel = require("../models/post");
-
 const { getPostsPage } = require("../helpers/postsPagination");
 const jwt = require("jsonwebtoken");
 const MongoPaging = require("mongo-cursor-pagination");
@@ -15,6 +14,11 @@ exports.createPosts = async function (req, res, next) {
   const decoded = jwt.decode(token, { complete: true });
   let email = decoded.payload.email;
   console.log("Request made from:", email);
+
+  // pull email from jwt
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded = jwt.decode(token, { complete: true });
+  let email = decoded.payload.email;
 
   // save post to db
   const post = new postModel({
@@ -103,23 +107,22 @@ exports.getPosts = async function (req, res, next) {
 };
 
 exports.addPostComment = async function (req, res) {
-  const { authorEmail, post_id, comment } = req.body;
+  const { authorEmail, post_id, commentBody } = req.body;
   try {
-    const newComment = new commentModel({
+    const comment = new commentModel({
       post_id,
       authorEmail,
-      comment,
+      commentBody,
+      timestamp: new Date(),
     });
-    await newComment.save();
+    await comment.save();
 
     let post = await postModel.findById(post_id);
-    await post.get("comments").push(newComment.id);
+    await post.update({ $push: { comments: commentModel._id } });
     await post.save();
 
-    comments = post.get("comments");
     res.status(201).json({
       message: "Added Comments",
-      comments,
     });
   } catch (err) {
     return res.status(400).json({

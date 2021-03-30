@@ -3,6 +3,7 @@ const commentModel = require("../models/comment");
 const studentModel = require("../models/student");
 const clubModel = require("../models/club");
 const { getPostsPage, getComments } = require("../helpers/postsPagination");
+const { decodeToken } = require("../helpers/utils");
 const jwt = require("jsonwebtoken");
 const MongoPaging = require("mongo-cursor-pagination");
 
@@ -112,10 +113,8 @@ exports.addPostComment = async function (req, res) {
     await comment.save();
 
     let post = await postModel.findById(post_id);
-    await post.update({ $push: { comments: commentModel._id } });
-    await post.save();
-
-    res.status(201).json({
+    await post.updateOne({ $push: { comments: commentModel._id } });
+    return res.status(201).json({
       message: "Added Comments",
     });
   } catch (err) {
@@ -153,17 +152,13 @@ exports.addPostLike = async function (req, res) {
     likedUsers = await post.get("userLikes");
 
     if (!likedUsers.includes(authorEmail)) {
-      post = await postModel.findByIdAndUpdate(
-        post_id,
-        { $inc: { likes: 1 } },
-        { new: true }
-      );
-      await post.update({ $push: { userLikes: authorEmail } });
+      await post.updateOne({ $inc: { likes: 1 } }, { new: true });
+      await post.updateOne({ $push: { userLikes: authorEmail } });
       resMessage = "incremented post like";
     } else {
       resMessage = "User already liked.";
     }
-    res.status(201).json({
+    return res.status(201).json({
       message: resMessage,
       post,
     });
@@ -176,7 +171,7 @@ exports.addPostLike = async function (req, res) {
 
 exports.getPostLikes = async function (req, res, next) {
   const { post_id } = req.body;
-  // console.log(post_id);
+
   try {
     let post = await postModel.findById(post_id);
     likes = post.get("likes");
@@ -195,15 +190,13 @@ exports.savePost = async function (req, res) {
   // add postid to saved posts field for student + club
   const { accountType, post_id } = req.body;
 
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded = jwt.decode(token, { complete: true });
-  let email = decoded.payload.email;
+  const payload = decodeToken(req);
+  let email = payload.email;
 
   if (accountType == "student") {
     try {
       let user = await studentModel.findOne({ email });
-      user.savedPosts.push(post_id);
-      await user.save();
+      await user.updateOne({ $push: { savedPosts: post_id } });
       res.status(201).json({
         message: "student created saved post",
       });
@@ -216,8 +209,7 @@ exports.savePost = async function (req, res) {
     // get club saved posts
     try {
       let user = await clubModel.findOne({ email });
-      user.savedPosts.push(post_id);
-      await user.save();
+      await user.updateOne({ $push: { savedPosts: post_id } });
     } catch (err) {
       return res.status(400).json({
         message: err.message,
@@ -233,21 +225,19 @@ exports.getSavedPosts = async function (req, res) {
   // return array of posts
   const accountType = req.query.accountType;
 
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded = jwt.decode(token, { complete: true });
-  let email = decoded.payload.email;
+  const payload = decodeToken(req);
+  let email = payload.email;
 
   if (accountType == "student") {
     try {
       let user = await studentModel.findOne({ email });
       posts = user.get("savedPosts");
-      console.log("savedPosts", posts);
     } catch (err) {
       return res.status(400).json({
         message: err.message,
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
       message: "Student Saved Posts successfully queried.",
       posts,
     });
@@ -255,8 +245,7 @@ exports.getSavedPosts = async function (req, res) {
     try {
       let user = await clubModel.findOne({ email });
       posts = user.get("savedPosts");
-      console.log("savedPosts", posts);
-      res.status(200).json({
+      return res.status(200).json({
         message: "Club Saved Posts successfully queried.",
         posts,
       });
@@ -273,10 +262,8 @@ exports.getSavedPosts = async function (req, res) {
 // returns: post IDs of posts authored by user
 exports.getPostsbyUser = async function (req, res) {
   const { accountType } = req.query;
-
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded = jwt.decode(token, { complete: true });
-  let email = decoded.payload.email;
+  const payload = decodeToken(req);
+  let email = payload.email;
 
   if (accountType == "student") {
     try {
@@ -284,7 +271,6 @@ exports.getPostsbyUser = async function (req, res) {
         email,
       });
       let posts = await user.get("posts");
-      console.log("authoredPosts: ", posts);
       res.status(200).json({
         message: "Student authored posts successfully queried.",
         posts,
@@ -300,7 +286,6 @@ exports.getPostsbyUser = async function (req, res) {
         email,
       });
       let posts = await user.get("posts");
-      console.log("authoredPosts: ", posts);
       res.status(200).json({
         message: "Club authored posts successfully queried.",
         posts,

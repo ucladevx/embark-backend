@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { editProfile, profile, image, followClub, getFollowedClubs, discover } = require("../helpers/club")
+const { editProfile, profile, image, followClub, getFollowedClubs, discover, search } = require("../helpers/club")
 const authorize = require("../helpers/authMiddleware");
 
 router.post("/profile", authorize, editProfile);
@@ -14,5 +14,6 @@ router.post("/following", authorize, followClub)
 router.get("/following", authorize, getFollowedClubs)
 
 router.get("/discover", authorize, discover);
+router.get("/search", authorize, search)
 
 module.exports = router;

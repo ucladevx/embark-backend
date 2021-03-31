@@ -50,6 +50,8 @@ const studentSchema = new mongoose.Schema({
         type: [String]
     }
 })
+studentSchema.index({name: 'text'}); 
+
 
 const Student = mongoose.model("Student", studentSchema);
 module.exports = Student;

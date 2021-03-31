@@ -173,3 +173,22 @@ exports.getFollowedClubs = async function (req, res) {
     })
   }
 }
+
+
+exports.search = async function (req, res) {
+  try{
+    const {searchString} = req.body;
+    let searchResult = await studentModel.find({$text: {$search: searchString}})
+    // returns an array of objects that match
+    // todo: return the names of each search
+    console.log(searchResult)
+    console.log(searchResult[0].name)
+    res.status(200).json({
+      result: searchResult[0].name
+    })
+  }catch(e) {
+    res.status(400).json({
+      message: e.message
+    })
+  }
+}

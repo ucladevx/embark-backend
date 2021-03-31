@@ -4,7 +4,8 @@ const jwt = require("jsonwebtoken");
 const imageFunction = require("../helpers/image");
 const { changeField } = require('../helpers/student');
 const { decodeToken } = require("../helpers/utils");
-const MongoPaging = require("mongo-cursor-pagination")
+const MongoPaging = require("mongo-cursor-pagination");
+const { collection } = require('../models/club');
 
 const findAndUpdate = async (decodedEmail, updatedFields) => {
   const club = await clubModel.findOne({ email: decodedEmail });
@@ -170,3 +171,45 @@ exports.discover = async function (req, res) {
     });
   }
 }
+
+// GET
+// req query: name of club
+// returns: list of hits
+exports.search = async function (req, res) {
+  try{
+    const {searchString} = req.body;
+    let searchResult = await clubModel.find({$text: {$search: searchString}})
+    // returns an array of objects that match
+    // todo: return the names of each search
+    console.log(searchResult)
+    console.log(searchResult[0].name)
+    res.status(200).json({
+      result: searchResult[0].name
+    })
+  }catch(e) {
+    res.status(400).json({
+      message: e.message
+    })
+  }
+}
+/* 
+// source: https://www.youtube.com/watch?v=Xn80t7G1-n4
+exports.search = async function (req, res) {
+  try{
+    let result = await clubModel.aggregate([{
+      "$search": {
+        "text": {
+          "query": `${req.query.term}`,
+          "fuzzy": {
+            "maxEdits": 2
+          }
+        }
+      }
+    }])
+  }catch(e) {
+    res.status(400).json({
+      message: e.message
+    })
+  }
+}
+*/

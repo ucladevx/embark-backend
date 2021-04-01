@@ -1,11 +1,10 @@
-const clubModel = require('../models/club')
-const studentModel = require('../models/student');
+const clubModel = require("../models/club");
+const studentModel = require("../models/student");
 const jwt = require("jsonwebtoken");
 const imageFunction = require("../helpers/image");
-const { changeField } = require('../helpers/student');
+const { changeField } = require("../helpers/student");
 const { decodeToken } = require("../helpers/utils");
 const MongoPaging = require("mongo-cursor-pagination");
-const { collection } = require('../models/club');
 
 const findAndUpdate = async (decodedEmail, updatedFields) => {
   const club = await clubModel.findOne({ email: decodedEmail });
@@ -15,7 +14,15 @@ const findAndUpdate = async (decodedEmail, updatedFields) => {
 };
 
 exports.editProfile = async function (req, res, next) {
-  const { name, description, tags, profilePicURL, coverPicURL, website } = req.body;
+  const {
+    name,
+    resources,
+    description,
+    tags,
+    profilePicURL,
+    coverPicURL,
+    website,
+  } = req.body;
   editableFields = { name, description, profilePicURL, coverPicURL, website };
   // const decodedToken=await authorize(req,res,next);
   const token = req.headers.authorization.split(" ")[1];
@@ -45,7 +52,10 @@ exports.profile = async function (req, res, next) {
   // const decodedToken = await authorize(req, res, next);
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, req.app.get("secretKey"));
-  const club = await clubModel.findOne({ email: decodedToken.email }, { password: 0 });
+  const club = await clubModel.findOne(
+    { email: decodedToken.email },
+    { password: 0 }
+  );
   res.send({ club });
 };
 
@@ -72,39 +82,38 @@ exports.image = async function (req, res, next) {
       message: "ID not found (it is likely the token is incorrect)",
     });
   }
-}
+};
 
 // POST
-// request body: userEmail, clubEmail (to follow) 
+// request body: userEmail, clubEmail (to follow)
 exports.followClub = async function (req, res, next) {
   const { userEmail, clubEmail } = req.body;
-  resMessage = ""
+  resMessage = "";
   try {
     let user = await clubModel.findOne({
-      email: userEmail
-    })
+      email: userEmail,
+    });
 
-    let followedClubs = await user.get('followedClubs')
-    console.log('followedClubs', followedClubs)
+    let followedClubs = await user.get("followedClubs");
+    console.log("followedClubs", followedClubs);
 
     if (followedClubs.includes(clubEmail)) {
-      resMessage = "this user already follows this club"
+      resMessage = "this user already follows this club";
     } else {
-      await followedClubs.push(clubEmail)
-      await user.save()
-      resMessage = "club successfully follwed club"
+      await followedClubs.push(clubEmail);
+      await user.save();
+      resMessage = "club successfully follwed club";
     }
     res.status(201).json({
       message: resMessage,
-      followedClubs
-    })
+      followedClubs,
+    });
   } catch (err) {
     return res.status(400).json({
-      message: err.message
-    })
+      message: err.message,
+    });
   }
-}
-
+};
 
 // GET
 // request body: userEmail
@@ -113,22 +122,22 @@ exports.getFollowedClubs = async function (req, res) {
   const { userEmail } = req.body;
   try {
     const user = await clubModel.findOne({
-      email: userEmail
-    })
-    console.log(user)
-    let followedClubs = await user.get('followedClubs')
-    console.log('followedClubs', followedClubs)
+      email: userEmail,
+    });
+    console.log(user);
+    let followedClubs = await user.get("followedClubs");
+    console.log("followedClubs", followedClubs);
 
     res.status(200).json({
       message: "Get club's followed clubs",
-      followedClubs
-    })
+      followedClubs,
+    });
   } catch (err) {
     return res.status(400).json({
-      message: err.message
-    })
+      message: err.message,
+    });
   }
-}
+};
 
 exports.discover = async function (req, res) {
   let email = decodeToken(req);
@@ -137,37 +146,38 @@ exports.discover = async function (req, res) {
     user = await studentModel.findOne({ email: email });
   } catch (err) {
     return res.status(400).json({
-      message: err.message
-    })
+      message: err.message,
+    });
   }
-  const { limit, next, previous } = req.query
+  const { limit, next, previous } = req.query;
 
   let tags = user.toObject().tags;
   let clubs = user.toObject().clubs;
   try {
-    const result = await MongoPaging.find(clubModel.collection,
-      {
-        query: {
-          $and: [{
+    const result = await MongoPaging.find(clubModel.collection, {
+      query: {
+        $and: [
+          {
             tags: {
-              $in: tags
-            }
-          }, {
-            name: { $nin: clubs }
-          }
-          ]
-        },
-        paginatedField: "_id",
-        limit: parseInt(limit),
-        next: next,
-        previous: previous
-      });
+              $in: tags,
+            },
+          },
+          {
+            name: { $nin: clubs },
+          },
+        ],
+      },
+      paginatedField: "_id",
+      limit: parseInt(limit),
+      next: next,
+      previous: previous,
+    });
     res.status(200).json({
-      result: result
-    })
+      result: result,
+    });
   } catch (err) {
     res.status(400).json({
-      message: err.message
+      message: err.message,
     });
   }
 }

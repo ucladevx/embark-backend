@@ -180,11 +180,15 @@ exports.search = async function (req, res) {
     const {searchString} = req.body;
     let searchResult = await studentModel.find({$text: {$search: searchString}})
     // returns an array of objects that match
-    // todo: return the names of each search
-    console.log(searchResult)
-    console.log(searchResult[0].name)
+    console.log(searchResult.length)
+    // console.log(searchResult)
+    var resultsList = [];
+    for (i = 0; i < searchResult.length; i++) {
+      resultsList.push({name: searchResult[i].name, id: searchResult[i]._id})
+    }
+    console.log(resultsList)
     res.status(200).json({
-      result: searchResult[0].name
+      result: resultsList
     })
   }catch(e) {
     res.status(400).json({

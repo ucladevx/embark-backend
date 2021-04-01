@@ -709,3 +709,44 @@ Returns: a list of post IDs
     "posts": ""
 }
 ```
+
+### GET /club/search
+In: Authorization header, in the format Bearer <token> 
+Request Body:
+```
+{
+    searchString: "",
+}
+```
+
+Returns: an array of objects representing the search result
+```
+{
+    "result": [
+        {
+            "name": "embark",
+            "id": "60651dcf84687500c42c07ad"
+        },
+    ]
+}
+```
+### GET /student/search
+In: Authorization header, in the format Bearer <token> 
+Request Body:
+```
+{
+    searchString: "",
+}
+```
+
+Returns: an array of objects representing the search result
+```
+{
+    "result": [
+        {
+            "name": "john",
+            "id": "602495fcc0a6e1001d73a55f"
+        },
+    ]
+}
+```

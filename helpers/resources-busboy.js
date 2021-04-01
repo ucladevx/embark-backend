@@ -72,7 +72,6 @@ module.exports = async (req, res) => {
 
     //figure this one out
     let locations = [];
-    let urls = [];
     for (i = 0; i < files.length; i++) {
       file = files[i];
       const { fileBuffer, ...fileParams } = file;
@@ -80,14 +79,16 @@ module.exports = async (req, res) => {
       //console.log(result)
       //fileResult[i]["location"].push(result.Location)
       locations.push(result);
-      urls.push(result.Location);
     }
     //clean output
+    console.log(locations);
     var i;
     for (i = 0; i < locations.length; i++) {
-      console.log((locations[i]["Name"] = locations[i]["key"].substr(13)));
-      delete locations[i]["key"];
+      locations[i]["Name"] = locations[i]["Key"].substr(13);
       delete locations[i]["ETag"];
+      if (locations[i]["key"]) {
+        delete locations[i]["key"];
+      }
     }
 
     //get the decodedToken email and then add it to the club schema

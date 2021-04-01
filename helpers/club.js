@@ -181,3 +181,11 @@ exports.discover = async function (req, res) {
     });
   }
 };
+
+exports.getResources = async function (req, res) {
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(token, req.app.get("secretKey"));
+  const getClub = await clubModel.findOne({ email: decodedToken.email });
+  console.log(getClub);
+  res.status(200).json({ success: true, resources: getClub["resources"] });
+};

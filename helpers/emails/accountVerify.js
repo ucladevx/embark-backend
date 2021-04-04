@@ -6,7 +6,18 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const VerifyAccountTemplate = require("../../mjml/accountVerify");
 
-exports.sendVerify = async function (res, user, type) {
+async function sendMail(msg) {
+  sgMail
+    .send(msg)
+    .then(() => {
+      //console.log('Email sent')
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
+exports.sendVerify = async function (req, res, user, type) {
   const name = user.firstName;
   const email = user.email;
 
@@ -90,7 +101,7 @@ exports.verifyAccount = async function (req, res, next) {
   } catch (err) {
     //maybe redirect to login page
     return res.status(401).json({
-      message: error.message,
+      message: err.message,
     });
   }
 };

@@ -290,7 +290,7 @@ exports.signup = async function (req, res, next) {
 
     try {
       await student.save();
-      await sendVerify(res, student, "student");
+      await sendVerify(req, res, student, "student");
     } catch (e) {
       if (e.message.includes("duplicate") && e.message.includes("name")) {
         return res.status(400).json({
@@ -333,7 +333,7 @@ exports.signup = async function (req, res, next) {
 
     try {
       await club.save();
-      await sendVerify(res, club, "club");
+      await sendVerify(req, res, club, "club");
     } catch (e) {
       if (e.message.includes("duplicate")) {
         return res.status(400).json({

@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20");
 const LinkedInStrategy = require("passport-linkedin-oauth2").Strategy;
+const { sendVerify } = require("../helpers/emails/accountVerify");
 
 passport.use(
   new LinkedInStrategy(
@@ -223,6 +224,13 @@ exports.signin = async function (req, res, next) {
       name = userInfo.firstName;
     }
 
+    const activeStatus = userInfo.active;
+    if (activeStatus === false) {
+      return res.status(401).json({
+        message: "Account email not verified",
+      });
+    }
+
     if (await bcrypt.compare(password, userInfo.password)) {
       const token = jwt.sign(
         { id: userInfo._id, name: name, email: email },
@@ -274,6 +282,7 @@ exports.signup = async function (req, res, next) {
       profilePicURL: "",
       coverPicURL: "",
       linkedIn: "",
+      active: false,
     });
     student.password = await bcrypt.hashSync(password, 10);
     const token = jwt.sign(
@@ -284,7 +293,6 @@ exports.signup = async function (req, res, next) {
 
     //check if in clubModel
     const userInClub = await clubModel.exists({ email: email });
-    //console.log(userInClub);
     if (userInClub) {
       return res.status(400).json({
         message:
@@ -294,7 +302,7 @@ exports.signup = async function (req, res, next) {
 
     try {
       await student.save();
-      return res.status(200).send({ auth: true, token: token });
+      await sendVerify(req, res, student, "student");
     } catch (e) {
       if (e.message.includes("duplicate") && e.message.includes("name")) {
         return res.status(400).json({
@@ -322,6 +330,7 @@ exports.signup = async function (req, res, next) {
       coverPicURL: "",
       savedPosts: [],
       resources: [],
+      active: false,
     });
     club.password = await bcrypt.hashSync(password, 10);
     const token = jwt.sign(
@@ -341,7 +350,7 @@ exports.signup = async function (req, res, next) {
 
     try {
       await club.save();
-      return res.status(200).send({ auth: true, token: token });
+      await sendVerify(req, res, club, "club");
     } catch (e) {
       if (e.message.includes("duplicate")) {
         return res.status(400).json({

@@ -3,9 +3,9 @@ const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const studentModel = require("../models/student");
-const clubModel = require("../models/club");
-const PasswordResetTemplate = require("../mjml/passwordReset");
+const studentModel = require("../../models/student");
+const clubModel = require("../../models/club");
+const PasswordResetTemplate = require("../../mjml/passwordReset");
 
 exports.forgotPass = async function (req, res, next) {
   const email = req.body.email;

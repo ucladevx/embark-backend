@@ -255,7 +255,7 @@ exports.signup = async function (req, res, next) {
   if (!regExpPassword.test(password)) {
     return res.status(400).send({
       message:
-        "Password must be 8 characters, must have one Uppercase, one Lowercase, and one special character",
+        "Password must be at least 8 characters, must have one uppercase char, one lowercase char, one number, and one special character",
     });
   }
   if (req.body.userType == "student") {

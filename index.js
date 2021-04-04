@@ -36,7 +36,7 @@ const eventLimiter = rateLimit({
 
 //  maintenance mode settings
 const options = {
-  mode: true,
+  mode: false,
   /**Hot-Switch options below
    * endpoint: false,
    * url: '/maintenance',

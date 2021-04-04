@@ -37,7 +37,8 @@ passport.use(
         }
       } else if (req.body.type === "signup") {
         const email = profile.emails[0].value;
-        const name = profile.name.givenName;
+        const firstName = profile.name.givenName;
+        const lastName = profile.name.familyName;
         const password = null;
 
         const regExpEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -47,14 +48,14 @@ passport.use(
 
         if (req.body.userType == "student") {
           try {
-            student = await createStudent(name, email, password);
+            student = await createStudent(firstName, lastName, email, password);
             done(null, student);
           } catch (e) {
             done(e);
           }
         } else if (req.body.userType == "club") {
           try {
-            club = await createClub(name, email, password);
+            club = await createClub(firstName, email, password);
             done(null, club);
           } catch (e) {
             done(e);
@@ -96,7 +97,8 @@ passport.use(
         }
       } else if (req.body.type === "signup") {
         const email = profile.emails[0].value;
-        const name = profile.name.givenName;
+        const firstName = profile.name.givenName;
+        const lastName = profile.name.familyName;
         const password = null;
 
         const regExpEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -106,14 +108,14 @@ passport.use(
 
         if (req.body.userType == "student") {
           try {
-            student = await createStudent(name, email, password);
+            student = await createStudent(firstName, lastName, email, password);
             done(null, student);
           } catch (e) {
             done(e);
           }
         } else if (req.body.userType == "club") {
           try {
-            club = await createClub(name, email, password);
+            club = await createClub(firstName, email, password);
             done(null, club);
           } catch (e) {
             done(e);
@@ -144,9 +146,10 @@ findUser = async function (email, type) {
   }
 };
 
-createStudent = async function (name, email, password) {
+createStudent = async function (firstName, lastName, email, password) {
   const student = new studentModel({
-    name,
+    firstName,
+    lastName,
     email,
     password,
     major: "",
@@ -208,14 +211,17 @@ exports.signin = async function (req, res, next) {
 
   try {
     let userInfo;
+    let name;
     if (req.body.userType === "club") {
       userInfo = await clubModel.findOne({
         email: email,
       });
+      name = userInfo.name;
     } else {
       userInfo = await studentModel.findOne({
         email: email,
       });
+      name = userInfo.firstName;
     }
 
     const activeStatus = userInfo.active;
@@ -227,7 +233,7 @@ exports.signin = async function (req, res, next) {
 
     if (await bcrypt.compare(password, userInfo.password)) {
       const token = jwt.sign(
-        { id: userInfo._id, name: userInfo.name, email: email },
+        { id: userInfo._id, name: name, email: email },
         req.app.get("secretKey"),
         { expiresIn: 8640000 }
       );
@@ -246,7 +252,7 @@ exports.signin = async function (req, res, next) {
 
 //TODO: create jwt, hash password, change fields in studentModel
 exports.signup = async function (req, res, next) {
-  const { name, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
 
   const regExpEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   if (!regExpEmail.test(email)) {
@@ -257,12 +263,13 @@ exports.signup = async function (req, res, next) {
   if (!regExpPassword.test(password)) {
     return res.status(400).send({
       message:
-        "Password must be 8 characters, must have one Uppercase, one Lowercase, and one special character",
+        "Password must be at least 8 characters, must have one uppercase char, one lowercase char, one number, and one special character",
     });
   }
   if (req.body.userType == "student") {
     const student = new studentModel({
-      name,
+      firstName,
+      lastName,
       email,
       password,
       major: "",
@@ -278,6 +285,11 @@ exports.signup = async function (req, res, next) {
       active: false,
     });
     student.password = await bcrypt.hashSync(password, 10);
+    const token = jwt.sign(
+      { id: student._id, name: firstName, email: email },
+      req.app.get("secretKey"),
+      { expiresIn: 8640000 }
+    );
 
     //check if in clubModel
     const userInClub = await clubModel.exists({ email: email });
@@ -308,7 +320,7 @@ exports.signup = async function (req, res, next) {
   }
   if (req.body.userType == "club") {
     const club = new clubModel({
-      name,
+      firstName,
       email,
       password,
       tags: [],
@@ -321,6 +333,11 @@ exports.signup = async function (req, res, next) {
       active: false,
     });
     club.password = await bcrypt.hashSync(password, 10);
+    const token = jwt.sign(
+      { id: club._id, name: firstName, email: email },
+      req.app.get("secretKey"),
+      { expiresIn: 8640000 }
+    );
 
     //check if email in studentModel
     const userInStudent = await studentModel.exists({ email: email });

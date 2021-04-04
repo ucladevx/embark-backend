@@ -46,7 +46,7 @@ exports.createPosts = async function (req, res, next) {
                 message: err.message
             })
         }
-    } else {
+    } else if (accountType == "club") {
         try {
             let user = await clubModel.findOne({ email })
             console.log('club user found', user)
@@ -57,6 +57,10 @@ exports.createPosts = async function (req, res, next) {
                 message: err.message
             })
         }
+    } else {
+        return res.status(400).json({
+            message: "Invalid account type."
+        })
     }
 
     // also return email of author here.

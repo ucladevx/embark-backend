@@ -2,13 +2,60 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const passport = require("passport");
+const rateLimit = require("express-rate-limit");
+const maintenance = require('@zrpaplicacoes/maintenance_mode');
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require('xss-clean');
 require("dotenv").config();
+
+//  all limiters used in app
+const allLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10 // limit each IP to 100 requests per windowMs
+});
+const postLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50 // limit each IP to 100 requests per windowMs
+});
+const studentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 25 // limit each IP to 100 requests per windowMs
+});
+const clubLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50 // limit each IP to 100 requests per windowMs
+});
+const eventLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 25 // limit each IP to 100 requests per windowMs
+});
+
+//  maintenance mode settings
+const options = {
+  mode: false,
+  /**Hot-Switch options below
+   * endpoint: false,
+   * url: '/maintenance',
+   * accessKey: 'CHANGE_ME',
+  */
+  status: 503,
+  message: 'Sorry, Embark is on maintenance, please check back later',
+  checkpoint: '/status',
+  retryAfter: 30,
+};
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
+app.use(maintenance(app, options));
+app.use(xss());
+app.use(mongoSanitize());
 app.set("secretKey", process.env.JWT_SECRET);
 
 const PORT = process.env.PORT || 9000;
@@ -21,11 +68,11 @@ const clubRoutes = require("./routes/club");
 const eventRoutes = require("./routes/events");
 
 // route them accordingly eg. app.use("/profile", profileRoutes)
-app.use("/auth", authRoutes);
-app.use("/posts", postRoutes);
-app.use("/student", studentRoutes);
-app.use("/club", clubRoutes);
-app.use("/events", eventRoutes);
+app.use("/auth", authRoutes, authLimiter);
+app.use("/posts", postRoutes, postLimiter);
+app.use("/student", studentRoutes, studentLimiter);
+app.use("/club", clubRoutes, clubLimiter);
+app.use("/events", eventRoutes, eventLimiter);
 
 app.get("/health", (req, res) => {
   res.status(200).send({

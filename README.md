@@ -12,7 +12,8 @@ Put the following fields in the body of the request:
 
 ```
 {
-    "name":string,
+    "firstName":string,
+    "lastName":string,
     "email":unique string,
     "password": string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
     userType: "club" or "student"
@@ -84,6 +85,7 @@ Returns:
     }
 }
 ```
+
 ### GET /posts
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
@@ -765,14 +767,17 @@ or
 ```
 
 <<<<<<< HEAD
+
 ### GET /post/me
 
-In: Authorization header, in the format Bearer <token>
-=======
+# In: Authorization header, in the format Bearer <token>
+
 ### GET /posts/me
-In: Authorization header, in the format Bearer <token> 
->>>>>>> master
-Request Body:
+
+In: Authorization header, in the format Bearer <token>
+
+> > > > > > > master
+> > > > > > > Request Body:
 
 ```
 {

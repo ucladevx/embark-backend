@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema({
-  name: {
+  firstName: {
+    type: String,
+    required: true,
+  },
+  lastName: {
     type: String,
     required: true,
   },
@@ -48,6 +52,10 @@ const studentSchema = new mongoose.Schema({
   },
   followedClubs: {
     type: [String],
+  },
+  active: {
+    type: Boolean,
+    default: "false",
   },
 });
 

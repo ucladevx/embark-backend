@@ -49,7 +49,7 @@ const clubSchema = new mongoose.Schema({
     type: [String],
   },
   resources: {
-    type: [String],
+    type: [],
   },
   active: {
     type: Boolean,

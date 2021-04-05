@@ -16,7 +16,7 @@ exports.editProfile = async function (req, res, next) {
   editableFields = { name, major, year, tags, bio, linkedIn };
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = await jwt.verify(token, req.app.get('secretKey'));
-  const student = await studentModel.find({ _id: decodedToken.id });
+  const student = await studentModel.findOne({ _id: decodedToken.id });
   try {
     const updatedFields = {};
     Object.keys(editableFields).forEach(key => {
@@ -29,19 +29,19 @@ exports.editProfile = async function (req, res, next) {
   catch (err) {
     return res.json({ message: err.message });
   }
-  returnedStudent = await studentModel.find({ _id: decodedToken.id });
+  returnedStudent = await studentModel.findOne({ _id: decodedToken.id });
   res.send({ returnedStudent });
 }
 
 exports.profile = async function (req, res, next) {
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = await jwt.verify(token, req.app.get('secretKey'));
-  const student = await studentModel.find({ _id: decodedToken.id });
+  const student = await studentModel.findOne({ _id: decodedToken.id });
   res.send({ student });
 }
 
 const findAndUpdate = async (decodedEmail, updatedFields) => {
-  const student = await studentModel.find({ _id: decodedToken.id });
+  const student = await studentModel.findOne({ email: decodedEmail });
   console.log(1)
   console.log(decodedEmail)
   console.log(student)
@@ -77,7 +77,7 @@ exports.profile = async function (req, res, next) {
   // const decodedToken = await authorize(req, res, next);
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, req.app.get('secretKey'));
-  const student = await studentModel.find({ _id: decodedToken.id });
+  const student = await studentModel.findOne({ _id: decodedToken.id });
   res.send({ student });
 }
 
@@ -86,7 +86,6 @@ exports.image = async function (req, res, next) {
   const imageURL = await imageFunction(req, res, next);   //gets the aws image URL
   try {
     const token = req.headers.authorization.split(" ")[1];
-    console.log(token);
     const decoded = jwt.decode(token);
     console.log(decoded);
     let updatedFields;
@@ -97,7 +96,7 @@ exports.image = async function (req, res, next) {
     else {
       updatedFields = { profilePicURL: imageURL }
     }
-    const updatedStudent = await studentModel.findOneAndUpdate({email: decoded.email}, updatedFields);
+    const updatedStudent = await studentModel.findOneAndUpdate({ _id: decoded.id }, updatedFields);
     return res.status(200).json(updatedStudent)
   }
   catch (err) {
@@ -107,7 +106,7 @@ exports.image = async function (req, res, next) {
 
 exports.getClubs = async function (req, res) {
 
-  // pull email from jwt
+  // pull id from jwt
   const token = req.headers.authorization.split(" ")[1];
   const decoded = jwt.decode(token, { complete: true });
   let id = decoded.payload.id;
@@ -116,7 +115,7 @@ exports.getClubs = async function (req, res) {
   // Find which clubs the student follows
   let clubs
   try {
-    clubs = await studentModel.findOne({ email }, 'clubs');
+    clubs = await studentModel.findOne({ _id: id }, 'clubs');
   }
   catch (err) {
     return res.status(400).json({

@@ -13,6 +13,7 @@ exports.createPosts = async function (req, res, next) {
     // pull email from jwt
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.decode(token, { complete: true });
+    let id = decoded.payload.id;
     let email = decoded.payload.email;
 
     // save post to db
@@ -37,7 +38,7 @@ exports.createPosts = async function (req, res, next) {
     // save post._id to the user record
     if (accountType == "student") {
         try {
-            let user = await studentModel.findOne({ email });
+            let user = await studentModel.findOne({ _id: id });
             console.log("student user found", user);
             user.posts.push(post._id);
             await user.save();
@@ -48,7 +49,7 @@ exports.createPosts = async function (req, res, next) {
         }
     } else if (accountType == "club") {
         try {
-            let user = await clubModel.findOne({ email });
+            let user = await clubModel.findOne({ _id: id });
             console.log("club user found", user);
             user.posts.push(post._id);
             await user.save();
@@ -195,11 +196,11 @@ exports.savePost = async function (req, res) {
     const { accountType, post_id } = req.body;
 
     const payload = decodeToken(req);
-    let email = payload.email;
+    let id = payload.id;
 
     if (accountType == "student") {
         try {
-            let user = await studentModel.findOne({ email });
+            let user = await studentModel.findOne({ _id: id });
             await user.updateOne({ $push: { savedPosts: post_id } });
             res.status(201).json({
                 message: "student created saved post",
@@ -212,7 +213,7 @@ exports.savePost = async function (req, res) {
     } else {
         // get club saved posts
         try {
-            let user = await clubModel.findOne({ email });
+            let user = await clubModel.findOne({ _id: id });
             await user.updateOne({ $push: { savedPosts: post_id } });
         } catch (err) {
             return res.status(400).json({
@@ -230,11 +231,11 @@ exports.getSavedPosts = async function (req, res) {
     const accountType = req.query.accountType;
 
     const payload = decodeToken(req);
-    let email = payload.email;
+    let id = payload.id;
 
     if (accountType == "student") {
         try {
-            let user = await studentModel.findOne({ email });
+            let user = await studentModel.findOne({ _id: id });
             posts = user.get("savedPosts");
         } catch (err) {
             return res.status(400).json({
@@ -247,7 +248,7 @@ exports.getSavedPosts = async function (req, res) {
         });
     } else {
         try {
-            let user = await clubModel.findOne({ email });
+            let user = await clubModel.findOne({ _id: id });
             posts = user.get("savedPosts");
             return res.status(200).json({
                 message: "Club Saved Posts successfully queried.",
@@ -267,12 +268,12 @@ exports.getSavedPosts = async function (req, res) {
 exports.getPostsbyUser = async function (req, res) {
     const { accountType } = req.query;
     const payload = decodeToken(req);
-    let email = payload.email;
+    let id = payload.id;
 
     if (accountType == "student") {
         try {
             let user = await studentModel.findOne({
-                email,
+                id,
             });
             let posts = await user.get("posts");
             res.status(200).json({
@@ -287,7 +288,7 @@ exports.getPostsbyUser = async function (req, res) {
     } else {
         try {
             let user = await clubModel.findOne({
-                email,
+                id,
             });
             let posts = await user.get("posts");
             res.status(200).json({

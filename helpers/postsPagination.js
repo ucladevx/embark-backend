@@ -1,4 +1,5 @@
 const postModel = require("../models/post");
+const commentModel = require("../models/comment");
 const MongoPaging = require("mongo-cursor-pagination");
 const ObjectId = require("mongodb").ObjectId;
 
@@ -43,6 +44,24 @@ exports.getPostsPage = async (
     return result;
   } catch (err) {
     console.log(err);
+    res.send({ message: err.message });
+  }
+};
+
+exports.getComments = async function (postID, limit, nextPage, prevPage) {
+  try {
+    const result = MongoPaging.find(commentModel.collection, {
+      query: {
+        postID: postID,
+      },
+      paginatedField: "timestamp",
+      limit: parseInt(limitNum),
+      sortAscending: false,
+      next: nextPage,
+      previous: prevPage,
+    });
+    return result;
+  } catch (err) {
     res.send({ message: err.message });
   }
 };

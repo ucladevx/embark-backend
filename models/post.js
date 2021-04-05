@@ -31,13 +31,9 @@ const postSchema = new mongoose.Schema({
   userLikes: {
     type: [String],
   },
-  comments: [
-    {
-      body: String,
-      authorEmail: String,
-      date: Date,
-    },
-  ],
+  comments: {
+    type: [String],
+  },
 });
 
 const Post = mongoose.model("Post", postSchema);

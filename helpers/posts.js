@@ -1,19 +1,19 @@
 const postModel = require("../models/post");
-const { getPostsPage } = require("../helpers/postsPagination");
-
+const commentModel = require("../models/comment");
 const studentModel = require("../models/student");
 const clubModel = require("../models/club");
+const { getPostsPage, getComments } = require("../helpers/postsPagination");
+const { decodeToken } = require("../helpers/utils");
 const jwt = require("jsonwebtoken");
+const MongoPaging = require("mongo-cursor-pagination");
 
 exports.createPosts = async function (req, res, next) {
-
-    const { title, body, timestamp, tags, accountType } = req.body
+    const { title, body, timestamp, tags, accountType } = req.body;
 
     // pull email from jwt
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.decode(token, { complete: true });
     let email = decoded.payload.email;
-    console.log('Request made from:', email)
 
     // save post to db
     const post = new postModel({
@@ -24,38 +24,38 @@ exports.createPosts = async function (req, res, next) {
         authorEmail: email,
         authorName: decoded.payload.name,
         likes: 0,
-    })
+    });
 
     try {
-        await post.save()
+        await post.save();
     } catch (err) {
-        res.status(400).json({
-            message: err.message
-        })
+        return res.status(400).json({
+            message: err.message,
+        });
     }
 
     // save post._id to the user record
     if (accountType == "student") {
         try {
-            let user = await studentModel.findOne({ email })
-            console.log('student user found', user)
-            user.posts.push(post._id)
-            await user.save()
+            let user = await studentModel.findOne({ email });
+            console.log("student user found", user);
+            user.posts.push(post._id);
+            await user.save();
         } catch (err) {
             return res.status(400).json({
-                message: err.message
-            })
+                message: err.message,
+            });
         }
     } else if (accountType == "club") {
         try {
-            let user = await clubModel.findOne({ email })
-            console.log('club user found', user)
-            user.posts.push(post._id)
-            await user.save()
+            let user = await clubModel.findOne({ email });
+            console.log("club user found", user);
+            user.posts.push(post._id);
+            await user.save();
         } catch (err) {
             return res.status(400).json({
-                message: err.message
-            })
+                message: err.message,
+            });
         }
     } else {
         return res.status(400).json({
@@ -66,9 +66,9 @@ exports.createPosts = async function (req, res, next) {
     // also return email of author here.
     res.status(201).json({
         message: "Post successfully created.",
-        post
-    })
-}
+        post,
+    });
+};
 
 exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
@@ -94,7 +94,7 @@ exports.getPosts = async function (req, res, next) {
             clubs
         );
 
-        res.status(200).json({
+        return res.status(200).json({
             message: "Posts successfully queried.",
             paginatedPosts,
         });
@@ -106,19 +106,20 @@ exports.getPosts = async function (req, res, next) {
 };
 
 exports.addPostComment = async function (req, res) {
-    const { authorEmail, post_id, comment } = req.body;
+    const { authorEmail, post_id, commentBody } = req.body;
     try {
-        let post = await postModel.findById(post_id);
-        await post.get("comments").push({
-            authorEmail: authorEmail,
-            body: comment,
-            date: new Date(),
+        const comment = new commentModel({
+            postID: post_id,
+            author: authorEmail,
+            body: commentBody,
+            timestamp: new Date(),
         });
-        await post.save();
-        comments = post.get("comments");
-        res.status(201).json({
+        await comment.save();
+
+        let post = await postModel.findById(post_id);
+        await post.updateOne({ $push: { comments: comment._id } });
+        return res.status(201).json({
             message: "Added Comments",
-            comments,
         });
     } catch (err) {
         return res.status(400).json({
@@ -128,21 +129,23 @@ exports.addPostComment = async function (req, res) {
 };
 
 exports.getPostComments = async function (req, res, next) {
-    const { post_id } = req.body;
+    const { post_id, limit, nextPage, prevPage } = req.body;
     try {
-        let post = await postModel.findById(post_id);
-        comments = post.get("comments");
-        console.log("comments", comments);
+        let paginatedComments = await getComments(
+            post_id,
+            limit,
+            nextPage,
+            prevPage
+        );
+        return res.status(200).json({
+            message: "Comments successfully queried.",
+            paginatedComments,
+        });
     } catch (err) {
         return res.status(400).json({
             message: err.message,
         });
     }
-
-    res.status(200).json({
-        message: "Get post comments",
-        comments,
-    });
 };
 
 exports.addPostLike = async function (req, res) {
@@ -152,23 +155,14 @@ exports.addPostLike = async function (req, res) {
         let post = await postModel.findById(post_id);
         likedUsers = await post.get("userLikes");
 
-        console.log(likedUsers.includes(authorEmail));
-        // console.log(post.get('authorEmail'))
-        // console.log(authorEmail)
         if (!likedUsers.includes(authorEmail)) {
-            post = await postModel.findByIdAndUpdate(post_id, { $inc: { likes: 1 } });
-            likes = post.get("likes");
-            console.log("likes", likes);
-
-            await post.get("userLikes").push(authorEmail);
-
-            await post.save();
+            await post.updateOne({ $inc: { likes: 1 } }, { new: true });
+            await post.updateOne({ $push: { userLikes: authorEmail } });
             resMessage = "incremented post like";
         } else {
-            console.log("User already liked.");
             resMessage = "User already liked.";
         }
-        res.status(201).json({
+        return res.status(201).json({
             message: resMessage,
             post,
         });
@@ -181,11 +175,10 @@ exports.addPostLike = async function (req, res) {
 
 exports.getPostLikes = async function (req, res, next) {
     const { post_id } = req.body;
-    // console.log(post_id);
+
     try {
         let post = await postModel.findById(post_id);
         likes = post.get("likes");
-        console.log("likes", likes);
         res.status(200).json({
             message: "Likes for post queried",
             likes,
@@ -199,17 +192,15 @@ exports.getPostLikes = async function (req, res, next) {
 
 exports.savePost = async function (req, res) {
     // add postid to saved posts field for student + club
-    const { accountType, post_id } = req.body
+    const { accountType, post_id } = req.body;
 
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.decode(token, { complete: true });
-    let email = decoded.payload.email;
+    const payload = decodeToken(req);
+    let email = payload.email;
 
     if (accountType == "student") {
         try {
             let user = await studentModel.findOne({ email });
-            user.savedPosts.push(post_id);
-            await user.save();
+            await user.updateOne({ $push: { savedPosts: post_id } });
             res.status(201).json({
                 message: "student created saved post",
             });
@@ -222,8 +213,7 @@ exports.savePost = async function (req, res) {
         // get club saved posts
         try {
             let user = await clubModel.findOne({ email });
-            user.savedPosts.push(post_id);
-            await user.save();
+            await user.updateOne({ $push: { savedPosts: post_id } });
         } catch (err) {
             return res.status(400).json({
                 message: err.message,
@@ -239,82 +229,75 @@ exports.getSavedPosts = async function (req, res) {
     // return array of posts
     const accountType = req.query.accountType;
 
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.decode(token, { complete: true });
-    let email = decoded.payload.email;
+    const payload = decodeToken(req);
+    let email = payload.email;
 
     if (accountType == "student") {
         try {
-            let user = await studentModel.findOne({ email })
-            posts = user.get('savedPosts');
-            console.log('savedPosts', posts)
+            let user = await studentModel.findOne({ email });
+            posts = user.get("savedPosts");
         } catch (err) {
             return res.status(400).json({
-                message: err.message
-            })
+                message: err.message,
+            });
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: "Student Saved Posts successfully queried.",
-            posts
-        })
+            posts,
+        });
     } else {
         try {
-            let user = await clubModel.findOne({ email })
-            posts = user.get('savedPosts');
-            console.log('savedPosts', posts)
-            res.status(200).json({
+            let user = await clubModel.findOne({ email });
+            posts = user.get("savedPosts");
+            return res.status(200).json({
                 message: "Club Saved Posts successfully queried.",
-                posts
-            })
+                posts,
+            });
         } catch (err) {
             return res.status(400).json({
-                message: err.message
-            })
+                message: err.message,
+            });
         }
     }
-}
+};
 
 // GET
 // req body: user's email
-// returns: post IDs of posts authored by user 
+// returns: post IDs of posts authored by user
 exports.getPostsbyUser = async function (req, res) {
     const { accountType } = req.query;
-
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.decode(token, { complete: true });
-    let email = decoded.payload.email;
+    const payload = decodeToken(req);
+    let email = payload.email;
 
     if (accountType == "student") {
         try {
             let user = await studentModel.findOne({
-                email
-            })
-            let posts = await user.get('posts');
-            console.log('authoredPosts: ', posts)
+                email,
+            });
+            let posts = await user.get("posts");
             res.status(200).json({
                 message: "Student authored posts successfully queried.",
-                posts
-            })
+                posts,
+            });
         } catch (err) {
             return res.status(400).json({
-                message: err.message
-            })
+                message: err.message,
+            });
         }
     } else {
         try {
             let user = await clubModel.findOne({
-                email
-            })
-            let posts = await user.get('posts');
-            console.log('authoredPosts: ', posts)
+                email,
+            });
+            let posts = await user.get("posts");
             res.status(200).json({
                 message: "Club authored posts successfully queried.",
-                posts
-            })
+                posts,
+            });
         } catch (err) {
             return res.status(400).json({
-                message: err.message
-            })
+                message: err.message,
+            });
         }
     }
-}
+};

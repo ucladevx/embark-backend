@@ -266,6 +266,9 @@ exports.signup = async function (req, res, next) {
         "Password must be at least 8 characters, must have one uppercase char, one lowercase char, one number, and one special character",
     });
   }
+
+  let token
+  let emailVerificationMessage = "No message."
   if (req.body.userType == "student") {
     const student = new studentModel({
       firstName,
@@ -285,7 +288,7 @@ exports.signup = async function (req, res, next) {
       active: false,
     });
     student.password = await bcrypt.hashSync(password, 10);
-    const token = jwt.sign(
+    token = jwt.sign(
       { id: student._id, name: firstName, email: email },
       req.app.get("secretKey"),
       { expiresIn: 8640000 }
@@ -302,7 +305,7 @@ exports.signup = async function (req, res, next) {
 
     try {
       await student.save();
-      await sendVerify(req, res, student, "student");
+      emailVerificationMessage = await sendVerify(req, res, student, "student");
     } catch (e) {
       if (e.message.includes("duplicate") && e.message.includes("name")) {
         return res.status(400).json({
@@ -333,7 +336,7 @@ exports.signup = async function (req, res, next) {
       active: false,
     });
     club.password = await bcrypt.hashSync(password, 10);
-    const token = jwt.sign(
+    token = jwt.sign(
       { id: club._id, name: firstName, email: email },
       req.app.get("secretKey"),
       { expiresIn: 8640000 }
@@ -350,7 +353,7 @@ exports.signup = async function (req, res, next) {
 
     try {
       await club.save();
-      await sendVerify(req, res, club, "club");
+      emailVerificationMessage = await sendVerify(req, res, club, "club");
     } catch (e) {
       if (e.message.includes("duplicate")) {
         return res.status(400).json({
@@ -361,4 +364,9 @@ exports.signup = async function (req, res, next) {
       return res.status(400).json({ message: e.message });
     }
   }
+  return res.status(200).json({
+    auth: true,
+    token,
+    emailVerificationMessage
+  })
 };

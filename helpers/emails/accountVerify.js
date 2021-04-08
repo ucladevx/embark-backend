@@ -41,13 +41,9 @@ exports.sendVerify = async function (req, res, user, type) {
       html: VerifyAccountTemplate.html,
     };
     await sendMail(msg);
-    return res.status(200).json({
-      message: "Verification email sent!",
-    });
+    return "Email verification sent."
   } catch (err) {
-    return res.status(500).json({
-      message: err.message,
-    });
+    return err.message
   }
 };
 

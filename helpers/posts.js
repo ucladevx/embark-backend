@@ -46,7 +46,7 @@ exports.createPosts = async function (req, res, next) {
                 message: err.message,
             });
         }
-    } else if (accountType == "club") {
+    } else {
         try {
             let user = await clubModel.findOne({ email });
             console.log("club user found", user);
@@ -57,56 +57,38 @@ exports.createPosts = async function (req, res, next) {
                 message: err.message,
             });
         }
-    } else {
-        return res.status(400).json({
-            message: "Invalid account type."
-        })
     }
 
     // also return email of author here.
-    return res.status(201).json({
+    res.status(201).json({
         message: "Post successfully created.",
-        title,
-        body,
-        timestamp,
-        tags,
-        email,
-        _id: post._id
-    })
-}
+        post,
+    });
+};
 
-async function findUser(email, userType) {
-    try {
-        if (userType === "student") {
-            return await studentModel.findOne({ email: email });
-        } else if (userType === "club") {
-            return await clubModel.findOne({ email: email });
-        } else {
-            return -1;
-        }
-    } catch (err) {
-        return -1;
-    }
-}
 exports.getPosts = async function (req, res, next) {
     // for now, accept tags and clubs to filter by
     //const { tags, clubs } = req.body //change to req.query
 
-    const { limit, nextPage, previousPage, userType } = req.query;
-    const reachedEnd = req.body.reachedEnd;
+    const { limit, nextPage, previousPage } = req.query;
     // const {tags,clubs}=req.query;
 
     // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
     // pass those to the query below
-    const email = decodeToken(req).email;
-    try {
 
+    try {
         const token = req.headers.authorization.split(" ")[1];
         const decoded = jwt.decode(token, { complete: true });
         let sID = decoded.payload.id;
-        const { tags, clubs } = await studentModel.findById(sID, 'tags clubs');
+        const { tags, clubs } = await studentModel.findById(sID, "tags clubs");
 
-        const paginatedPosts = await getPostsPage(res, limit, nextPage, previousPage, tags, clubs, reachedEnd, email, userType);
+        const paginatedPosts = await getPostsPage(
+            limit,
+            nextPage,
+            previousPage,
+            tags,
+            clubs
+        );
 
         return res.status(200).json({
             message: "Posts successfully queried.",
@@ -120,34 +102,18 @@ exports.getPosts = async function (req, res, next) {
 };
 
 exports.addPostComment = async function (req, res) {
-    const { post_id, comment, userType } = req.body;
-
-    const email = decodeToken(req).email;
-    let user = findUser(email, userType, res);
-    if (user === -1) {
-        return res.status(404).json({
-            message: `Could not find user with email ${email}`
-        });
-    }
-
+    const { authorEmail, post_id, commentBody } = req.body;
     try {
-        //save comment to post
-        let post = await postModel.findById(post_id);
-        let updatedPostComments = await post.get('comments');
-        post.comments = updatedPostComments.push({
-            authorEmail: email,
-            body: comment,
-            date: new Date(),
+        const comment = new commentModel({
+            postID: post_id,
+            author: authorEmail,
+            body: commentBody,
+            timestamp: new Date(),
         });
-        await post.save();
+        await comment.save();
 
-        //save comment to user's comments
-        if (!user.get('commentedPosts').includes(post._id)) {
-            user.commentedPosts = user.get('commentedPosts').push(post._id);
-            await user.save();
-        }
-
-        comments = post.get('comments');
+        let post = await postModel.findById(post_id);
+        await post.updateOne({ $push: { comments: comment._id } });
         return res.status(201).json({
             message: "Added Comments",
         });
@@ -179,40 +145,18 @@ exports.getPostComments = async function (req, res, next) {
 };
 
 exports.addPostLike = async function (req, res) {
-
-    const { post_id, userType } = req.body
-    const email = decodeToken(req).email;
-    let user = findUser(email, userType);
-    if (user === -1) {
-        return res.status(404).json({
-            message: `Could not find user with email ${email}`
-        });
-    }
-    resMessage = ""
-
+    const { authorEmail, post_id } = req.body;
+    resMessage = "";
     try {
         let post = await postModel.findById(post_id);
-        likedUsers = await post.get('userLikes');
+        likedUsers = await post.get("userLikes");
 
-        if (!likedUsers.includes(email)) {
-            //increment post like
-            post = await postModel.findByIdAndUpdate(
-                post_id,
-                { $inc: { 'likes': 1 } }
-            )
-            //add like user's email to the post's userLikes
-            let updatedUserLikes = await post.get('userLikes');
-            post.userLikes = updatedUserLikes.push(email);
-            await post.save();
-
-            //add post id to user's likedPosts
-            if (!user.get('likedPosts').includes(post._id)) {
-                user.likedPosts = user.get('likedPosts').push(post._id);
-                await user.save();
-            }
-            resMessage = "incremented post like"
+        if (!likedUsers.includes(authorEmail)) {
+            await post.updateOne({ $inc: { likes: 1 } }, { new: true });
+            await post.updateOne({ $push: { userLikes: authorEmail } });
+            resMessage = "incremented post like";
         } else {
-            resMessage = "User already liked."
+            resMessage = "User already liked.";
         }
         return res.status(201).json({
             message: resMessage,
@@ -251,10 +195,9 @@ exports.savePost = async function (req, res) {
 
     if (accountType == "student") {
         try {
-            let user = await studentModel.findOne({ email })
-            user.savedPosts.push(post_id)
-            await user.save()
-            return res.status(201).json({
+            let user = await studentModel.findOne({ email });
+            await user.updateOne({ $push: { savedPosts: post_id } });
+            res.status(201).json({
                 message: "student created saved post",
             });
         } catch (err) {
@@ -272,7 +215,7 @@ exports.savePost = async function (req, res) {
                 message: err.message,
             });
         }
-        return res.status(201).json({
+        res.status(201).json({
             message: "club created saved post",
         });
     }
@@ -300,9 +243,8 @@ exports.getSavedPosts = async function (req, res) {
         });
     } else {
         try {
-            let user = await clubModel.findOne({ email })
-            posts = user.get('savedPosts');
-            console.log('savedPosts', posts)
+            let user = await clubModel.findOne({ email });
+            posts = user.get("savedPosts");
             return res.status(200).json({
                 message: "Club Saved Posts successfully queried.",
                 posts,

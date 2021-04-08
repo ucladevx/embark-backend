@@ -6,10 +6,10 @@ const authorize = require("../helpers/authMiddleware");
 router.post("/profile", authorize, editProfile);
 router.get("/profile", authorize, profile);
 
-router.post("/profile/image", authorize, image)
+router.post("/profile/image", authorize, image);
 
 // following clubs
-router.post("/following", authorize, followClub)
-router.get("/following", authorize, getFollowedClubs)
+router.post("/following", authorize, followClub);
+router.get("/following", authorize, getFollowedClubs);
 
 module.exports = router;

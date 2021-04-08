@@ -20,6 +20,9 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  authorName: {
+    type: String,
+  },
   // comments + likes fields
   likes: {
     type: Number,

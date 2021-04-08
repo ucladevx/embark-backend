@@ -171,28 +171,3 @@ exports.discover = async function (req, res) {
     });
   }
 }
-
-// GET
-// req query: name of club
-// returns: list of hits
-exports.search = async function (req, res) {
-  try{
-    const {searchString} = req.body;
-    let searchResult = await clubModel.find({$text: {$search: searchString}})
-    // returns an array of objects that match
-    console.log(searchResult.length)
-    // console.log(searchResult)
-    var resultsList = [];
-    for (i = 0; i < searchResult.length; i++) {
-      resultsList.push({name: searchResult[i].name, id: searchResult[i]._id})
-    }
-    console.log(resultsList)
-    res.status(200).json({
-      result: resultsList
-    })
-  }catch(e) {
-    res.status(400).json({
-      message: e.message
-    })
-  }
-}

@@ -710,7 +710,7 @@ Returns: a list of post IDs
 }
 ```
 
-### GET /club/search
+### GET /search
 In: Authorization header, in the format Bearer <token> 
 Request Body:
 ```
@@ -719,34 +719,17 @@ Request Body:
 }
 ```
 
-Returns: an array of objects representing the search result
+Returns: A list with the queries, and the number of search results. 
+Each query has name, mongo id, and account type.
 ```
 {
-    "result": [
+    "queries": [
         {
             "name": "embark",
-            "id": "60651dcf84687500c42c07ad"
+            "id": "60651dcf84687500c42c07ad",
+            "accountType": "club"
         },
-    ]
-}
-```
-### GET /student/search
-In: Authorization header, in the format Bearer <token> 
-Request Body:
-```
-{
-    searchString: "",
-}
-```
-
-Returns: an array of objects representing the search result
-```
-{
-    "result": [
-        {
-            "name": "john",
-            "id": "602495fcc0a6e1001d73a55f"
-        },
-    ]
+    ],
+    "numQueries": 1
 }
 ```

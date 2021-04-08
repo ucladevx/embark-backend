@@ -323,7 +323,7 @@ exports.signup = async function (req, res, next) {
   }
   if (req.body.userType == "club") {
     const club = new clubModel({
-      firstName,
+      name: firstName,
       email,
       password,
       tags: [],

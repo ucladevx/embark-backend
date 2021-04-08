@@ -80,21 +80,3 @@ exports.getPostsPage = async (
         return res.send({ message: err.message });
     }
 };
-
-exports.getComments = async function (postID, limit, nextPage, prevPage) {
-    try {
-        const result = MongoPaging.find(commentModel.collection, {
-            query: {
-                postID: postID,
-            },
-            paginatedField: "timestamp",
-            limit: parseInt(limitNum),
-            sortAscending: false,
-            next: nextPage,
-            previous: prevPage,
-        });
-        return result;
-    } catch (err) {
-        res.send({ message: err.message });
-    }
-};

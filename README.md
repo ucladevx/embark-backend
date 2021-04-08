@@ -12,7 +12,8 @@ Put the following fields in the body of the request:
 
 ```
 {
-    "name":string,
+    "firstName":string,
+    "lastName":string,
     "email":unique string,
     "password": string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
     userType: "club" or "student"
@@ -84,6 +85,7 @@ Returns:
     }
 }
 ```
+
 ### GET /posts
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
@@ -450,22 +452,32 @@ Returns: if Successful:
 ```
 {
     "success": true,
-    "files": [
-        {
-            "file": <fileName>,
-            "fileType": "text/plain" or "application/vnd.openxmlformats-officedocument.presentationml.presentation" or "application/pdf"
-        },
-        ... other files
-    ],
     "fileUrls": [
         {
-            "ETag": "\"d41d8cd98f00b204e9800998ecf8427e\"",
-            "Location": <URL OF THE LOCATION OF THE FILE IN AWS>,
-            "key": <FILE KEY>,
-            "Key": <FILE KEY>,
-            "Bucket": "club-resources-embark"
-        },
-        ... other files
+            "Location": "<location in AWS S3 string>",
+            "Key": <key name in AWS S3> ex. "1617248893413club.pdf",
+            "Name": <file name> ex. "club.pdf"
+        }
+    ]
+}
+```
+
+## GET /club/resources
+
+In: Authorization`header, in the format`Bearer <token>`
+Request Body: Nothing
+Returns: if Successful:
+
+```
+{
+    "success": true,
+    "resources": [
+        {
+            "Location": <location URL as a string>,
+            "Key": <key name in AWS S3> ex. "1617244725547club.pdf",
+            "Bucket": <bucket name> ex. "club-resources-embark",
+            "Name": <file name> ex. "club.pdf"
+        }
     ]
 }
 ```
@@ -765,14 +777,17 @@ or
 ```
 
 <<<<<<< HEAD
+
 ### GET /post/me
 
-In: Authorization header, in the format Bearer <token>
-=======
+# In: Authorization header, in the format Bearer <token>
+
 ### GET /posts/me
-In: Authorization header, in the format Bearer <token> 
->>>>>>> master
-Request Body:
+
+In: Authorization header, in the format Bearer <token>
+
+> > > > > > > master
+> > > > > > > Request Body:
 
 ```
 {

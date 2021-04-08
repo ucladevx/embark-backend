@@ -45,11 +45,21 @@ const clubSchema = new mongoose.Schema({
     //again, not sure if necessary. will remove after testing.
     type: [String],
   },
+  likedPosts: {
+    type: [String]
+  },
+  commentedPosts: {
+    type: [String]
+  },
   followedClubs: {
     type: [String],
   },
   resources: {
-    type: [String],
+    type: [],
+  },
+  active: {
+    type: Boolean,
+    default: "false",
   },
 });
 clubSchema.index({name: 'text'}); 

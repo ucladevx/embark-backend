@@ -72,7 +72,6 @@ module.exports = async (req, res) => {
 
     //figure this one out
     let locations = [];
-    let urls = [];
     for (i = 0; i < files.length; i++) {
       file = files[i];
       const { fileBuffer, ...fileParams } = file;
@@ -80,21 +79,34 @@ module.exports = async (req, res) => {
       //console.log(result)
       //fileResult[i]["location"].push(result.Location)
       locations.push(result);
-      urls.push(result.Location);
+    }
+    //clean output
+    console.log(locations);
+    var i;
+    for (i = 0; i < locations.length; i++) {
+      locations[i]["Name"] = locations[i]["Key"].substr(13);
+      delete locations[i]["ETag"];
+      if (locations[i]["key"]) {
+        delete locations[i]["key"];
+      }
     }
 
-    //get the decodedToken id and then add it to the club schema
+    //get the decodedToken email and then add it to the club schema
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, req.app.get("secretKey"));
-    let updatedFields = {};
     const club = await clubModel.findOne({ email: decodedToken.email });
-    console.log(club.resources);
-    updatedFields["resources"] = urls;
-    await clubModel.findOneAndUpdate(decodedToken.id, updatedFields);
+    let updatedFields = {};
+    updatedFields["resources"] = club["resources"];
+    for (i = 0; i < locations.length; i++) {
+      updatedFields["resources"].push(locations[i]);
+    }
+    //updates the resources!
+    const result = await clubModel.updateOne({ _id: club._id }, updatedFields);
 
-    res
-      .status(200)
-      .json({ success: true, files: fileResult, fileUrls: locations });
+    //doesn't work
+    //const club2=await clubModel.findOneAndUpdate(decodedToken.email, updatedFields); //mb change to id
+
+    res.status(200).json({ success: true, fileUrls: locations });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.message });

@@ -9,13 +9,13 @@ const {
   followClub,
   getFollowedClubs,
   discover,
-  search
+  getResources,
 } = require("../helpers/club");
 
 const authorize = require("../helpers/authMiddleware");
 
 router.post("/resources", authorize, resourceFunction);
-router.get("/resources"); //add some resouces array to club model
+router.get("/resources", authorize, getResources); //add some resouces array to club model
 // router.get("/profile/image")
 
 router.post("/profile", authorize, editProfile);

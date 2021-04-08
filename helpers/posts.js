@@ -272,9 +272,7 @@ exports.getPostsbyUser = async function (req, res) {
 
     if (accountType == "student") {
         try {
-            let user = await studentModel.findOne({
-                id,
-            });
+            let user = await studentModel.findOne({ _id: id });
             let posts = await user.get("posts");
             res.status(200).json({
                 message: "Student authored posts successfully queried.",

@@ -7,7 +7,7 @@ const maintenance = require("@zrpaplicacoes/maintenance_mode");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./swagger.json");
+const specs = require("./server_helpers/swagger");
 require("dotenv").config();
 
 //  all limiters used in app
@@ -75,7 +75,7 @@ app.use("/posts", postRoutes, postLimiter);
 app.use("/student", studentRoutes, studentLimiter);
 app.use("/club", clubRoutes, clubLimiter);
 app.use("/events", eventRoutes, eventLimiter);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get("/health", (req, res) => {
   res.status(200).send({

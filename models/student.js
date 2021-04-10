@@ -1,5 +1,72 @@
 const mongoose = require("mongoose");
 
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    Student:
+ *      type: object
+ *      required:
+ *        - firstName
+ *        - lastName
+ *        - email
+ *      properties:
+ *        firstName:
+ *          type: String
+ *        lastName:
+ *          type: String
+ *        email:
+ *          type: String
+ *        password:
+ *          type: String
+ *        major:
+ *          type: String
+ *        year:
+ *          type: String
+ *        posts:
+ *          type: array
+ *          items:
+ *            type: String
+ *        tags:
+ *          type: array
+ *          items:
+ *            type: String
+ *        savedPosts:
+ *          type: array
+ *          items:
+ *            type: String
+ *        likedPosts:
+ *          type: array
+ *          items:
+ *            type: String
+ *        commentedPosts:
+ *          type: array
+ *          items:
+ *            type: String
+ *        clubs:
+ *          type: array
+ *          items:
+ *            type: String
+ *        bio:
+ *          type: String
+ *        profilePicURL:
+ *          type: String
+ *        coverPicURL:
+ *          type: String
+ *        linkedIn:
+ *          type: String
+ *        events:
+ *          type: array
+ *          items:
+ *            type: String
+ *        followedClubs:
+ *          type: array
+ *          items:
+ *            type: String
+ *        active:
+ *          type: boolean
+ *
+ */
 const studentSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -33,10 +100,10 @@ const studentSchema = new mongoose.Schema({
     type: [String],
   },
   likedPosts: {
-    type: [String]
+    type: [String],
   },
   commentedPosts: {
-    type: [String]
+    type: [String],
   },
   clubs: {
     type: [String],

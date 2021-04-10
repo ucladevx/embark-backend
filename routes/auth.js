@@ -66,8 +66,42 @@ router.get("/google/redirect", function (req, res, next) {
   })(req, res, next);
 });
 
+/**
+ * @swagger
+ * /auth/signin:
+ *  post:
+ *    requestBody:
+ *      required: true
+ *      content:
+ *         application/json:
+ *            schema:
+ *              properties:
+ *                email:
+ *                  type: string
+ *                password:
+ *                  type: string
+ */
 router.post("/signin", signin);
 
+/**
+ * @swagger
+ * /auth/signup:
+ *  post:
+ *    requestBody:
+ *      required: true
+ *      content:
+ *         application/json:
+ *            schema:
+ *              properties:
+ *                firstName:
+ *                  type: string
+ *                lastName:
+ *                  type: string
+ *                email:
+ *                  type: string
+ *                password:
+ *                  type: string
+ */
 router.post("/signup", signup);
 
 router.get("/verifyAccount/:token", verifyAccount);

@@ -34,6 +34,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-linkedin-oauth2": "^2.0.0",
     "prettier": "^2.2.1",
+    "swagger-ui-express": "^4.1.6",
     "uuid": "^8.3.2",
     "xss-clean": "^0.1.1",
     "xss-filters": "^1.2.7",

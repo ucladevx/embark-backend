@@ -62,6 +62,7 @@ const clubSchema = new mongoose.Schema({
     default: "false",
   },
 });
+clubSchema.index({name: 'text'}); 
 
 const Club = mongoose.model("Club", clubSchema);
 module.exports = Club;

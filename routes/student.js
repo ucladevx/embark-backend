@@ -1,12 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {
-  editProfile,
-  profile,
-  image,
-  followClub,
-  getFollowedClubs,
-} = require("../helpers/student");
+const { editProfile, profile, image, followClub, getFollowedClubs } = require("../helpers/student")
 const authorize = require("../helpers/authMiddleware");
 
 router.post("/profile", authorize, editProfile);

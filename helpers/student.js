@@ -181,4 +181,4 @@ exports.getFollowedClubs = async function (req, res) {
       message: err.message,
     });
   }
-};
+}

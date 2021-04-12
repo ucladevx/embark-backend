@@ -64,6 +64,8 @@ const studentSchema = new mongoose.Schema({
     default: "false",
   },
 });
+studentSchema.index({name: 'text'}); 
+
 
 const Student = mongoose.model("Student", studentSchema);
 module.exports = Student;

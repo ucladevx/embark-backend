@@ -802,3 +802,27 @@ Returns: a list of post IDs
     "posts": ""
 }
 ```
+
+### GET /search
+In: Authorization header, in the format Bearer <token> 
+Request Body:
+```
+{
+    searchString: "",
+}
+```
+
+Returns: A list with the queries, and the number of search results. 
+Each query has name, mongo id, and account type.
+```
+{
+    "queries": [
+        {
+            "name": "embark",
+            "id": "60651dcf84687500c42c07ad",
+            "accountType": "club"
+        },
+    ],
+    "numQueries": 1
+}
+```

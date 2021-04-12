@@ -180,7 +180,7 @@ exports.discover = async function (req, res) {
       message: err.message,
     });
   }
-};
+}
 
 exports.getResources = async function (req, res) {
   const token = req.headers.authorization.split(" ")[1];
@@ -189,3 +189,4 @@ exports.getResources = async function (req, res) {
   console.log(getClub);
   res.status(200).json({ success: true, resources: getClub["resources"] });
 };
+

@@ -3,35 +3,37 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const rateLimit = require("express-rate-limit");
-const maintenance = require('@zrpaplicacoes/maintenance_mode');
+const maintenance = require("@zrpaplicacoes/maintenance_mode");
 const mongoSanitize = require("express-mongo-sanitize");
-const xss = require('xss-clean');
+const xss = require("xss-clean");
+const swaggerUi = require("swagger-ui-express");
+const specs = require("./server_helpers/swagger");
 require("dotenv").config();
 
 //  all limiters used in app
 const allLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
 });
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10 // limit each IP to 100 requests per windowMs
+  max: 10, // limit each IP to 100 requests per windowMs
 });
 const postLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50 // limit each IP to 100 requests per windowMs
+  max: 50, // limit each IP to 100 requests per windowMs
 });
 const studentLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 25 // limit each IP to 100 requests per windowMs
+  max: 25, // limit each IP to 100 requests per windowMs
 });
 const clubLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50 // limit each IP to 100 requests per windowMs
+  max: 50, // limit each IP to 100 requests per windowMs
 });
 const eventLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 25 // limit each IP to 100 requests per windowMs
+  max: 25, // limit each IP to 100 requests per windowMs
 });
 
 //  maintenance mode settings
@@ -41,10 +43,10 @@ const options = {
    * endpoint: false,
    * url: '/maintenance',
    * accessKey: 'CHANGE_ME',
-  */
+   */
   status: 503,
-  message: 'Sorry, Embark is on maintenance, please check back later',
-  checkpoint: '/status',
+  message: "Sorry, Embark is on maintenance, please check back later",
+  checkpoint: "/status",
   retryAfter: 30,
 };
 
@@ -69,13 +71,13 @@ const eventRoutes = require("./routes/events")
 const searchRoutes = require("./routes/search")
 
 // route them accordingly eg. app.use("/profile", profileRoutes)
-
-app.use('/auth', authRoutes)
-app.use('/posts', postRoutes)
-app.use('/student', studentRoutes)
-app.use('/club', clubRoutes)
-app.use('/events', eventRoutes)
-app.use('/search', searchRoutes)
+app.use("/auth", authRoutes, authLimiter);
+app.use("/posts", postRoutes, postLimiter);
+app.use("/student", studentRoutes, studentLimiter);
+app.use("/club", clubRoutes, clubLimiter);
+app.use("/events", eventRoutes, eventLimiter);
+app.use("/search", searchRoutes);
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get('/health', (req, res) => {
     res.status(200).send({

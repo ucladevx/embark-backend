@@ -41,6 +41,10 @@ exports.createPosts = async function (req, res, next) {
             let user = await studentModel.findOne({ _id: id });
             console.log("student user found", user);
             user.posts.push(post._id);
+
+            // ! mongoose won't allow this
+            // ! because the schema needs user to have firstName and lastName fields
+
             await user.save();
         } catch (err) {
             return res.status(400).json({

@@ -11,7 +11,6 @@ const {
   discover,
   getResources,
 } = require("../helpers/club");
-
 const authorize = require("../helpers/authMiddleware");
 
 router.post("/resources", authorize, resourceFunction);

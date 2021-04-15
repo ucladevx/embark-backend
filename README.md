@@ -446,8 +446,10 @@ Returns:
 ## POST /club/resources
 
 In:Authorization`header, in the format`Bearer <token>`
-Request Body: files with key 'file'
-Returns: if Successful:
+Query: linkFile=link (uploading a link) or linkFile=file (uploading a file)
+Request Body (file): files with key 'file' if uploading file (uses Form Data)
+Request Body: string link given like so: link: "string link"
+Returns: if Successful for File:
 
 ```
 {
@@ -459,6 +461,15 @@ Returns: if Successful:
             "Name": <file name> ex. "club.pdf"
         }
     ]
+}
+```
+
+Returns: if Successful for Link:
+
+```
+{
+    "success": true,
+    "fileUrls": {link}
 }
 ```
 
@@ -804,16 +815,19 @@ Returns: a list of post IDs
 ```
 
 ### GET /search
-In: Authorization header, in the format Bearer <token> 
+
+In: Authorization header, in the format Bearer <token>
 Request Body:
+
 ```
 {
     searchString: "",
 }
 ```
 
-Returns: A list with the queries, and the number of search results. 
+Returns: A list with the queries, and the number of search results.
 Each query has name, mongo id, and account type.
+
 ```
 {
     "queries": [

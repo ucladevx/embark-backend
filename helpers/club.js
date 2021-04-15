@@ -35,7 +35,7 @@ exports.editProfile = async function (req, res, next) {
       }
     });
     //changing tags
-    const club = await clubModel.findOne({ _id: decodedToken.id });
+    const club = await clubModel.findById({ _id: decodedToken.id });
     var changeTags = club.tags;
     if (tags) {
       changeTags = changeField(tags, club.tags, changeTags);
@@ -143,7 +143,7 @@ exports.discover = async function (req, res) {
   let email = decodeToken(req);
   let user;
   try {
-    user = await studentModel.findOne({ _id: id });
+    user = await studentModel.findOne({ email: email });
   } catch (err) {
     return res.status(400).json({
       message: err.message,

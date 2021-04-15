@@ -182,6 +182,8 @@ createClub = async function (name, email, password) {
     profilePicURL: "",
     coverPicURL: "",
     savedPosts: [],
+    resources: [],
+    embededlinks: [],
   });
   try {
     await club.save();
@@ -267,8 +269,8 @@ exports.signup = async function (req, res, next) {
     });
   }
 
-  let token
-  let emailVerificationMessage = "No message."
+  let token;
+  let emailVerificationMessage = "No message.";
   if (req.body.userType == "student") {
     const student = new studentModel({
       firstName,
@@ -285,7 +287,7 @@ exports.signup = async function (req, res, next) {
       profilePicURL: "",
       coverPicURL: "",
       linkedIn: "",
-      active: false,
+      active: true,
     });
     student.password = await bcrypt.hashSync(password, 10);
     token = jwt.sign(
@@ -333,7 +335,8 @@ exports.signup = async function (req, res, next) {
       coverPicURL: "",
       savedPosts: [],
       resources: [],
-      active: false,
+      embededlinks: [],
+      active: true,
     });
     club.password = await bcrypt.hashSync(password, 10);
     token = jwt.sign(
@@ -367,6 +370,6 @@ exports.signup = async function (req, res, next) {
   return res.status(200).json({
     auth: true,
     token,
-    emailVerificationMessage
-  })
+    emailVerificationMessage,
+  });
 };

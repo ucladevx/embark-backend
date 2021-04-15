@@ -46,10 +46,10 @@ const clubSchema = new mongoose.Schema({
     type: [String],
   },
   likedPosts: {
-    type: [String]
+    type: [String],
   },
   commentedPosts: {
-    type: [String]
+    type: [String],
   },
   followedClubs: {
     type: [String],
@@ -57,12 +57,15 @@ const clubSchema = new mongoose.Schema({
   resources: {
     type: [],
   },
+  embededlinks: {
+    type: [],
+  },
   active: {
     type: Boolean,
     default: "false",
   },
 });
-clubSchema.index({name: 'text'}); 
+clubSchema.index({ name: "text" });
 
 const Club = mongoose.model("Club", clubSchema);
 module.exports = Club;

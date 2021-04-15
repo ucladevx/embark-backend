@@ -285,7 +285,7 @@ exports.signup = async function (req, res, next) {
       profilePicURL: "",
       coverPicURL: "",
       linkedIn: "",
-      active: false,
+      active: true,
     });
     student.password = await bcrypt.hashSync(password, 10);
     token = jwt.sign(
@@ -333,7 +333,7 @@ exports.signup = async function (req, res, next) {
       coverPicURL: "",
       savedPosts: [],
       resources: [],
-      active: false,
+      active: true,
     });
     club.password = await bcrypt.hashSync(password, 10);
     token = jwt.sign(

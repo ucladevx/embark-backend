@@ -18,6 +18,36 @@ router.get("/going", authorize, goingEvents);
 
 // for clubs
 router.get("/me", authorize, myEvents);
+
+/**
+ * @swagger
+ * /events/create:
+ *  post:
+ *    tags:
+ *      - Events
+ *    requestBody:
+ *      required: true
+ *      content:
+ *         application/json:
+ *            schema:
+ *              properties:
+ *                name:
+ *                  type: string
+ *                startDate:
+ *                  type: string
+ *                endDate:
+ *                  type: string
+ *                venue:
+ *                  type: string
+ *                organizerName:
+ *                  type: string
+ *                organizerEmail:
+ *                  type: string
+ *                tags:
+ *                  type: string
+ *                desc:
+ *                   type: string
+ */
 router.post("/create", authorize, createEvent);
 
 module.exports = router;

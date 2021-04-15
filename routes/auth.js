@@ -70,6 +70,8 @@ router.get("/google/redirect", function (req, res, next) {
  * @swagger
  * /auth/signin:
  *  post:
+ *    tags:
+ *      - Authentication
  *    requestBody:
  *      required: true
  *      content:
@@ -87,6 +89,8 @@ router.post("/signin", signin);
  * @swagger
  * /auth/signup:
  *  post:
+ *    tags:
+ *      - Authentication
  *    requestBody:
  *      required: true
  *      content:

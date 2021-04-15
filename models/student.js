@@ -128,11 +128,10 @@ const studentSchema = new mongoose.Schema({
   },
   active: {
     type: Boolean,
-    default: "false",
+    default: "true",
   },
 });
-studentSchema.index({name: 'text'}); 
-
+studentSchema.index({ name: "text" });
 
 const Student = mongoose.model("Student", studentSchema);
 module.exports = Student;

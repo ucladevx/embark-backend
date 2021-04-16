@@ -115,63 +115,6 @@ Returns:
 }
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-<<<<<<< HEAD
-
-### /signup
-
-=======
-
-> > > > > > > # d9b97f30fa0f8d1b92ea23df0928e908b9811c06
-> > > > > > >
-> > > > > > > # d540e6de8874e3f0093ac013744f3d063056e14c
-
-## Authorization
-
-> > > > > > > e84bbb0f177c3086a893de13961364e6eb1d437c
-
-### auth/signup
-
-Post Request:
-Put the following fields in the body of the request:
-{
-"name":string,
-"email":unique string,
-"password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
-userType:"club" or "student"
-}
-Returns (if successful):
-
-```
-{
-    "auth":true,
-    "token": <token>
-}
-```
-
-### auth/signin
-
-Requests to be made with `Authorization` header, in the format `Bearer <token>`.
-Request body:
-
-```
-{
-    "email":string,
-    "password":string,
-    "userType":"club" OR "student"
-}
-```
-
-Returns (if successful):
-
-```
-{
-    token:<token>
-}
-```
-
 ### auth/google
 
 Post request:
@@ -791,14 +734,9 @@ or
 
 ### GET /post/me
 
-# In: Authorization header, in the format Bearer <token>
-
-### GET /posts/me
-
 In: Authorization header, in the format Bearer <token>
 
-> > > > > > > master
-> > > > > > > Request Body:
+Request Body:
 
 ```
 {
@@ -817,6 +755,7 @@ Returns: a list of post IDs
 ### GET /search
 
 In: Authorization header, in the format Bearer <token>
+
 Request Body:
 
 ```

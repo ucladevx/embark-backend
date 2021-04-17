@@ -1,9 +1,31 @@
 const express = require("express");
 const router = express.Router();
-const { editProfile, profile, image } = require("../helpers/club")
+const resourceFunction = require("../helpers/resources-busboy");
 
-router.post("/profile", editProfile)
-router.get("/profile", profile)
+const {
+  editProfile,
+  profile,
+  image,
+  followClub,
+  getFollowedClubs,
+  discover,
+  getResources,
+} = require("../helpers/club");
+const authorize = require("../helpers/authMiddleware");
 
-router.post("/profile/image", image)
+router.post("/resources", authorize, resourceFunction);
+router.get("/resources", authorize, getResources); //add some resouces array to club model
+// router.get("/profile/image")
+
+router.post("/profile", authorize, editProfile);
+router.get("/profile", authorize, profile);
+
+router.post("/profile/image", authorize, image);
+
+//follow clubs
+router.post("/following", authorize, followClub);
+router.get("/following", authorize, getFollowedClubs);
+
+router.get("/discover", authorize, discover);
+
 module.exports = router;

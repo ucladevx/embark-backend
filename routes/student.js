@@ -1,15 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const { editProfile, profile, image, followClub, getFollowedClubs } = require("../helpers/student")
+const { editProfile, profile, image, followClub, getFollowedClubs, getClubs, getIndustries } = require("../helpers/student")
 const authorize = require("../helpers/authMiddleware");
 
 router.post("/profile", authorize, editProfile);
 router.get("/profile", authorize, profile);
-
 router.post("/profile/image", authorize, image);
 
 // following clubs
-router.post("/following", authorize, followClub);
-router.get("/following", authorize, getFollowedClubs);
+router.post("/followClub", authorize, followClub);
+
+// ! These are both really the same endpoint - are they not?
+// router.get("/following", authorize, getFollowedClubs); // ! This endpoint only returns club id's, no info
+router.get("/getClubs", authorize, getClubs);
+
+router.get("/getIndustries", authorize, getIndustries);
 
 module.exports = router;

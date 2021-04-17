@@ -105,7 +105,7 @@ const studentSchema = new mongoose.Schema({
   commentedPosts: {
     type: [String],
   },
-  clubs: {
+  clubs: { // ? what is this for?
     type: [String],
   },
   bio: {
@@ -131,7 +131,7 @@ const studentSchema = new mongoose.Schema({
     default: "false",
   },
 });
-studentSchema.index({name: 'text'}); 
+studentSchema.index({ name: 'text' });
 
 
 const Student = mongoose.model("Student", studentSchema);

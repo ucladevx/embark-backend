@@ -35,7 +35,7 @@ exports.editProfile = async function (req, res, next) {
       }
     });
     //changing tags
-    const club = await clubModel.findOne({ email: decodedToken.email });
+    const club = await clubModel.findById({ _id: decodedToken.id });
     var changeTags = club.tags;
     if (tags) {
       changeTags = changeField(tags, club.tags, changeTags);
@@ -53,7 +53,7 @@ exports.profile = async function (req, res, next) {
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, req.app.get("secretKey"));
   const club = await clubModel.findOne(
-    { email: decodedToken.email },
+    { _id: decodedToken.id },
     { password: 0 }
   );
   res.send({ club });
@@ -180,4 +180,18 @@ exports.discover = async function (req, res) {
       message: err.message,
     });
   }
-}
+};
+
+exports.getResources = async function (req, res) {
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(token, req.app.get("secretKey"));
+  const getClub = await clubModel.findOne({ _id: decodedToken.id });
+  console.log(getClub);
+  res
+    .status(200)
+    .json({
+      success: true,
+      resources: getClub["resources"],
+      embededlinks: getClub["embededlinks"],
+    });
+};

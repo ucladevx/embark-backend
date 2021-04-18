@@ -182,7 +182,8 @@ exports.createEvent = async function (req, res, next) {
 
   const {
     name,
-    date,
+    startDate,
+    endDate,
     venue,
     organizerName,
     organizerEmail,
@@ -192,7 +193,8 @@ exports.createEvent = async function (req, res, next) {
 
   const event = new eventModel({
     name,
-    date,
+    startDate,
+    endDate,
     venue,
     organizerName,
     organizerEmail,

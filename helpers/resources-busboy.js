@@ -61,40 +61,71 @@ const parseForm = async (req) => {
 //const uploadFile = require("../helpers/upload");
 
 module.exports = async (req, res) => {
+  const { linkFile } = req.query;
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(token, req.app.get("secretKey"));
+  const club = await clubModel.findOne({ email: decodedToken.email });
   // or module.exports = async (req, res) => {
   try {
-    const files = await parseForm(req);
-    //storing the names and the types of the files
-    const fileResult = [];
-    for (file of files) {
-      fileResult.push({ file: file.fileName, fileType: file.fileType });
+    if (linkFile == "file") {
+      const files = await parseForm(req);
+      //storing the names and the types of the files
+      const fileResult = [];
+      for (file of files) {
+        fileResult.push({ file: file.fileName, fileType: file.fileType });
+      }
+
+      //figure this one out
+      let locations = [];
+      for (i = 0; i < files.length; i++) {
+        file = files[i];
+        const { fileBuffer, ...fileParams } = file;
+        const result = await uploadFile(fileBuffer, fileParams);
+        //console.log(result)
+        //fileResult[i]["location"].push(result.Location)
+        locations.push(result);
+      }
+      //clean output
+      console.log(locations);
+      var i;
+      for (i = 0; i < locations.length; i++) {
+        locations[i]["Name"] = locations[i]["Key"].substr(13);
+        delete locations[i]["ETag"];
+        if (locations[i]["key"]) {
+          delete locations[i]["key"];
+        }
+      }
+
+      //get the decodedToken email and then add it to the club schema
+
+      let updatedFields = {};
+      updatedFields["resources"] = club["resources"];
+      for (i = 0; i < locations.length; i++) {
+        updatedFields["resources"].push(locations[i]);
+      }
+      //updates the resources!
+      const result = await clubModel.updateOne(
+        { _id: club._id },
+        updatedFields
+      );
+
+      //doesn't work
+      //const club2=await clubModel.findOneAndUpdate(decodedToken.email, updatedFields); //mb change to id
+
+      res.status(200).json({ success: true, fileUrls: locations });
+    } else {
+      const { link } = req.body;
+      let updatedFields = {};
+      updatedFields["embededlinks"] = club["embededlinks"];
+      updatedFields["embededlinks"].push(link);
+      const result = await clubModel.updateOne(
+        { _id: club._id },
+        updatedFields
+      );
+
+      res.status(200).json({ success: true, fileUrls: { link } });
+      console.log(3);
     }
-
-    //figure this one out
-    let locations = [];
-    let urls = [];
-    for (i = 0; i < files.length; i++) {
-      file = files[i];
-      const { fileBuffer, ...fileParams } = file;
-      const result = await uploadFile(fileBuffer, fileParams);
-      //console.log(result)
-      //fileResult[i]["location"].push(result.Location)
-      locations.push(result);
-      urls.push(result.Location);
-    }
-
-    //get the decodedToken id and then add it to the club schema
-    const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, req.app.get("secretKey"));
-    let updatedFields = {};
-    const club = await clubModel.findOne({ email: decodedToken.email });
-    console.log(club.resources);
-    updatedFields["resources"] = urls;
-    await clubModel.findOneAndUpdate(decodedToken.id, updatedFields);
-
-    res
-      .status(200)
-      .json({ success: true, files: fileResult, fileUrls: locations });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.message });

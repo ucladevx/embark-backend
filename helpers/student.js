@@ -12,6 +12,16 @@ const s3 = new aws.S3();
 const imageFunction = require("../helpers/image");
 const authorize = require("../helpers/authMiddleware");
 
+const findAndUpdate = async (decodedId, updatedFields) => {
+  const student = await studentModel.findOne({ _id: decodedId });
+  const result = await studentModel.updateOne(
+    { _id: student._id },
+    updatedFields
+  );
+  returnedStudent = await studentModel.findOne({ _id: decodedId }); //to get the updated student
+  return returnedStudent;
+};
+
 exports.changeField = function (inputArray, studentField, changeArray) {
   for (item of inputArray) {
     if (
@@ -34,23 +44,6 @@ exports.changeField = function (inputArray, studentField, changeArray) {
 };
 const { changeField } = require("../helpers/student");
 
-exports.profile = async function (req, res, next) {
-  const token = req.headers.authorization.split(" ")[1];
-  const decodedToken = await jwt.verify(token, req.app.get("secretKey"));
-  const student = await studentModel.findOne({ email: decodedToken.email });
-  res.send({ student });
-};
-
-const findAndUpdate = async (decodedEmail, updatedFields) => {
-  const student = await studentModel.findOne({ email: decodedEmail });
-  const result = await studentModel.updateOne(
-    { _id: student._id },
-    updatedFields
-  );
-  returnedStudent = await studentModel.findOne({ email: decodedEmail }); //to get the updated student
-  return returnedStudent;
-};
-
 exports.editProfile = async function (req, res, next) {
   const { name, major, year, tags, clubs, bio, linkedIn } = req.body;
   editableFields = { name, major, year, tags, bio, linkedIn };
@@ -65,7 +58,7 @@ exports.editProfile = async function (req, res, next) {
       }
     });
     //UPDATES THE TAGS AND CLUBS (deletes tags that have rm before it)
-    const student = await studentModel.findOne({ email: decodedToken.email });
+    const student = await studentModel.findOne({ _id: decodedToken.id });
     var changeTags = student.tags;
     var changeClubs = student.clubs;
 
@@ -80,7 +73,7 @@ exports.editProfile = async function (req, res, next) {
     // updates the clubs
 
     const updatedStudent = await findAndUpdate(
-      decodedToken.email,
+      decodedToken.id,
       updatedFields
     );
     //update tags and clubs
@@ -94,11 +87,8 @@ exports.editProfile = async function (req, res, next) {
 exports.profile = async function (req, res, next) {
   // const decodedToken = await authorize(req, res, next);
   const token = req.headers.authorization.split(" ")[1];
-  const decodedToken = jwt.verify(token, req.app.get("secretKey"));
-  let student = await studentModel.findOne(
-    { email: decodedToken.email },
-    { password: 0 }
-  );
+  const decodedToken = jwt.verify(token, req.app.get('secretKey'));
+  const student = await studentModel.findOne({ _id: decodedToken.id });
   res.send({ student });
 };
 
@@ -118,7 +108,7 @@ exports.image = async function (req, res, next) {
     else {
       updatedFields = { profilePicURL: imageURL }
     }
-    const updatedStudent = await studentModel.findOneAndUpdate({ email: decodedToken.email }, updatedFields);
+    const updatedStudent = await studentModel.findOneAndUpdate({ _id: decodedToken.id }, updatedFields);
     return res.status(200).json({ updatedStudent });
   }
   catch (err) {
@@ -129,29 +119,37 @@ exports.image = async function (req, res, next) {
 // POST
 // request body: userEmail, clubEmail (to follow)
 //
+// ! FIX. accept only clubId; no more is needed.
+// ! push clubId into user, not clubEmail
 exports.followClub = async function (req, res, next) {
-  const { userEmail, clubEmail } = req.body;
+  const { clubId } = req.body;
   resMessage = "";
+
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(token, req.app.get('secretKey'));
+  console.log(decodedToken)
+
   try {
     let user = await studentModel.findOne({
-      email: userEmail,
+      _id: decodedToken.id,
     });
 
     let followedClubs = await user.get("followedClubs");
     console.log("followedClubs", followedClubs);
 
-    if (followedClubs.includes(clubEmail)) {
+    if (followedClubs.includes(clubId)) {
       resMessage = "this user already follows this club";
     } else {
-      await followedClubs.push(clubEmail);
+      await followedClubs.push(clubId);
       await user.save();
-      resMessage = "club successfully follwed club";
+      resMessage = "club successfully followed club";
     }
 
     res.status(201).json({
       message: resMessage,
       followedClubs,
     });
+
   } catch (err) {
     return res.status(400).json({
       message: err.message,
@@ -159,26 +157,67 @@ exports.followClub = async function (req, res, next) {
   }
 };
 
-// GET
-// request body: userEmail
-// returns: list of followed clubs
-exports.getFollowedClubs = async function (req, res) {
-  const { userEmail } = req.body;
-  try {
-    const user = await studentModel.findOne({
-      email: userEmail,
-    });
-    console.log(user);
-    let followedClubs = await user.get("followedClubs");
-    console.log("followedClubs", followedClubs);
+// ! FIX. Modify this function to work with the function above
+exports.getClubs = async function (req, res) {
 
-    res.status(200).json({
-      message: "Get student's followed clubs",
-      followedClubs,
-    });
-  } catch (err) {
+  // pull id from jwt
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded = jwt.decode(token, { complete: true });
+  let id = decoded.payload.id;
+  console.log('Request made from:', id)
+
+  // Find which clubs the student follows
+  let clubs
+  try {
+    clubs = await studentModel.findOne({ _id: id }, 'followedClubs');
+    console.log(clubs)
+  }
+  catch (err) {
     return res.status(400).json({
-      message: err.message,
-    });
+      message: err.message
+    })
+  }
+
+  let clubDetails = []
+
+  for (const club of clubs.followedClubs) {
+    const clubQuery = await clubModel.findOne({ _id: club })
+    if (clubQuery) {
+      clubDetails.push({
+        name: clubQuery.name,
+        website: clubQuery.website,
+        description: clubQuery.description,
+        profilePicURL: clubQuery.profilePicURL
+      })
+    } else {
+      clubDetails.push("Club not found in club database.") // possibly throw Error or return early with status 500
+    }
+  }
+
+  return res.status(200).json(clubDetails)
+}
+
+exports.getIndustries = async function (req, res) {
+
+  // pull email from jwt
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded = jwt.decode(token, { complete: true });
+  let id = decoded.payload.id;
+  console.log('Request made from:', id)
+
+  // Find which industries the student follows
+  let industries = []
+  try {
+    industries = await studentModel.findOne({ _id: id }, 'tags'); // TODO: make this industries
+    console.log('Industries:', industries)                             // "tags" is industries
+    return res.status(200).json({
+      message: "Query successful",
+      industries
+    })
+  }
+  catch (err) {
+    return res.status(400).json({
+      message: err.message
+    })
   }
 }

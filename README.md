@@ -12,7 +12,8 @@ Put the following fields in the body of the request:
 
 ```
 {
-    "name":string,
+    "firstName":string,
+    "lastName":string,
     "email":unique string,
     "password": string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
     userType: "club" or "student"
@@ -84,6 +85,7 @@ Returns:
     }
 }
 ```
+
 ### GET /posts
 
 Requests to be made with `Authorization` header, in the format `Bearer <token>`.
@@ -110,63 +112,6 @@ Returns:
         // array of such posts
         ]
      }
-}
-```
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-<<<<<<< HEAD
-
-### /signup
-
-=======
-
-> > > > > > > # d9b97f30fa0f8d1b92ea23df0928e908b9811c06
-> > > > > > >
-> > > > > > > # d540e6de8874e3f0093ac013744f3d063056e14c
-
-## Authorization
-
-> > > > > > > e84bbb0f177c3086a893de13961364e6eb1d437c
-
-### auth/signup
-
-Post Request:
-Put the following fields in the body of the request:
-{
-"name":string,
-"email":unique string,
-"password":string, must be 8 characters, with at least 1 Uppercase, 1 Lowercase, and one special character,
-userType:"club" or "student"
-}
-Returns (if successful):
-
-```
-{
-    "auth":true,
-    "token": <token>
-}
-```
-
-### auth/signin
-
-Requests to be made with `Authorization` header, in the format `Bearer <token>`.
-Request body:
-
-```
-{
-    "email":string,
-    "password":string,
-    "userType":"club" OR "student"
-}
-```
-
-Returns (if successful):
-
-```
-{
-    token:<token>
 }
 ```
 
@@ -444,28 +389,49 @@ Returns:
 ## POST /club/resources
 
 In:Authorization`header, in the format`Bearer <token>`
-Request Body: files with key 'file'
+Query: linkFile=link (uploading a link) or linkFile=file (uploading a file)
+Request Body (file): files with key 'file' if uploading file (uses Form Data)
+Request Body: string link given like so: link: "string link"
+Returns: if Successful for File:
+
+```
+{
+    "success": true,
+    "fileUrls": [
+        {
+            "Location": "<location in AWS S3 string>",
+            "Key": <key name in AWS S3> ex. "1617248893413club.pdf",
+            "Name": <file name> ex. "club.pdf"
+        }
+    ]
+}
+```
+
+Returns: if Successful for Link:
+
+```
+{
+    "success": true,
+    "fileUrls": {link}
+}
+```
+
+## GET /club/resources
+
+In: Authorization`header, in the format`Bearer <token>`
+Request Body: Nothing
 Returns: if Successful:
 
 ```
 {
     "success": true,
-    "files": [
+    "resources": [
         {
-            "file": <fileName>,
-            "fileType": "text/plain" or "application/vnd.openxmlformats-officedocument.presentationml.presentation" or "application/pdf"
-        },
-        ... other files
-    ],
-    "fileUrls": [
-        {
-            "ETag": "\"d41d8cd98f00b204e9800998ecf8427e\"",
-            "Location": <URL OF THE LOCATION OF THE FILE IN AWS>,
-            "key": <FILE KEY>,
-            "Key": <FILE KEY>,
-            "Bucket": "club-resources-embark"
-        },
-        ... other files
+            "Location": <location URL as a string>,
+            "Key": <key name in AWS S3> ex. "1617244725547club.pdf",
+            "Bucket": <bucket name> ex. "club-resources-embark",
+            "Name": <file name> ex. "club.pdf"
+        }
     ]
 }
 ```
@@ -765,13 +731,11 @@ or
 ```
 
 <<<<<<< HEAD
+
 ### GET /post/me
 
 In: Authorization header, in the format Bearer <token>
-=======
-### GET /posts/me
-In: Authorization header, in the format Bearer <token> 
->>>>>>> master
+
 Request Body:
 
 ```
@@ -789,16 +753,20 @@ Returns: a list of post IDs
 ```
 
 ### GET /search
-In: Authorization header, in the format Bearer <token> 
+
+In: Authorization header, in the format Bearer <token>
+
 Request Body:
+
 ```
 {
     searchString: "",
 }
 ```
 
-Returns: A list with the queries, and the number of search results. 
+Returns: A list with the queries, and the number of search results.
 Each query has name, mongo id, and account type.
+
 ```
 {
     "queries": [

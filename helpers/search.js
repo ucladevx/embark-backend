@@ -20,6 +20,7 @@ exports.completeSearch = async function (req, res) {
       for (i = 0; i < searchResultStudents.length; i++) {
         resultsList.push({
             name: searchResultStudents[i].name,
+            email: searchResultStudents[i].email,
             id: searchResultStudents[i]._id,
             accountType: 'student'})
       }

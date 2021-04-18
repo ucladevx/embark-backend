@@ -50,7 +50,7 @@ const studentSchema = new mongoose.Schema({
     type: [String],
   },
 });
-studentSchema.index({name: 'text'}); 
+studentSchema.index({name: 'text', email: 'text'}); 
 
 
 const Student = mongoose.model("Student", studentSchema);

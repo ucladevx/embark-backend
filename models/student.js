@@ -131,7 +131,7 @@ const studentSchema = new mongoose.Schema({
     default: "false",
   },
 });
-studentSchema.index({ name: 'text' });
+studentSchema.index({ firstName: 1,lastName: 1 });
 
 
 const Student = mongoose.model("Student", studentSchema);

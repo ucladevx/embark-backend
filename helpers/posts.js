@@ -38,14 +38,11 @@ exports.createPosts = async function (req, res, next) {
     // save post._id to the user record
     if (accountType == "student") {
         try {
-            let user = await studentModel.findOne({ _id: id });
+            let user = await studentModel.findOneAndUpdate({ _id: id }, {
+                $push: { posts: post._id }
+            });
             console.log("student user found", user);
-            user.posts.push(post._id);
 
-            // ! mongoose won't allow this
-            // ! because the schema needs user to have firstName and lastName fields
-
-            await user.save();
         } catch (err) {
             return res.status(400).json({
                 message: err.message,

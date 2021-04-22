@@ -195,3 +195,22 @@ exports.getResources = async function (req, res) {
       embededlinks: getClub["embededlinks"],
     });
 };
+
+const getClubById = async (req, res) => {
+  // Get Id from the request
+  const { clubId } = req.body;
+  console.log('Id passed in:', clubId);
+  
+  try {
+    const club = await clubModel.findById({ _id: clubId });
+    return res.status(200).json({
+      message: "Query successful",
+      student
+    }) 
+  }
+  catch (err) {
+    return res.status(400).json({
+      message: err.message
+    })
+  }
+};

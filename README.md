@@ -390,6 +390,7 @@ Returns:
 
 In:Authorization`header, in the format`Bearer <token>`
 Query: linkFile=link (uploading a link) or linkFile=file (uploading a file)
+Query: userNamed = string name that the user named the file
 Request Body (file): files with key 'file' if uploading file (uses Form Data)
 Request Body: string link given like so: link: "string link"
 Returns: if Successful for File:
@@ -402,6 +403,7 @@ Returns: if Successful for File:
             "Location": "<location in AWS S3 string>",
             "Key": <key name in AWS S3> ex. "1617248893413club.pdf",
             "Name": <file name> ex. "club.pdf"
+            "userNamed": <string name that user gave>
         }
     ]
 }
@@ -412,7 +414,10 @@ Returns: if Successful for Link:
 ```
 {
     "success": true,
-    "fileUrls": {link}
+    "fileUrls": {
+        "link": <link>,
+        "userNamed": <string name user Gave>
+    }
 }
 ```
 

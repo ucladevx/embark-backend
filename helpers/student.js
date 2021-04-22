@@ -224,15 +224,15 @@ exports.getIndustries = async function (req, res) {
 
 exports.getStudentById = async (req, res) => {
   // Get Id from the request
-  const { studentId } = req.body;
+  const { studentId } = req.query;
   console.log('Id passed in:', studentId);
-  
+
   try {
     const student = await studentModel.findById({ _id: studentId });
     return res.status(200).json({
       message: "Query successful",
       student
-    }) 
+    })
   }
   catch (err) {
     return res.status(400).json({

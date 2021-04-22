@@ -222,7 +222,7 @@ exports.getIndustries = async function (req, res) {
   }
 }
 
-const getStudentById = async (req, res) => {
+exports.getStudentById = async (req, res) => {
   // Get Id from the request
   const { studentId } = req.body;
   console.log('Id passed in:', studentId);

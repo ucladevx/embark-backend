@@ -196,7 +196,7 @@ exports.getResources = async function (req, res) {
     });
 };
 
-const getClubById = async (req, res) => {
+exports.getClubById = async (req, res) => {
   // Get Id from the request
   const { clubId } = req.body;
   console.log('Id passed in:', clubId);
@@ -205,7 +205,7 @@ const getClubById = async (req, res) => {
     const club = await clubModel.findById({ _id: clubId });
     return res.status(200).json({
       message: "Query successful",
-      student
+      club
     }) 
   }
   catch (err) {

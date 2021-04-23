@@ -229,13 +229,6 @@ exports.createEvent = async function (req, res, next) {
 };
 
 exports.updateEvent = async function (req, res, next) {
-  let { email } = decodeToken(req);
-  let user = await findUser(req, res, email);
-
-  if (user == -1) {
-    return;
-  }
-
   const {
     eventID,
     name,

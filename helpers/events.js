@@ -30,6 +30,16 @@ async function findUser(req, res, email) {
   }
   return user;
 }
+
+async function findEvent(eventID) {
+  try {
+    await eventModel.findOne({ _id: eventID });
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 exports.discoverEvents = async function (req, res, next) {
   let { email } = decodeToken(req);
   let user = await findUser(req, res, email);
@@ -218,11 +228,44 @@ exports.createEvent = async function (req, res, next) {
   }
 };
 
-async function findEvent(eventID) {
-  try {
-    await eventModel.findOne({ _id: eventID });
-    return true;
-  } catch (err) {
-    return false;
+exports.updateEvent = async function (req, res, next) {
+  let { email } = decodeToken(req);
+  let user = await findUser(req, res, email);
+
+  if (user == -1) {
+    return;
   }
-}
+
+  const {
+    eventID,
+    name,
+    startDate,
+    endDate,
+    venue,
+    organizerName,
+    organizerEmail,
+    tags,
+    desc,
+  } = req.body;
+
+  let update = {};
+  if (name) update.nome = name;
+  if (startDate) update.cognome = startDate;
+  if (endDate) update.endDate = endDate;
+  if (venue) update.venue = venue;
+  if (organizerName) update.organizerName = organizerName;
+  if (organizerEmail) update.organizerEmail = organizerEmail;
+  if (tags) update.tags = tags;
+  if (desc) update.desc = desc;
+
+  try {
+    let event = await eventModel.findOneAndUpdate(eventID, update);
+    return res.status(200).json({
+      event: event,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message,
+    });
+  }
+};

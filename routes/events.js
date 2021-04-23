@@ -8,6 +8,7 @@ const {
   cancelEvent,
   goingEvents,
   myEvents,
+  updateEvent,
 } = require("../helpers/events");
 
 //for clubs + students
@@ -49,5 +50,6 @@ router.get("/me", authorize, myEvents);
  *                   type: string
  */
 router.post("/create", authorize, createEvent);
+router.post("/update", authorize, updateEvent);
 
 module.exports = router;

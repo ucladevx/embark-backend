@@ -63,6 +63,10 @@ const mongoose = require("mongoose");
  *          type: array
  *          items:
  *            type: String
+ *        viewedPosts:
+ *          type: array
+ *          item:
+ *            type: String
  *        active:
  *          type: boolean
  *
@@ -105,7 +109,8 @@ const studentSchema = new mongoose.Schema({
   commentedPosts: {
     type: [String],
   },
-  clubs: { // ? what is this for?
+  clubs: {
+    // ? what is this for?
     type: [String],
   },
   bio: {
@@ -126,13 +131,15 @@ const studentSchema = new mongoose.Schema({
   followedClubs: {
     type: [String],
   },
+  viewedPosts: {
+    type: [String],
+  },
   active: {
     type: Boolean,
     default: "false",
   },
 });
-studentSchema.index({ firstName: 1,lastName: 1 });
-
+studentSchema.index({ firstName: 1, lastName: 1 });
 
 const Student = mongoose.model("Student", studentSchema);
 module.exports = Student;

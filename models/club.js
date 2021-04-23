@@ -60,7 +60,7 @@ const clubSchema = new mongoose.Schema({
   embededlinks: {
     type: [],
   },
-  viewedPosts: {
+  interactedPosts: {
     type: [String],
   },
   active: {

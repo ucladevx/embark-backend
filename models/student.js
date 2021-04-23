@@ -63,7 +63,7 @@ const mongoose = require("mongoose");
  *          type: array
  *          items:
  *            type: String
- *        viewedPosts:
+ *        interactedPosts:
  *          type: array
  *          item:
  *            type: String
@@ -131,7 +131,7 @@ const studentSchema = new mongoose.Schema({
   followedClubs: {
     type: [String],
   },
-  viewedPosts: {
+  interactedPosts: {
     type: [String],
   },
   active: {

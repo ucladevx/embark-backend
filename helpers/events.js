@@ -73,6 +73,10 @@ exports.attendEvent = async function (req, res, next) {
         { _id: user._id },
         { $addToSet: { events: [eventId] } }
       );
+      await eventModel.updateOne(
+        { _id: eventId },
+        { $addToSet: { attendees: [user._id] } }
+      );
       return res.status(200).send("Event added!");
     } catch (err) {
       return res.status(400).json({
@@ -84,6 +88,10 @@ exports.attendEvent = async function (req, res, next) {
       await clubModel.updateOne(
         { _id: user._id },
         { $addToSet: { events: [eventId] } }
+      );
+      await eventModel.updateOne(
+        { _id: eventId },
+        { $addToSet: { attendees: [user._id] } }
       );
       return res.status(200).send("Event added!");
     } catch (err) {
@@ -189,6 +197,7 @@ exports.createEvent = async function (req, res, next) {
     organizerEmail,
     tags,
     desc,
+    attendees,
   } = req.body;
 
   const event = new eventModel({
@@ -200,6 +209,7 @@ exports.createEvent = async function (req, res, next) {
     organizerEmail,
     tags,
     desc,
+    attendees,
   });
 
   try {

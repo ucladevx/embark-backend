@@ -35,4 +35,6 @@ router.get("/comments", authorize, getPostComments);
 // posts authored by user
 router.get("/me", authorize, getPostsbyUser);
 
+router.post("/:postId", authorize, flagPostAsViewed);
+
 module.exports = router;

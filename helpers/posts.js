@@ -313,6 +313,7 @@ exports.getPostsbyUser = async function (req, res) {
     }
 };
 
+// ! this function needs to accept (req, res) too!
 exports.getPostComments = async function (postID, limit, nextPage, prevPage) {
     try {
         const result = MongoPaging.find(commentModel.collection, {
@@ -330,3 +331,23 @@ exports.getPostComments = async function (postID, limit, nextPage, prevPage) {
         res.send({ message: err.message });
     }
 };
+
+exports.flagPostAsViewed = async (req, res) => {
+    const postId = req.params.postId;
+    const payload = decodeToken(req);
+    let id = payload.id;
+
+    try {
+        const user = await studentModel.findOneAndUpdate({ _id: id }, {
+            $push: { interactedPosts: postId }
+        });
+
+        return res.status(200).json({
+            message: "Post successfully added to User's interactedPosts array."
+        })
+    } catch (err) {
+        return res.status(400).json({
+            message: err.message
+        })
+    }
+}

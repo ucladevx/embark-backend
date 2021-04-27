@@ -242,8 +242,8 @@ exports.updateEvent = async function (req, res, next) {
   } = req.body;
 
   let update = {};
-  if (name) update.nome = name;
-  if (startDate) update.cognome = startDate;
+  if (name) update.name = name;
+  if (startDate) update.startDate = startDate;
   if (endDate) update.endDate = endDate;
   if (venue) update.venue = venue;
   if (organizerName) update.organizerName = organizerName;

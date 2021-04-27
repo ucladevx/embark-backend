@@ -9,6 +9,7 @@ const MongoPaging = require("mongo-cursor-pagination");
 
 exports.createPosts = async function (req, res, next) {
   const { title, body, timestamp, tags, accountType } = req.body;
+
   // pull email from jwt
   const token = req.headers.authorization.split(" ")[1];
   const decoded = jwt.decode(token, { complete: true });
@@ -37,14 +38,11 @@ exports.createPosts = async function (req, res, next) {
   // save post._id to the user record
   if (accountType == "student") {
     try {
-      let user = await studentModel.findOne({ _id: id });
+      let user = await studentModel.findOneAndUpdate({ _id: id }, {
+        $push: { posts: post._id }
+      });
       console.log("student user found", user);
-      user.posts.push(post._id);
 
-      // ! mongoose won't allow this
-      // ! because the schema needs user to have firstName and lastName fields
-
-      await user.save();
     } catch (err) {
       return res.status(400).json({
         message: err.message,
@@ -69,6 +67,7 @@ exports.createPosts = async function (req, res, next) {
     post,
   });
 };
+
 
 exports.getPosts = async function (req, res, next) {
   // for now, accept tags and clubs to filter by

@@ -49,11 +49,6 @@ exports.newsignin = async function (req, res, next) {
 exports.newsignup = async function (req, res, next) {
   const { firstName, lastName, email } = req.body;
 
-  const regExpEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  if (!regExpEmail.test(email)) {
-    return res.status(400).send({ message: "Invalid email" });
-  }
-
   let token;
   let emailVerificationMessage = "No message.";
   if (req.body.userType == "student") {

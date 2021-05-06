@@ -5,7 +5,7 @@ const { decodeToken } = require("../helpers/utils");
 
 async function findUser(req, res, email) {
   let user;
-  if (req.body.userType === "student") {
+  if (req.query.userType === "student") {
     try {
       user = await studentModel.findOne({ email: email });
     } catch (err) {
@@ -13,7 +13,7 @@ async function findUser(req, res, email) {
         message: err.message,
       });
     }
-  } else if (req.body.userType === "club") {
+  } else if (req.query.userType === "club") {
     try {
       user = await clubModel.findOne({ email: email });
     } catch (err) {
@@ -158,6 +158,7 @@ exports.goingEvents = async function (req, res, next) {
   if (user == -1) {
     return;
   }
+
   const eventsIds = user.toObject().events;
   try {
     let events = await eventModel.find({ _id: { $in: eventsIds } });

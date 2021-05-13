@@ -1,6 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { editProfile, profile, image, followClub, getFollowedClubs, getClubs, getIndustries } = require("../helpers/student")
+const {
+  editProfile,
+  profile,
+  image,
+  followClub,
+  getFollowedClubs,
+  getClubs,
+  getIndustries,
+} = require("../helpers/student");
+const { studentGetClubResources } = require("../helpers/studentviewclubres");
 const authorize = require("../helpers/authMiddleware");
 
 router.post("/profile", authorize, editProfile);
@@ -15,5 +24,5 @@ router.post("/followClub", authorize, followClub);
 router.get("/getClubs", authorize, getClubs);
 
 router.get("/getIndustries", authorize, getIndustries);
-
+router.get("/getClubResources", authorize, studentGetClubResources);
 module.exports = router;

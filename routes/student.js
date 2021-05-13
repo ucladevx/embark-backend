@@ -24,5 +24,22 @@ router.post("/followClub", authorize, followClub);
 router.get("/getClubs", authorize, getClubs);
 
 router.get("/getIndustries", authorize, getIndustries);
+
+/**
+ * @swagger
+ * /student/getClubResources:
+ *  post:
+ *    tags:
+ *      - Authentication
+ *    requestBody:
+ *      required: true
+ *      content:
+ *         application/json:
+ *            schema:
+ *              properties:
+ *                clubID:
+ *                  type: string
+ *
+ */
 router.get("/getClubResources", authorize, studentGetClubResources);
 module.exports = router;

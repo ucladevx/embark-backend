@@ -286,6 +286,35 @@ Returns:
     }
 ```
 
+### GET /student/getClubResources
+
+In: `Authorization` header, in the format `Bearer <token>`
+Request Body: clubID:
+Returns:
+
+```
+"success": true,
+    "resources": [
+
+        {
+            "Location": "https://club-resources-embark.s3.amazonaws.com/1619066278523pset1.pdf",
+            "Key": "1619066278523pset1.pdf",
+            "Bucket": "club-resources-embark",
+            "Name": "pset1.pdf",
+            "userNamed": "myFile" <-- what they named it
+        }
+        , ...more resources
+    ],
+    "embededlinks": [
+        {
+            "link": "hello",
+            "userNamed": "myLink"
+        }
+        , ... more embededlinks
+
+    ]
+```
+
 ### GET /club/profile
 
 In: `Authorization` header, in the format `Bearer <token>`

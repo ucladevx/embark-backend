@@ -196,7 +196,7 @@ createClub = async function (name, email, password) {
 exports.oauthSuccess = function (req, res, next) {
   const userInfo = req.user;
   const token = jwt.sign(
-    { id: userInfo._id, name: userInfo.name, email: userInfo.email },
+    { id: userInfo._id, name: userInfo.name, email: userInfo.email, userType: userInfo.userType },
     req.app.get("secretKey"),
     { expiresIn: 8640000 }
   );
@@ -235,7 +235,7 @@ exports.signin = async function (req, res, next) {
 
     if (await bcrypt.compare(password, userInfo.password)) {
       const token = jwt.sign(
-        { id: userInfo._id, name: name, email: email },
+        { id: userInfo._id, name: name, email: email, userType: req.body.userType },
         req.app.get("secretKey"),
         { expiresIn: 8640000 }
       );
@@ -291,7 +291,7 @@ exports.signup = async function (req, res, next) {
     });
     student.password = await bcrypt.hashSync(password, 10);
     token = jwt.sign(
-      { id: student._id, name: firstName, email: email },
+      { id: student._id, name: firstName, email: email, userType: req.body.userType },
       req.app.get("secretKey"),
       { expiresIn: 8640000 }
     );
@@ -340,7 +340,7 @@ exports.signup = async function (req, res, next) {
     });
     club.password = await bcrypt.hashSync(password, 10);
     token = jwt.sign(
-      { id: club._id, name: firstName, email: email },
+      { id: club._id, name: firstName, email: email, userType: req.body.userType },
       req.app.get("secretKey"),
       { expiresIn: 8640000 }
     );

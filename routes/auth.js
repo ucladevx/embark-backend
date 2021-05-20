@@ -105,6 +105,8 @@ router.post("/signin", signin);
  *                  type: string
  *                password:
  *                  type: string
+ *                userType:
+ *                  type: string
  */
 router.post("/signup", signup);
 

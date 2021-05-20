@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
         .status(401)
         .json({ message: "Authorization header was not included" });
     }
-    res.status(401).json({
+    return res.status(401).json({
       message: error.message,
     });
   }

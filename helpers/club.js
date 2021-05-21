@@ -42,7 +42,7 @@ exports.editProfile = async function (req, res, next) {
       updatedFields["tags"] = changeTags;
     }
     const updatedClub = await findAndUpdate(decodedToken.email, updatedFields);
-    res.send({ updatedClub });
+    return res.send({ updatedClub });
   } catch (err) {
     return res.json({ message: err.message });
   }
@@ -56,7 +56,7 @@ exports.profile = async function (req, res, next) {
     { _id: decodedToken.id },
     { password: 0 }
   );
-  res.send({ club });
+  return res.send({ club });
 };
 
 exports.image = async function (req, res, next) {
@@ -76,7 +76,7 @@ exports.image = async function (req, res, next) {
     //finds the person and uploads their picture
 
     const updatedClub = await findAndUpdate(decodedToken.email, updatedFields);
-    res.send({ updatedClub });
+    return res.send({ updatedClub });
   } catch (err) {
     return res.json({
       message: "ID not found (it is likely the token is incorrect)",
@@ -104,7 +104,7 @@ exports.followClub = async function (req, res, next) {
       await user.save();
       resMessage = "club successfully follwed club";
     }
-    res.status(201).json({
+    return res.status(201).json({
       message: resMessage,
       followedClubs,
     });
@@ -128,7 +128,7 @@ exports.getFollowedClubs = async function (req, res) {
     let followedClubs = await user.get("followedClubs");
     console.log("followedClubs", followedClubs);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Get club's followed clubs",
       followedClubs,
     });
@@ -172,11 +172,11 @@ exports.discover = async function (req, res) {
       next: next,
       previous: previous,
     });
-    res.status(200).json({
+    return res.status(200).json({
       result: result,
     });
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       message: err.message,
     });
   }
@@ -187,13 +187,11 @@ exports.getResources = async function (req, res) {
   const decodedToken = jwt.verify(token, req.app.get("secretKey"));
   const getClub = await clubModel.findOne({ _id: decodedToken.id });
   console.log(getClub);
-  res
-    .status(200)
-    .json({
-      success: true,
-      resources: getClub["resources"],
-      embededlinks: getClub["embededlinks"],
-    });
+  return res.status(200).json({
+    success: true,
+    resources: getClub["resources"],
+    embededlinks: getClub["embededlinks"],
+  });
 };
 
 exports.getClubById = async (req, res) => {

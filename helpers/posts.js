@@ -42,7 +42,6 @@ exports.createPosts = async function (req, res, next) {
         $push: { posts: post._id }
       });
       console.log("student user found", user);
-
     } catch (err) {
       return res.status(400).json({
         message: err.message,
@@ -62,7 +61,7 @@ exports.createPosts = async function (req, res, next) {
   }
 
   // also return email of author here.
-  res.status(201).json({
+  return res.status(201).json({
     message: "Post successfully created.",
     post,
   });
@@ -195,7 +194,7 @@ exports.getPostLikes = async function (req, res, next) {
     let post = await postModel.findById(post_id);
     likes = post.get("likes");
     likedUsers = post.get("userLikes");
-    res.status(200).json({
+    return res.status(200).json({
       message: "Likes for post queried",
       likes,
       likedUsers
@@ -206,6 +205,7 @@ exports.getPostLikes = async function (req, res, next) {
     });
   }
 };
+
 exports.savePost = async function (req, res) {
   // add postid to saved posts field for student + club
   const { accountType, post_id } = req.body;
@@ -227,7 +227,7 @@ exports.savePost = async function (req, res) {
         resMessage = "Student: removed post from saved posts"
       }
       await user.save()
-      res.status(201).json({
+      return res.status(201).json({
         message: resMessage,
         savedPosts
       });
@@ -250,7 +250,7 @@ exports.savePost = async function (req, res) {
         resMessage = "Club: removed post from saved posts"
       }
       await user.save()
-      res.status(201).json({
+      return res.status(201).json({
         message: resMessage,
         savedPosts
       });
@@ -309,7 +309,7 @@ exports.getPostsbyUser = async function (req, res) {
     try {
       let user = await studentModel.findOne({ _id: id });
       let posts = await user.get("posts");
-      res.status(200).json({
+      return res.status(200).json({
         message: "Student authored posts successfully queried.",
         posts,
       });
@@ -324,7 +324,7 @@ exports.getPostsbyUser = async function (req, res) {
         id,
       });
       let posts = await user.get("posts");
-      res.status(200).json({
+      return res.status(200).json({
         message: "Club authored posts successfully queried.",
         posts,
       });
@@ -350,6 +350,6 @@ exports.getPostComments = async function (postID, limit, nextPage, prevPage) {
     });
     return result;
   } catch (err) {
-    res.send({ message: err.message });
+    return res.send({ message: err.message });
   }
 };

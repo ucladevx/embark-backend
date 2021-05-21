@@ -31,13 +31,13 @@ app.set("secretKey", process.env.JWT_SECRET);
 const PORT = process.env.PORT || 9000;
 
 //  list all routes here, such as profileRoutes, messageRoutes, etc.
-const authRoutes = require("./routes/auth")
-const postRoutes = require("./routes/posts")
-const studentRoutes = require("./routes/student")
-const clubRoutes = require("./routes/club")
-const eventRoutes = require("./routes/events")
-const searchRoutes = require("./routes/search")
-
+const authRoutes = require("./routes/auth");
+const postRoutes = require("./routes/posts");
+const studentRoutes = require("./routes/student");
+const clubRoutes = require("./routes/club");
+const eventRoutes = require("./routes/events");
+const searchRoutes = require("./routes/search");
+const getclubRoutes = require("./routes/getclubs");
 // route them accordingly eg. app.use("/profile", profileRoutes)
 app.use("/auth", authRoutes, authLimiter);
 app.use("/posts", postRoutes, postLimiter);
@@ -45,13 +45,14 @@ app.use("/student", studentRoutes, studentLimiter);
 app.use("/club", clubRoutes, clubLimiter);
 app.use("/events", eventRoutes, eventLimiter);
 app.use("/search", searchRoutes);
+app.use("/getclubs", getclubRoutes); //returning the list of clubs
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-app.get('/health', (req, res) => {
-    res.status(200).send({
-        message: `GET /health on Port ${PORT} successful`
-    })
-})
+app.get("/health", (req, res) => {
+  res.status(200).send({
+    message: `GET /health on Port ${PORT} successful`,
+  });
+});
 
 const connectToDB = async () => {
   try {

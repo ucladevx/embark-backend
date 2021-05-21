@@ -419,6 +419,7 @@ Returns:
 
 In:Authorization`header, in the format`Bearer <token>`
 Query: linkFile=link (uploading a link) or linkFile=file (uploading a file)
+Query: userNamed = string name that the user named the file
 Request Body (file): files with key 'file' if uploading file (uses Form Data)
 Request Body: string link given like so: link: "string link"
 Returns: if Successful for File:
@@ -431,6 +432,7 @@ Returns: if Successful for File:
             "Location": "<location in AWS S3 string>",
             "Key": <key name in AWS S3> ex. "1617248893413club.pdf",
             "Name": <file name> ex. "club.pdf"
+            "userNamed": <string name that user gave>
         }
     ]
 }
@@ -441,7 +443,10 @@ Returns: if Successful for Link:
 ```
 {
     "success": true,
-    "fileUrls": {link}
+    "fileUrls": {
+        "link": <link>,
+        "userNamed": <string name user Gave>
+    }
 }
 ```
 
@@ -558,31 +563,29 @@ Returns:
 ## Likes
 
 ### GET /post/likes
-
 In: Authorization header, in the format Bearer <token>
 Request Body:
 
 ```
 {
-    authorEmail: "",
     post_id: ""
 }
 ```
 
 Returns:
-
 ```
 {
-    post_id: ""
-    likes: 1
+    post_id: "",
+    likes: 1,
+    likedUsers: ["test@gmail.com"]
 }
 ```
 
 ### POST /post/likes
+Adds a like to a given post, or removes a like if user already liked the post.
 
 In: Authorization header, in the format Bearer <token>
 Request Body:
-
 ```
 {
     post_id: "",
@@ -594,7 +597,7 @@ Returns:
 
 ```
 {
-    "message": "incremented post like",
+    "message": "Removed user's like",
     "post": {
         "tags": [
             ""
@@ -732,6 +735,8 @@ or
 ```
 
 ### POST /posts/saved
+Saves a post if user has not already done so, and removes a savedpost if user already
+has it saved. 
 
 In: Authorization header, in the format Bearer <token>
 Request Body:
@@ -747,7 +752,7 @@ Returns:
 
 ```
 {
-    "message": "student created saved post"
+    "message": "Student: added post to saved posts"
 }
 ```
 
@@ -755,11 +760,9 @@ or
 
 ```
 {
-    "message": "club created saved post"
+    "message": "Club: removed post from saved posts"
 }
 ```
-
-<<<<<<< HEAD
 
 ### GET /post/me
 

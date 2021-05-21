@@ -10,6 +10,7 @@ const {
   getFollowedClubs,
   discover,
   getResources,
+  getClubById
 } = require("../helpers/club");
 const authorize = require("../helpers/authMiddleware");
 
@@ -27,5 +28,7 @@ router.post("/following", authorize, followClub);
 router.get("/following", authorize, getFollowedClubs);
 
 router.get("/discover", authorize, discover);
+
+router.get("/profileById", authorize, getClubById);
 
 module.exports = router;

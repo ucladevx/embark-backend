@@ -30,6 +30,9 @@ const eventSchema = new mongoose.Schema({
   desc: {
     type: String,
   },
+  attendees: {
+    type: [],
+  },
 });
 eventSchema.index({ name: "text" });
 

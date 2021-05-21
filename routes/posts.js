@@ -5,6 +5,7 @@ const {
   createPosts,
   getPosts,
   savePost,
+  unsavePost,
   getSavedPosts,
   addPostLike,
   getPostLikes,

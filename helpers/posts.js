@@ -159,6 +159,7 @@ exports.getPosts = async function (req, res, next) {
   }
 };
 
+// does not return updated document, use getPostLikes to retrieve updated document
 exports.addPostLike = async function (req, res) {
   const { authorEmail, post_id } = req.body;
   resMessage = "";
@@ -168,11 +169,14 @@ exports.addPostLike = async function (req, res) {
 
     if (!likedUsers.includes(authorEmail)) {
       await post.updateOne({ $inc: { likes: 1 } }, { new: true });
-      await post.updateOne({ $push: { userLikes: authorEmail } });
-      resMessage = "incremented post like";
+      await post.updateOne({ $push: { userLikes: authorEmail } }, { new: true });
+      resMessage = "Incremented post likes.";
     } else {
-      resMessage = "User already liked.";
+      await post.updateOne({ $inc: { likes: -1 } }, { new: true });
+      await post.updateOne({ $pull: { userLikes: authorEmail } }, { new: true });
+      resMessage = "Removed user's like.";
     }
+    await post.save()
     return res.status(201).json({
       message: resMessage,
       post,
@@ -190,9 +194,11 @@ exports.getPostLikes = async function (req, res, next) {
   try {
     let post = await postModel.findById(post_id);
     likes = post.get("likes");
+    likedUsers = post.get("userLikes");
     res.status(200).json({
       message: "Likes for post queried",
       likes,
+      likedUsers
     });
   } catch (err) {
     return res.status(400).json({
@@ -200,20 +206,30 @@ exports.getPostLikes = async function (req, res, next) {
     });
   }
 };
-
 exports.savePost = async function (req, res) {
   // add postid to saved posts field for student + club
   const { accountType, post_id } = req.body;
 
   const payload = decodeToken(req);
-  let id = payload.id;
+  let user_id = payload.id;
 
+  resMessage = ""
   if (accountType == "student") {
     try {
-      let user = await studentModel.findOne({ _id: id });
-      await user.updateOne({ $push: { savedPosts: post_id } });
+      let user = await studentModel.findOne({ _id: user_id });
+
+      savedPosts = user.get("savedPosts");
+      if (!savedPosts.includes(post_id)) {
+        await user.updateOne({ $push: { savedPosts: post_id } });
+        resMessage = "Student: added post to saved posts"
+      } else {
+        await user.updateOne({ $pull: { savedPosts: post_id } });
+        resMessage = "Student: removed post from saved posts"
+      }
+      await user.save()
       res.status(201).json({
-        message: "student created saved post",
+        message: resMessage,
+        savedPosts
       });
     } catch (err) {
       return res.status(400).json({
@@ -223,23 +239,32 @@ exports.savePost = async function (req, res) {
   } else {
     // get club saved posts
     try {
-      let user = await clubModel.findOne({ _id: id });
-      await user.updateOne({ $push: { savedPosts: post_id } });
+      let user = await clubModel.findOne({ _id: user_id });
+      savedPosts = user.get("savedPosts");
+      console.log(savedPosts)
+      if (!savedPosts.includes(post_id)) {
+        await user.updateOne({ $push: { savedPosts: post_id } });
+        resMessage = "Club: added post to saved posts"
+      } else {
+        await user.updateOne({ $pull: { savedPosts: post_id } });
+        resMessage = "Club: removed post from saved posts"
+      }
+      await user.save()
+      res.status(201).json({
+        message: resMessage,
+        savedPosts
+      });
     } catch (err) {
       return res.status(400).json({
         message: err.message,
       });
     }
-    res.status(201).json({
-      message: "club created saved post",
-    });
   }
 };
 
 exports.getSavedPosts = async function (req, res) {
   // return array of posts
-  const accountType = req.query.accountType;
-
+  const accountType = req.body.accountType;
   const payload = decodeToken(req);
   let id = payload.id;
 
@@ -247,15 +272,15 @@ exports.getSavedPosts = async function (req, res) {
     try {
       let user = await studentModel.findOne({ _id: id });
       posts = user.get("savedPosts");
+      return res.status(200).json({
+        message: "Student Saved Posts successfully queried.",
+        posts,
+      });
     } catch (err) {
       return res.status(400).json({
         message: err.message,
       });
     }
-    return res.status(200).json({
-      message: "Student Saved Posts successfully queried.",
-      posts,
-    });
   } else {
     try {
       let user = await clubModel.findOne({ _id: id });

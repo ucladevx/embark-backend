@@ -779,3 +779,27 @@ Each query has name, mongo id, and account type.
     "numQueries": 1
 }
 ```
+
+### GET /search/userPosts
+
+In: Authorization header, in the format Bearer <token>
+
+Request Body:
+
+```
+{
+    student_id: "<id string>",
+}
+```
+
+Returns:
+
+```
+{
+    "posts": [
+        "608105ed50c50a004e72ed4b",
+        "60810b1d927ecf0023575718"
+    ],
+    "_id": "<id string>"
+}
+```

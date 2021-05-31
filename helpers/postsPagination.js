@@ -55,14 +55,7 @@ exports.getPostsPage = async (
   }
 };
 
-async function postsQuery(
-  level_obj,
-  limitNum,
-  nextPage,
-  previousPage,
-  tags,
-  clubs
-) {
+async function postsQuery(level_obj, limitNum, tags, clubs) {
   const {
     interactedPosts,
     likedPosts,

@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require("passport");
 
 const { signin, signup, oauthSuccess } = require("../helpers/auth");
+const { newsignin, newsignup } = require("../helpers/auth2"); //for endpoint w no password
 const {
   forgotPass,
   resetPass,
@@ -66,6 +67,9 @@ router.get("/google/redirect", function (req, res, next) {
   })(req, res, next);
 });
 
+router.post("/newsignin", newsignin);
+router.post("/newsignup", newsignup);
+
 /**
  * @swagger
  * /auth/signin:
@@ -104,6 +108,8 @@ router.post("/signin", signin);
  *                email:
  *                  type: string
  *                password:
+ *                  type: string
+ *                userType:
  *                  type: string
  */
 router.post("/signup", signup);

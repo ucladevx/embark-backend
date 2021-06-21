@@ -61,7 +61,8 @@ const parseForm = async (req) => {
 //const uploadFile = require("../helpers/upload");
 
 module.exports = async (req, res) => {
-  const { linkFile } = req.query;
+  const { linkFile, userNamed } = req.query;
+
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, req.app.get("secretKey"));
   const club = await clubModel.findOne({ email: decodedToken.email });
@@ -86,10 +87,12 @@ module.exports = async (req, res) => {
         locations.push(result);
       }
       //clean output
-      console.log(locations);
+      // console.log(locations);
       var i;
+      console.log("here", userNamed);
       for (i = 0; i < locations.length; i++) {
         locations[i]["Name"] = locations[i]["Key"].substr(13);
+        locations[i]["userNamed"] = userNamed;
         delete locations[i]["ETag"];
         if (locations[i]["key"]) {
           delete locations[i]["key"];
@@ -115,9 +118,10 @@ module.exports = async (req, res) => {
       return res.status(200).json({ success: true, fileUrls: locations });
     } else {
       const { link } = req.body;
+      console.log(link);
       let updatedFields = {};
       updatedFields["embededlinks"] = club["embededlinks"];
-      updatedFields["embededlinks"].push(link);
+      updatedFields["embededlinks"].push({ link: link, userNamed: userNamed });
       const result = await clubModel.updateOne(
         { _id: club._id },
         updatedFields

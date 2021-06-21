@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { editProfile, profile, image, followClub, getFollowedClubs, getClubs, getIndustries } = require("../helpers/student")
+
+const { editProfile, profile, image, followClub, getFollowedClubs, getClubs, getIndustries, getStudentById } = require("../helpers/student")
+const { studentGetClubResources } = require("../helpers/studentviewclubres");
+
 const authorize = require("../helpers/authMiddleware");
 
 router.post("/profile", authorize, editProfile);
@@ -16,4 +19,22 @@ router.get("/getClubs", authorize, getClubs);
 
 router.get("/getIndustries", authorize, getIndustries);
 
+/**
+ * @swagger
+ * /student/getClubResources:
+ *  post:
+ *    tags:
+ *      - Authentication
+ *    requestBody:
+ *      required: true
+ *      content:
+ *         application/json:
+ *            schema:
+ *              properties:
+ *                clubID:
+ *                  type: string
+ *
+ */
+router.get("/getClubResources", authorize, studentGetClubResources);
+router.get("/profileById", authorize, getStudentById);
 module.exports = router;

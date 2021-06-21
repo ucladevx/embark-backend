@@ -37,7 +37,7 @@ exports.newsignin = async function (req, res, next) {
       req.app.get("secretKey"),
       { expiresIn: 8640000 }
     );
-    res.send({ token: token });
+    return res.send({ token: token });
   } catch (err) {
     return res.status(401).json({
       message: "Email not found",

@@ -115,7 +115,7 @@ module.exports = async (req, res) => {
       //doesn't work
       //const club2=await clubModel.findOneAndUpdate(decodedToken.email, updatedFields); //mb change to id
 
-      res.status(200).json({ success: true, fileUrls: locations });
+      return res.status(200).json({ success: true, fileUrls: locations });
     } else {
       const { link } = req.body;
       console.log(link);
@@ -127,16 +127,11 @@ module.exports = async (req, res) => {
         updatedFields
       );
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          fileUrls: { link: link, userNamed: userNamed },
-        });
+      return res.status(200).json({ success: true, fileUrls: { link } });
       console.log(3);
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
   }
 };

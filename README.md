@@ -286,6 +286,35 @@ Returns:
     }
 ```
 
+### GET /student/getClubResources
+
+In: `Authorization` header, in the format `Bearer <token>`
+Request Body: clubID:
+Returns:
+
+```
+"success": true,
+    "resources": [
+
+        {
+            "Location": "https://club-resources-embark.s3.amazonaws.com/1619066278523pset1.pdf",
+            "Key": "1619066278523pset1.pdf",
+            "Bucket": "club-resources-embark",
+            "Name": "pset1.pdf",
+            "userNamed": "myFile" <-- what they named it
+        }
+        , ...more resources
+    ],
+    "embededlinks": [
+        {
+            "link": "hello",
+            "userNamed": "myLink"
+        }
+        , ... more embededlinks
+
+    ]
+```
+
 ### GET /club/profile
 
 In: `Authorization` header, in the format `Bearer <token>`
@@ -534,31 +563,29 @@ Returns:
 ## Likes
 
 ### GET /post/likes
-
 In: Authorization header, in the format Bearer <token>
 Request Body:
 
 ```
 {
-    authorEmail: "",
     post_id: ""
 }
 ```
 
 Returns:
-
 ```
 {
-    post_id: ""
-    likes: 1
+    post_id: "",
+    likes: 1,
+    likedUsers: ["test@gmail.com"]
 }
 ```
 
 ### POST /post/likes
+Adds a like to a given post, or removes a like if user already liked the post.
 
 In: Authorization header, in the format Bearer <token>
 Request Body:
-
 ```
 {
     post_id: "",
@@ -570,7 +597,7 @@ Returns:
 
 ```
 {
-    "message": "incremented post like",
+    "message": "Removed user's like",
     "post": {
         "tags": [
             ""
@@ -708,6 +735,8 @@ or
 ```
 
 ### POST /posts/saved
+Saves a post if user has not already done so, and removes a savedpost if user already
+has it saved. 
 
 In: Authorization header, in the format Bearer <token>
 Request Body:
@@ -723,7 +752,7 @@ Returns:
 
 ```
 {
-    "message": "student created saved post"
+    "message": "Student: added post to saved posts"
 }
 ```
 
@@ -731,11 +760,9 @@ or
 
 ```
 {
-    "message": "club created saved post"
+    "message": "Club: removed post from saved posts"
 }
 ```
-
-<<<<<<< HEAD
 
 ### GET /post/me
 

@@ -27,6 +27,7 @@ exports.createPosts = async function (req, res, next) {
     likes: 0,
   });
 
+
   try {
     await post.save();
   } catch (err) {
@@ -44,6 +45,7 @@ exports.createPosts = async function (req, res, next) {
           $push: { posts: post._id },
         }
       );
+
       console.log("student user found", user);
     } catch (err) {
       return res.status(400).json({
@@ -64,11 +66,13 @@ exports.createPosts = async function (req, res, next) {
   }
 
   // also return email of author here.
-  res.status(201).json({
+
+  return res.status(201).json({
     message: "Post successfully created.",
     post,
   });
 };
+
 
 exports.getPosts = async function (req, res, next) {
   const { limit, nextPage, previousPage, level } = req.query;
@@ -101,6 +105,7 @@ exports.getPosts = async function (req, res, next) {
     }
     const paginatedPosts = await getPostsPage(
       res,
+
       limit,
       nextPage,
       previousPage,
@@ -110,6 +115,7 @@ exports.getPosts = async function (req, res, next) {
       likedPosts,
       commentedPosts,
       level
+
     );
 
     return res.status(200).json({
@@ -178,6 +184,7 @@ exports.getPosts = async function (req, res, next) {
   }
 };
 
+// does not return updated document, use getPostLikes to retrieve updated document
 exports.addPostLike = async function (req, res) {
   const { authorEmail, post_id } = req.body;
   resMessage = "";
@@ -187,11 +194,16 @@ exports.addPostLike = async function (req, res) {
 
     if (!likedUsers.includes(authorEmail)) {
       await post.updateOne({ $inc: { likes: 1 } }, { new: true });
-      await post.updateOne({ $push: { userLikes: authorEmail } });
-      resMessage = "incremented post like";
+
+      await post.updateOne({ $push: { userLikes: authorEmail } }, { new: true });
+      resMessage = "Incremented post likes.";
     } else {
-      resMessage = "User already liked.";
+      await post.updateOne({ $inc: { likes: -1 } }, { new: true });
+      await post.updateOne({ $pull: { userLikes: authorEmail } }, { new: true });
+      resMessage = "Removed user's like.";
     }
+    await post.save()
+
     return res.status(201).json({
       message: resMessage,
       post,
@@ -209,9 +221,12 @@ exports.getPostLikes = async function (req, res, next) {
   try {
     let post = await postModel.findById(post_id);
     likes = post.get("likes");
-    res.status(200).json({
+
+    likedUsers = post.get("userLikes");
+    return res.status(200).json({
       message: "Likes for post queried",
       likes,
+      likedUsers
     });
   } catch (err) {
     return res.status(400).json({
@@ -233,6 +248,7 @@ exports.savePost = async function (req, res) {
       await user.updateOne({ $push: { savedPosts: post_id } });
       res.status(201).json({
         message: "student created saved post",
+
       });
     } catch (err) {
       return res.status(400).json({
@@ -244,6 +260,7 @@ exports.savePost = async function (req, res) {
     try {
       let user = await clubModel.findOne({ _id: id });
       await user.updateOne({ $push: { savedPosts: post_id } });
+
     } catch (err) {
       return res.status(400).json({
         message: err.message,
@@ -252,6 +269,7 @@ exports.savePost = async function (req, res) {
     res.status(201).json({
       message: "club created saved post",
     });
+
   }
 };
 
@@ -262,10 +280,12 @@ exports.getSavedPosts = async function (req, res) {
   const payload = decodeToken(req);
   let id = payload.id;
 
+
   if (accountType == "student") {
     try {
       let user = await studentModel.findOne({ _id: id });
       posts = user.get("savedPosts");
+
     } catch (err) {
       return res.status(400).json({
         message: err.message,
@@ -275,6 +295,7 @@ exports.getSavedPosts = async function (req, res) {
       message: "Student Saved Posts successfully queried.",
       posts,
     });
+
   } else {
     try {
       let user = await clubModel.findOne({ _id: id });
@@ -303,7 +324,8 @@ exports.getPostsbyUser = async function (req, res) {
     try {
       let user = await studentModel.findOne({ _id: id });
       let posts = await user.get("posts");
-      res.status(200).json({
+
+      return res.status(200).json({
         message: "Student authored posts successfully queried.",
         posts,
       });
@@ -318,7 +340,9 @@ exports.getPostsbyUser = async function (req, res) {
         id,
       });
       let posts = await user.get("posts");
-      res.status(200).json({
+
+      return res.status(200).json({
+
         message: "Club authored posts successfully queried.",
         posts,
       });
@@ -344,6 +368,7 @@ exports.getPostComments = async function (postID, limit, nextPage, prevPage) {
     });
     return result;
   } catch (err) {
-    res.send({ message: err.message });
+
+    return res.send({ message: err.message });
   }
 };

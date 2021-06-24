@@ -210,60 +210,45 @@ exports.savePost = async function (req, res) {
   let id = payload.id;
 
   if (accountType == "student") {
+    // student saved posts
     try {
       let user = await studentModel.findOne({ _id: id });
-      await user.updateOne({ $push: { savedPosts: post_id } });
-      res.status(201).json({
-        message: "student created saved post",
-      });
+      if (user.savedPosts.includes(post_id)) {
+        // if post is already saved, unsave it
+        await user.updateOne({ $pull: { savedPosts: post_id } });
+        res.status(201).json({
+          message: "student: removed post to saved post",
+        });
+      } else {
+        // else save the post
+        await user.updateOne({ $push: { savedPosts: post_id } });
+        res.status(201).json({
+          message: "student: added post from saved post",
+        });
+      }
     } catch (err) {
+      console.log(err);
       return res.status(400).json({
-        message: err.message,
+        message: err,
       });
     }
   } else {
     // get club saved posts
     try {
       let user = await clubModel.findOne({ _id: id });
-      await user.updateOne({ $push: { savedPosts: post_id } });
-    } catch (err) {
-      return res.status(400).json({
-        message: err.message,
-      });
-    }
-    res.status(201).json({
-      message: "club created saved post",
-    });
-  }
-};
-
-exports.unsavePost = async function (req, res) {
-  // remove postid to saved posts field for student + club
-  const { accountType, post_id } = req.body;
-
-  const payload = decodeToken(req);
-  let id = payload.id;
-
-  if (accountType == "student") {
-    try {
-      let user = await studentModel.findOne({ _id: id });
-      await user.updateOne({ $pull: { savedPosts: post_id } });
-      res.status(201).json({
-        message: "student unsaved post",
-      });
-    } catch (err) {
-      //console.log(err);
-      return res.status(400).json({
-        message: err.message,
-      });
-    }
-  } else {
-    try {
-      let user = await clubModel.findOne({ _id: id });
-      await user.updateOne({ $pull: { savedPosts: post_id } });
-      res.status(201).json({
-        message: "club unsaved post",
-      });
+      if (user.savedPosts.includes(post_id)) {
+        // post is already saved, unsave it
+        await user.updateOne({ $pull: { savedPosts: post_id } });
+        res.status(201).json({
+          message: "club: removed post to saved post",
+        });
+      } else {
+        // else save the post
+        await user.updateOne({ $push: { savedPosts: post_id } });
+        res.status(201).json({
+          message: "club: added post to saved post",
+        });
+      }
     } catch (err) {
       return res.status(400).json({
         message: err.message,
@@ -271,6 +256,41 @@ exports.unsavePost = async function (req, res) {
     }
   }
 };
+
+// exports.unsavePost = async function (req, res) {
+//   // remove postid to saved posts field for student + club
+//   const { accountType, post_id } = req.body;
+
+//   const payload = decodeToken(req);
+//   let id = payload.id;
+
+//   if (accountType == "student") {
+//     try {
+//       let user = await studentModel.findOne({ _id: id });
+//       await user.updateOne({ $pull: { savedPosts: post_id } });
+//       res.status(201).json({
+//         message: "student unsaved post",
+//       });
+//     } catch (err) {
+//       //console.log(err);
+//       return res.status(400).json({
+//         message: err.message,
+//       });
+//     }
+//   } else {
+//     try {
+//       let user = await clubModel.findOne({ _id: id });
+//       await user.updateOne({ $pull: { savedPosts: post_id } });
+//       res.status(201).json({
+//         message: "club unsaved post",
+//       });
+//     } catch (err) {
+//       return res.status(400).json({
+//         message: err.message,
+//       });
+//     }
+//   }
+// };
 
 exports.getSavedPosts = async function (req, res) {
   // return array of posts

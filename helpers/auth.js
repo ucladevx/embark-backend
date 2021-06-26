@@ -200,7 +200,7 @@ exports.oauthSuccess = function (req, res, next) {
     req.app.get("secretKey"),
     { expiresIn: 8640000 }
   );
-  res.send({ token: token });
+  return res.send({ token: token });
 };
 
 exports.signin = async function (req, res, next) {
@@ -239,7 +239,7 @@ exports.signin = async function (req, res, next) {
         req.app.get("secretKey"),
         { expiresIn: 8640000 }
       );
-      res.send({ token: token });
+      return res.send({ token: token });
     } else {
       return res.status(401).json({
         message: "Incorrect Password",

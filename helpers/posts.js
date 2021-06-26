@@ -257,41 +257,6 @@ exports.savePost = async function (req, res) {
   }
 };
 
-// exports.unsavePost = async function (req, res) {
-//   // remove postid to saved posts field for student + club
-//   const { accountType, post_id } = req.body;
-
-//   const payload = decodeToken(req);
-//   let id = payload.id;
-
-//   if (accountType == "student") {
-//     try {
-//       let user = await studentModel.findOne({ _id: id });
-//       await user.updateOne({ $pull: { savedPosts: post_id } });
-//       res.status(201).json({
-//         message: "student unsaved post",
-//       });
-//     } catch (err) {
-//       //console.log(err);
-//       return res.status(400).json({
-//         message: err.message,
-//       });
-//     }
-//   } else {
-//     try {
-//       let user = await clubModel.findOne({ _id: id });
-//       await user.updateOne({ $pull: { savedPosts: post_id } });
-//       res.status(201).json({
-//         message: "club unsaved post",
-//       });
-//     } catch (err) {
-//       return res.status(400).json({
-//         message: err.message,
-//       });
-//     }
-//   }
-// };
-
 exports.getSavedPosts = async function (req, res) {
   // return array of posts
   const accountType = req.query.accountType;
@@ -301,8 +266,9 @@ exports.getSavedPosts = async function (req, res) {
 
   if (accountType == "student") {
     try {
-      let user = await studentModel.findOne({ _id: id });
-      posts = user.get("savedPosts");
+      //let user = await studentModel.findOne({ _id: id });
+      //posts = user.get("savedPosts");
+      posts = await studentModel.find({ _id: id }, { savedPosts: 1 });
     } catch (err) {
       return res.status(400).json({
         message: err.message,
@@ -314,17 +280,18 @@ exports.getSavedPosts = async function (req, res) {
     });
   } else {
     try {
-      let user = await clubModel.findOne({ _id: id });
-      posts = user.get("savedPosts");
-      return res.status(200).json({
-        message: "Club Saved Posts successfully queried.",
-        posts,
-      });
+      // let user = await clubModel.findOne({ _id: id });
+      // posts = user.get("savedPosts");
+      posts = await clubModel.find({ _id: id }, { savedPosts: 1 });
     } catch (err) {
       return res.status(400).json({
         message: err.message,
       });
     }
+    return res.status(200).json({
+      message: "Club Saved Posts successfully queried.",
+      posts,
+    });
   }
 };
 

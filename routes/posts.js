@@ -21,7 +21,6 @@ router.post("/", authorize, createPosts);
 router.get("/", authorize, getPosts);
 
 router.post("/saved", authorize, savePost);
-router.post("/unsaved", authorize, unsavePost);
 router.get("/saved", authorize, getSavedPosts);
 
 // likes

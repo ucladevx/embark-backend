@@ -70,71 +70,6 @@ exports.createPosts = async function (req, res, next) {
   });
 };
 
-exports.getPosts = async function (req, res, next) {
-  const {
-    userType,
-    limit,
-    nextPage1,
-    previousPage1,
-    nextPage2,
-    previousPage2,
-    nextPage3,
-    previousPage3,
-  } = req.query;
-
-  try {
-    const sID = decodeToken(req).id;
-    // TODO: get user type from jwt? but idk what its called
-    if (userType === "student") {
-      let {
-        tags,
-        clubs,
-        interactedPosts,
-        likedPosts,
-        commentedPosts,
-      } = await studentModel.findById(
-        sID,
-        "tags clubs interactedPosts likedPosts commentedPosts"
-      );
-    } else if (userType === "club") {
-      let {
-        tags,
-        clubs,
-        interactedPosts,
-        likedPosts,
-        commentedPosts,
-      } = await clubModel.findById(
-        sID,
-        "tags clubs interactedPosts likedPosts commentedPosts"
-      );
-    }
-    const paginatedPosts = await getPostsPage(
-      res,
-      limit,
-      nextPage1,
-      previousPage1,
-      nextPage2,
-      previousPage2,
-      nextPage3,
-      previousPage3,
-      tags,
-      clubs,
-      interactedPosts,
-      likedPosts,
-      commentedPosts
-    );
-
-    return res.status(200).json({
-      message: "Posts successfully queried.",
-      paginatedPosts,
-    });
-  } catch (err) {
-    return res.status(400).json({
-      message: err.message,
-    });
-  }
-};
-
 exports.addPostComment = async function (req, res) {
   const { authorEmail, post_id, commentBody } = req.body;
   try {
@@ -167,7 +102,8 @@ exports.getPosts = async function (req, res, next) {
     const decoded = jwt.decode(token, { complete: true });
     let sID = decoded.payload.id;
     const { tags, clubs } = await studentModel.findById(sID, "tags clubs");
-    const paginatedPosts = await getPostsPage(
+    
+    const paginatedPosts = await getPostsPage({
       res,
       limit,
       nextPage,
@@ -177,7 +113,7 @@ exports.getPosts = async function (req, res, next) {
       reachedEnd,
       email,
       userType
-    );
+    });
 
     return res.status(200).json({
       message: "Posts successfully queried.",

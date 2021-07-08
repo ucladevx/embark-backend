@@ -102,7 +102,7 @@ exports.getPosts = async function (req, res, next) {
     });
   }
 };
-
+ 
 exports.addPostComment = async function (req, res) {
   const { authorEmail, post_id, commentBody } = req.body;
   try {

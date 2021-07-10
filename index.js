@@ -1,5 +1,6 @@
 const express = require("express");
-const cors = require("cors");
+var cors_proxy = require("cors-anywhere");
+//const cors = require("cors");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const maintenance = require("@zrpaplicacoes/maintenance_mode");
@@ -20,7 +21,7 @@ require("dotenv").config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+//app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(maintenance(app, maintenance_options));
@@ -28,7 +29,8 @@ app.use(xss());
 app.use(mongoSanitize());
 app.set("secretKey", process.env.JWT_SECRET);
 
-const PORT = process.env.PORT || 9000;
+const host = "0.0.0.0";
+const PORT = 9000;
 
 //  list all routes here, such as profileRoutes, messageRoutes, etc.
 const authRoutes = require("./routes/auth");
@@ -49,6 +51,9 @@ app.use("/getclubs", getclubRoutes); //returning the list of clubs
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get("/health", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.status(200).send({
     message: `GET /health on Port ${PORT} successful`,
   });
@@ -70,8 +75,18 @@ const connectToDB = async () => {
   }
 };
 
-app.listen(PORT, () => {
-  console.log(`Listening on Port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Listening on Port ${PORT}`);
+// });
+
+cors_proxy
+  .createServer({
+    originWhitelist: ["https://club-resources-embark.s3.amazonaws.com"], // Allow all origins
+    //requireHeader: ['origin', 'x-requested-with'],
+    //removeHeaders: ['cookie', 'cookie2']
+  })
+  .listen(PORT, host, function () {
+    console.log("Running CORS Anywhere on " + host + ":" + PORT);
+  });
 
 connectToDB();

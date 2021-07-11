@@ -132,27 +132,19 @@ exports.addPostLike = async function (req, res) {
   resMessage = "";
   try {
     let post = await postModel.findById(post_id);
+    let postContent;
     likedUsers = await post.get("userLikes");
 
     if (!likedUsers.includes(authorEmail)) {
-      await post.updateOne({ $inc: { likes: 1 } }, { new: true });
-      await post.updateOne(
-        { $push: { userLikes: authorEmail } },
-        { new: true }
-      );
+      postContent = await postModel.findByIdAndUpdate(post_id, { $inc: { likes: 1 }, $push: { userLikes: authorEmail }  }, { new: true });
       resMessage = "Incremented post likes.";
     } else {
-      await post.updateOne({ $inc: { likes: -1 } }, { new: true });
-      await post.updateOne(
-        { $pull: { userLikes: authorEmail } },
-        { new: true }
-      );
+      postContent = await postModel.findByIdAndUpdate(post_id, { $inc: { likes: -1 }, $pull: { userLikes: authorEmail } }, { new: true });
       resMessage = "Removed user's like.";
     }
-    await post.save();
     return res.status(201).json({
       message: resMessage,
-      post,
+      post: postContent,
     });
   } catch (err) {
     return res.status(400).json({

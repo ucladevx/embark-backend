@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Comment = require("../models/comment").Schema;
 
 const postSchema = new mongoose.Schema({
   title: {
@@ -32,7 +33,7 @@ const postSchema = new mongoose.Schema({
     type: [String],
   },
   comments: {
-    type: [String],
+    type: [Comment],
   },
 });
 

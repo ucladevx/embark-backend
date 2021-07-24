@@ -64,7 +64,7 @@ exports.completeSearch = async function (req, res) {
       numQueries: resultsList.length,
     });
   } catch (e) {
-    res.status(400).json({
+    return res.status(400).json({
       message: e.message,
     });
   }

@@ -40,6 +40,7 @@ const clubRoutes = require("./routes/club");
 const eventRoutes = require("./routes/events");
 const searchRoutes = require("./routes/search");
 const getclubRoutes = require("./routes/getclubs");
+const moderationRoutes = require("./routes/moderation");
 // route them accordingly eg. app.use("/profile", profileRoutes)
 app.use("/auth", authRoutes, authLimiter);
 app.use("/posts", postRoutes, postLimiter);
@@ -49,6 +50,7 @@ app.use("/events", eventRoutes, eventLimiter);
 app.use("/search", searchRoutes);
 app.use("/getclubs", getclubRoutes); //returning the list of clubs
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/moderation", moderationRoutes);
 
 app.get("/health", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

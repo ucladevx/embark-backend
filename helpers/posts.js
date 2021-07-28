@@ -70,6 +70,7 @@ exports.createPosts = async function (req, res, next) {
   });
 };
 
+
 exports.getPosts = async function (req, res, next) {
   // for now, accept tags and clubs to filter by
   //const { tags, clubs } = req.body //change to req.query
@@ -105,6 +106,7 @@ exports.getPosts = async function (req, res, next) {
   }
 };
 
+
 exports.addPostComment = async function (req, res) {
   const { authorID, post_id, commentBody } = req.body;
   try {
@@ -137,7 +139,8 @@ exports.getPosts = async function (req, res, next) {
     const decoded = jwt.decode(token, { complete: true });
     let sID = decoded.payload.id;
     const { tags, clubs } = await studentModel.findById(sID, "tags clubs");
-    const paginatedPosts = await getPostsPage(
+    
+    const paginatedPosts = await getPostsPage({
       res,
       limit,
       nextPage,
@@ -147,7 +150,7 @@ exports.getPosts = async function (req, res, next) {
       reachedEnd,
       email,
       userType
-    );
+    });
 
     return res.status(200).json({
       message: "Posts successfully queried.",
@@ -166,6 +169,7 @@ exports.addPostLike = async function (req, res) {
   resMessage = "";
   try {
     let post = await postModel.findById(post_id);
+    let postContent;
     likedUsers = await post.get("userLikes");
 
     if (!likedUsers.includes(authorID)) {
@@ -179,9 +183,10 @@ exports.addPostLike = async function (req, res) {
       resMessage = "Removed user's like.";
     }
     await post.save();
+
     return res.status(201).json({
       message: resMessage,
-      post,
+      post: postContent,
     });
   } catch (err) {
     return res.status(400).json({

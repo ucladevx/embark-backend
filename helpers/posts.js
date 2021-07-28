@@ -339,14 +339,17 @@ exports.getPostsbyUser = async function (req, res) {
   }
 };
 
-exports.getPostComments = async function (postID, limit, nextPage, prevPage) {
+exports.getPostComments = async function (req,res) {
+  const {postID, limit, nextPage, prevPage}=req.body;
+ 
+
   try {
     const result = MongoPaging.find(commentModel.collection, {
       query: {
         postID: postID,
       },
       paginatedField: "timestamp",
-      limit: parseInt(limitNum),
+      limit: parseInt(limit),
       sortAscending: false,
       next: nextPage,
       previous: prevPage,

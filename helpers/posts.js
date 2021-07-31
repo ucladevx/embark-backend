@@ -119,7 +119,7 @@ exports.addPostComment = async function (req, res) {
     await comment.save();
 
     let post = await postModel.findById(post_id);
-    await post.updateOne({ $push: { comments: comment._id } });
+    await post.updateOne({ $push: { comments: comment } });
     return res.status(201).json({
       message: "Added Comments",
     });
@@ -139,7 +139,7 @@ exports.getPosts = async function (req, res, next) {
     const decoded = jwt.decode(token, { complete: true });
     let sID = decoded.payload.id;
     const { tags, clubs } = await studentModel.findById(sID, "tags clubs");
-    
+
     const paginatedPosts = await getPostsPage({
       res,
       limit,
@@ -149,7 +149,7 @@ exports.getPosts = async function (req, res, next) {
       clubs,
       reachedEnd,
       email,
-      userType
+      userType,
     });
 
     return res.status(200).json({
@@ -171,6 +171,7 @@ exports.addPostLike = async function (req, res) {
     let post = await postModel.findById(post_id);
     let postContent;
     likedUsers = await post.get("userLikes");
+
 
     if (!likedUsers.includes(authorID)) {
       //just change to authorid

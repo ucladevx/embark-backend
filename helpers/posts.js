@@ -70,7 +70,6 @@ exports.createPosts = async function (req, res, next) {
   });
 };
 
-
 exports.getPosts = async function (req, res, next) {
   // for now, accept tags and clubs to filter by
   //const { tags, clubs } = req.body //change to req.query
@@ -106,7 +105,6 @@ exports.getPosts = async function (req, res, next) {
   }
 };
 
-
 exports.addPostComment = async function (req, res) {
   const { authorID, post_id, commentBody } = req.body;
   try {
@@ -118,10 +116,17 @@ exports.addPostComment = async function (req, res) {
     });
     await comment.save();
 
-    let post = await postModel.findById(post_id);
-    await post.updateOne({ $push: { comments: comment } });
+    const post = await postModel.findOneAndUpdate(
+      post_id,
+      {
+        $push: { comments: comment },
+      },
+      { new: true }
+    );
+
     return res.status(201).json({
       message: "Added Comments",
+      comments: post.comments,
     });
   } catch (err) {
     return res.status(400).json({
@@ -171,7 +176,6 @@ exports.addPostLike = async function (req, res) {
     let post = await postModel.findById(post_id);
     let postContent;
     likedUsers = await post.get("userLikes");
-
 
     if (!likedUsers.includes(authorID)) {
       //just change to authorid
@@ -345,12 +349,11 @@ exports.getPostsbyUser = async function (req, res) {
   }
 };
 
-exports.getPostComments = async function (req,res) {
-  const {postID, limit, nextPage, prevPage}=req.body;
- 
+exports.getPostComments = async function (req, res) {
+  const { postID, limit, nextPage, prevPage } = req.query;
 
   try {
-    const result = MongoPaging.find(commentModel.collection, {
+    const result = await MongoPaging.find(commentModel.collection, {
       query: {
         postID: postID,
       },
@@ -360,7 +363,7 @@ exports.getPostComments = async function (req,res) {
       next: nextPage,
       previous: prevPage,
     });
-    return result;
+    return res.json(result);
   } catch (err) {
     return res.send({ message: err.message });
   }

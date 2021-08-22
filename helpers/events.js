@@ -23,9 +23,6 @@ async function findUser(req, res, email) {
     }
   }
   if (user == null) {
-    return res.status(400).json({
-      message: "User not found",
-    });
     user = -1;
   }
   return user;
@@ -112,13 +109,16 @@ exports.attendEvent = async function (req, res, next) {
   }
 };
 
-exports.cancelEvent = async function (req, res, next) {
+exports.cancelEvent = async function (req, res) {
   let { email } = decodeToken(req);
   let user = await findUser(req, res, email);
-  if (user == -1) {
-    return;
+
+  if (user === -1) {
+    return res.status(400).json({message: "user not found"});
   }
+
   const eventId = req.params.eventId;
+
   if ((await findEvent(eventId)) === false) {
     return res.status(400).json({
       message: `Event of id: ${eventId} not found!`,

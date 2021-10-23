@@ -1,6 +1,6 @@
 const express = require("express");
 var cors_proxy = require("cors-anywhere");
-//const cors = require("cors");
+const cors = require("cors");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const maintenance = require("@zrpaplicacoes/maintenance_mode");
@@ -21,7 +21,7 @@ require("dotenv").config();
 
 const app = express();
 app.use(express.json());
-//app.use(cors());
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(maintenance(app, maintenance_options));
@@ -77,18 +77,21 @@ const connectToDB = async () => {
   }
 };
 
-// app.listen(PORT, () => {
-//   console.log(`Listening on Port ${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`Listening on Port ${PORT}`);
+});
 
 cors_proxy
   .createServer({
-    originWhitelist: ["https://club-resources-embark.s3.amazonaws.com"], // Allow all origins
+    originWhitelist: [
+      "https://club-resources-embark.s3.amazonaws.com",
+      "https://embark-test.netlify.app/",
+    ], // Allow all origins
     //requireHeader: ['origin', 'x-requested-with'],
     //removeHeaders: ['cookie', 'cookie2']
   })
-  .listen(PORT, host, function () {
-    console.log("Running CORS Anywhere on " + host + ":" + PORT);
+  .listen(9001, host, function () {
+    console.log("Running CORS Anywhere on " + host + ":" + 9001);
   });
 
 connectToDB();

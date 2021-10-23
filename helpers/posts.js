@@ -70,21 +70,63 @@ exports.createPosts = async function (req, res, next) {
   });
 };
 
+exports.getPosts = async function (req, res, next) {
+  // for now, accept tags and clubs to filter by
+  //const { tags, clubs } = req.body //change to req.query
+
+  const { limit, nextPage, previousPage } = req.query;
+  // const {tags,clubs}=req.query;
+
+  // pull userEmail/clubEmail from jwt to get tags + clubs for that user/club alone
+  // pass those to the query below
+
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.decode(token, { complete: true });
+    let sID = decoded.payload.id;
+    const { tags, clubs } = await studentModel.findById(sID, "tags clubs");
+
+    const paginatedPosts = await getPostsPage(
+      limit,
+      nextPage,
+      previousPage,
+      tags,
+      clubs
+    );
+
+    return res.status(200).json({
+      message: "Posts successfully queried.",
+      paginatedPosts,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message,
+    });
+  }
+};
+
 exports.addPostComment = async function (req, res) {
-  const { authorEmail, post_id, commentBody } = req.body;
+  const { authorID, post_id, commentBody } = req.body;
   try {
     const comment = new commentModel({
       postID: post_id,
-      author: authorEmail,
+      author: authorID,
       body: commentBody,
       timestamp: new Date(),
     });
     await comment.save();
 
-    let post = await postModel.findById(post_id);
-    await post.updateOne({ $push: { comments: comment._id } });
+    const post = await postModel.findOneAndUpdate(
+      post_id,
+      {
+        $push: { comments: comment },
+      },
+      { new: true }
+    );
+
     return res.status(201).json({
       message: "Added Comments",
+      comments: post.comments,
     });
   } catch (err) {
     return res.status(400).json({
@@ -102,7 +144,7 @@ exports.getPosts = async function (req, res, next) {
     const decoded = jwt.decode(token, { complete: true });
     let sID = decoded.payload.id;
     const { tags, clubs } = await studentModel.findById(sID, "tags clubs");
-    
+
     const paginatedPosts = await getPostsPage({
       res,
       limit,
@@ -112,7 +154,7 @@ exports.getPosts = async function (req, res, next) {
       clubs,
       reachedEnd,
       email,
-      userType
+      userType,
     });
 
     return res.status(200).json({
@@ -128,20 +170,24 @@ exports.getPosts = async function (req, res, next) {
 
 // does not return updated document, use getPostLikes to retrieve updated document
 exports.addPostLike = async function (req, res) {
-  const { authorEmail, post_id } = req.body;
+  const { authorID, post_id } = req.body;
   resMessage = "";
   try {
     let post = await postModel.findById(post_id);
     let postContent;
     likedUsers = await post.get("userLikes");
 
-    if (!likedUsers.includes(authorEmail)) {
-      postContent = await postModel.findByIdAndUpdate(post_id, { $inc: { likes: 1 }, $push: { userLikes: authorEmail }  }, { new: true });
+    if (!likedUsers.includes(authorID)) {
+      //just change to authorid
+      await post.updateOne({ $inc: { likes: 1 } }, { new: true });
+      await post.updateOne({ $push: { userLikes: authorID } }, { new: true });
       resMessage = "Incremented post likes.";
     } else {
-      postContent = await postModel.findByIdAndUpdate(post_id, { $inc: { likes: -1 }, $pull: { userLikes: authorEmail } }, { new: true });
+      await post.updateOne({ $inc: { likes: -1 } }, { new: true });
+      await post.updateOne({ $pull: { userLikes: authorID } }, { new: true });
       resMessage = "Removed user's like.";
     }
+    await post.save();
 
     return res.status(201).json({
       message: resMessage,
@@ -303,19 +349,21 @@ exports.getPostsbyUser = async function (req, res) {
   }
 };
 
-exports.getPostComments = async function (postID, limit, nextPage, prevPage) {
+exports.getPostComments = async function (req, res) {
+  const { postID, limit, nextPage, prevPage } = req.query;
+
   try {
-    const result = MongoPaging.find(commentModel.collection, {
+    const result = await MongoPaging.find(commentModel.collection, {
       query: {
         postID: postID,
       },
       paginatedField: "timestamp",
-      limit: parseInt(limitNum),
+      limit: parseInt(limit),
       sortAscending: false,
       next: nextPage,
       previous: prevPage,
     });
-    return result;
+    return res.json(result);
   } catch (err) {
     return res.send({ message: err.message });
   }

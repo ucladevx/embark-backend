@@ -193,45 +193,77 @@ exports.getClubs = async function (req, res) {
 };
 
 exports.getIndustries = async function (req, res) {
-
   // pull email from jwt
   const token = req.headers.authorization.split(" ")[1];
   const decoded = jwt.decode(token, { complete: true });
   let id = decoded.payload.id;
-  console.log('Request made from:', id)
+  console.log("Request made from:", id);
 
   // Find which industries the student follows
-  let industries = []
+  let industries = [];
   try {
-    industries = await studentModel.findOne({ _id: id }, 'tags'); // TODO: make this industries
-    console.log('Industries:', industries)                             // "tags" is industries
+    industries = await studentModel.findOne({ _id: id }, "tags"); // TODO: make this industries
+    console.log("Industries:", industries); // "tags" is industries
     return res.status(200).json({
       message: "Query successful",
-      industries
-    })
-  }
-  catch (err) {
+      industries,
+    });
+  } catch (err) {
     return res.status(400).json({
-      message: err.message
-    })
+      message: err.message,
+    });
   }
-}
+};
 
 exports.getStudentById = async (req, res) => {
   // Get Id from the request
   const { studentId } = req.query;
-  console.log('Id passed in:', studentId);
+  console.log("Id passed in:", studentId);
 
   try {
     const student = await studentModel.findById({ _id: studentId });
     return res.status(200).json({
       message: "Query successful",
-      student
-    })
-  }
-  catch (err) {
+      student,
+    });
+  } catch (err) {
     return res.status(400).json({
-      message: err.message
-    })
+      message: err.message,
+    });
+  }
+};
+
+exports.likePost = async (req, res) => {
+  const { post_id } = req.body;
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decodedToken = jwt.verify(token, req.app.get("secretKey"));
+    const student = await studentModel.findOne({ _id: decodedToken.id });
+    const student_id = decodedToken.id;
+    likedPosts = await student.get("likedPosts");
+    let studentContent;
+    if (!likedPosts.includes(post_id)) {
+      studentContent = await studentModel.findByIdAndUpdate(
+        student_id,
+        { $push: { likedPosts: post_id } },
+        { new: true }
+      );
+      resMessage = "student added post like.";
+    } else {
+      studentContent = await studentModel.findByIdAndUpdate(
+        student_id,
+        { $pull: { likedPosts: post_id } },
+        { new: true }
+      );
+      resMessage = "student removed post like.";
+    }
+    return res.status(201).json({
+      message: resMessage,
+      student: studentContent,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message,
+    });
   }
 };

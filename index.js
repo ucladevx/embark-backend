@@ -9,7 +9,6 @@ const xss = require("xss-clean");
 const swaggerUi = require("swagger-ui-express");
 const specs = require("./server_helpers/swagger");
 const {
-  allLimiter,
   authLimiter,
   postLimiter,
   studentLimiter,
@@ -90,8 +89,8 @@ cors_proxy
     //requireHeader: ['origin', 'x-requested-with'],
     //removeHeaders: ['cookie', 'cookie2']
   })
-  .listen(9001, host, function () {
-    console.log("Running CORS Anywhere on " + host + ":" + 9001);
+  .listen(process.env.CORSPORT, host, function () {
+    console.log("Running CORS Anywhere on " + ":" + 9001);
   });
 
 connectToDB();

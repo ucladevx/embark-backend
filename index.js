@@ -29,7 +29,6 @@ app.use(mongoSanitize());
 app.set("secretKey", process.env.JWT_SECRET);
 
 const host = "0.0.0.0";
-const PORT = 9000;
 
 //  list all routes here, such as profileRoutes, messageRoutes, etc.
 const authRoutes = require("./routes/auth");
@@ -56,7 +55,7 @@ app.get("/health", (req, res) => {
   res.setHeader("Access-Control-Allow-Methods", "POST, GET");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.status(200).send({
-    message: `GET /health on Port ${PORT} successful`,
+    message: `GET /health on Port ${process.env.PORT} successful`,
   });
 });
 
@@ -76,8 +75,8 @@ const connectToDB = async () => {
   }
 };
 
-app.listen(PORT, () => {
-  console.log(`Listening on Port ${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Listening on Port ${process.env.PORT}`);
 });
 
 cors_proxy

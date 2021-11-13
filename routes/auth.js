@@ -84,8 +84,13 @@ router.post("/newsignup", newsignup);
  *              properties:
  *                email:
  *                  type: string
+ *                  example: embarktester1234@gmail.com
  *                password:
  *                  type: string
+ *                  example: Embarktester1234!
+ *    responses:
+ *      200:
+ *        description: login successful
  */
 router.post("/signin", signin);
 

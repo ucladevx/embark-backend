@@ -28,7 +28,62 @@ router.post("/likes", authorize, addPostLike);
 router.get("/likes", authorize, getPostLikes);
 
 // comments
+/**
+ * @swagger
+ * /posts/comments:
+ *  post:
+ *    tags:
+ *      - Posts
+ *    security:
+ *      - bearerAuth: []
+ *    parameters:
+ *      - in: query
+ *        name: authorID
+ *        schema:
+ *          type: string
+ *        required: true
+ *      - in: query
+ *        name: post_id
+ *        schema:
+ *          type: string
+ *        required: true
+ *      - in: query
+ *        name: commentBody
+ *        schema:
+ *          type: string
+ *        required: true
+ */
 router.post("/comments", authorize, addPostComment);
+/**
+ * @swagger
+ * /posts/comments:
+ *  get:
+ *    tags:
+ *      - Posts
+ *    security:
+ *      - bearerAuth: []
+ *    parameters:
+ *      - in: query
+ *        name: postId
+ *        schema:
+ *          type: string
+ *        required: true
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: number
+ *      - in: query
+ *        name: nextPage
+ *        schema:
+ *          type: string
+ *      - in: query
+ *        name: prevPage
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: get comments successful
+ */
 router.get("/comments", authorize, getPostComments);
 
 //router.get("/postsPage", authorize, getPostsPage)

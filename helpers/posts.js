@@ -117,7 +117,7 @@ exports.addPostComment = async function (req, res) {
     await comment.save();
 
     const post = await postModel.findOneAndUpdate(
-      post_id,
+      { _id: post_id },
       {
         $push: { comments: comment },
       },

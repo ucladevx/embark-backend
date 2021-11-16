@@ -18,8 +18,7 @@ exports.getPostsPage = async ({
   // interactedPosts,
   // likedPosts,
   // commentedPosts
-}
-) => {
+}) => {
   try {
     let level = {
       nextPage: nextPage,

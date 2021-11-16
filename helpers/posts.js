@@ -86,13 +86,13 @@ exports.getPosts = async function (req, res, next) {
     let sID = decoded.payload.id;
     const { tags, clubs } = await studentModel.findById(sID, "tags clubs");
 
-    const paginatedPosts = await getPostsPage({
+    const paginatedPosts = await getPostsPage(
       limit,
       nextPage,
       previousPage,
       tags,
       clubs
-    });
+    );
 
     return res.status(200).json({
       message: "Posts successfully queried.",
@@ -135,38 +135,38 @@ exports.addPostComment = async function (req, res) {
   }
 };
 
-// exports.getPosts = async function (req, res, next) {
-//   const { limit, nextPage, previousPage, userType } = req.query;
-//   const reachedEnd = req.body.reachedEnd;
-//   const email = decodeToken(req).email;
-//   try {
-//     const token = req.headers.authorization.split(" ")[1];
-//     const decoded = jwt.decode(token, { complete: true });
-//     let sID = decoded.payload.id;
-//     const { tags, clubs } = await studentModel.findById(sID, "tags clubs");
+exports.getPosts = async function (req, res, next) {
+  const { limit, nextPage, previousPage, userType } = req.query;
+  const reachedEnd = req.body.reachedEnd;
+  const email = decodeToken(req).email;
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.decode(token, { complete: true });
+    let sID = decoded.payload.id;
+    const { tags, clubs } = await studentModel.findById(sID, "tags clubs");
 
-//     const paginatedPosts = await getPostsPage({
-//       res,
-//       limit,
-//       nextPage,
-//       previousPage,
-//       tags,
-//       clubs,
-//       reachedEnd,
-//       email,
-//       userType,
-//     });
+    const paginatedPosts = await getPostsPage({
+      res,
+      limit,
+      nextPage,
+      previousPage,
+      tags,
+      clubs,
+      reachedEnd,
+      email,
+      userType,
+    });
 
-//     return res.status(200).json({
-//       message: "Posts successfully queried.",
-//       paginatedPosts,
-//     });
-//   } catch (err) {
-//     return res.status(400).json({
-//       message: err.message,
-//     });
-//   }
-// };
+    return res.status(200).json({
+      message: "Posts successfully queried.",
+      paginatedPosts,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message,
+    });
+  }
+};
 
 // does not return updated document, use getPostLikes to retrieve updated document
 exports.addPostLike = async function (req, res) {

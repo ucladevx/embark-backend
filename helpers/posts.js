@@ -106,13 +106,12 @@ exports.getPosts = async function (req, res, next) {
 };
 
 exports.addPostComment = async function (req, res) {
-  const { authorID, post_id, commentBody, authorName } = req.body;
+  const { authorID, post_id, commentBody } = req.body;
   try {
     const comment = new commentModel({
       postID: post_id,
       author: authorID,
       body: commentBody,
-      authorName,
       timestamp: new Date(),
     });
     await comment.save();

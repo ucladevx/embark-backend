@@ -70,7 +70,6 @@ async function postsQuery(level_obj, limitNum, tags, clubs) {
     nextPage,
     previousPage,
   } = level_obj;
-
   const posts = await MongoPaging.find(postModel.collection, {
     query: {
       $and: [
@@ -83,5 +82,9 @@ async function postsQuery(level_obj, limitNum, tags, clubs) {
     next: nextPage,
     previous: previousPage
   });
+  if (!posts.hasNext){
+    posts.next=null;
+  }
+   
   return posts;
 }

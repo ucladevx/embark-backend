@@ -11,7 +11,7 @@ const findAndUpdate = async (decodedEmail, updatedFields) => {
   const result = await clubModel.updateOne({ _id: club._id }, updatedFields);
   returnedClub = await clubModel.findOne({ email: decodedEmail }); //to get the updated student
   return returnedClub;
-};
+}; 
 
 exports.editProfile = async function (req, res, next) {
   const {

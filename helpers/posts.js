@@ -15,7 +15,15 @@ exports.createPosts = async function (req, res, next) {
   const decoded = jwt.decode(token, { complete: true });
   let id = decoded.payload.id;
   let email = decoded.payload.email;
-
+  let profilePicURL="";
+  if (accountType==="student"){
+    let user = await studentModel.findOne({ _id: id });
+    profilePicURL=user.profilePicURL;
+  }
+  else{
+    let user = await clubModel.findOne({ _id: id });
+    profilePicURL=user.profilePicURL;
+  }
   // save post to db
   const post = new postModel({
     title,
@@ -24,9 +32,11 @@ exports.createPosts = async function (req, res, next) {
     tags,
     authorEmail: email,
     authorName: decoded.payload.name,
+    authorProfilePic: profilePicURL,
+
     likes: 0,
   });
-
+  console.log(decoded.payload);
   try {
     await post.save();
   } catch (err) {
@@ -44,7 +54,7 @@ exports.createPosts = async function (req, res, next) {
           $push: { posts: post._id },
         }
       );
-      console.log("student user found", user);
+      //console.log("student user found", user);
     } catch (err) {
       return res.status(400).json({
         message: err.message,
@@ -53,7 +63,7 @@ exports.createPosts = async function (req, res, next) {
   } else {
     try {
       let user = await clubModel.findOne({ _id: id });
-      console.log("club user found", user);
+      //console.log("club user found", user);
       user.posts.push(post._id);
       await user.save();
     } catch (err) {
@@ -107,12 +117,20 @@ exports.getPosts = async function (req, res, next) {
 
 exports.addPostComment = async function (req, res) {
   const { authorID, post_id, commentBody, authorName } = req.body;
+  let author;
+  author = await clubModel.findOne({ _id: authorID });
+  if (author==null){
+    author = await studentModel.findOne({ _id: authorID });
+  }
+  
+  console.log(author);
   try {
     const comment = new commentModel({
       postID: post_id,
       author: authorID,
       body: commentBody,
-      authorName,
+      authorName:authorName,
+      authorProfilePic:author.profilePicURL,
       timestamp: new Date(),
     });
     await comment.save();

@@ -211,4 +211,4 @@ exports.getClubById = async (req, res) => {
       message: err.message
     })
   }
-};
+}; 

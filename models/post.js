@@ -35,6 +35,9 @@ const postSchema = new mongoose.Schema({
   comments: {
     type: [Comment],
   },
+  authorProfilePic: {
+    type:String,
+  },
 });
 
 const Post = mongoose.model("Post", postSchema);

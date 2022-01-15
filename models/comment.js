@@ -24,6 +24,9 @@ const commentSchema = new mongoose.Schema({
   replies: {
     type: [String],
   },
+  authorProfilePic: {
+    type:String,
+  },
 });
 
 const Comment = mongoose.model("comments", commentSchema);

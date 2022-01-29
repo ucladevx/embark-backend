@@ -4,7 +4,7 @@ const multerS3 = require("multer-s3");
 
 const s3 = new aws.S3({ httpOptions: { timeout: 10 * 60 * 1000 } });
 
-module.exports = async (req, res, next) => {
+module.exports = async (req, res, bucketName) => {
   let files = [];
   return new Promise(async function (resolve, reject) {
     aws.config.update({
@@ -16,7 +16,7 @@ module.exports = async (req, res, next) => {
       storage: multerS3({
         acl: "public-read",
         s3,
-        bucket: "club-resources-embark",
+        bucket: bucketName,
         metadata: function (req, file, cb) {
           cb(null, {
             fieldName: "TESTING_METADATA",

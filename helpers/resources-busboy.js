@@ -62,7 +62,7 @@ const parseForm = async (req) => {
 
 module.exports = async (req, res) => {
   const { linkFile, userNamed } = req.query;
-
+  
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(token, req.app.get("secretKey"));
   const club = await clubModel.findOne({ email: decodedToken.email });

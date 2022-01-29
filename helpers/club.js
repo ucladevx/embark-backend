@@ -5,6 +5,7 @@ const imageFunction = require("../helpers/image");
 const { changeField } = require("../helpers/student");
 const { decodeToken } = require("../helpers/utils");
 const MongoPaging = require("mongo-cursor-pagination");
+const resourceFunction = require("../helpers/resources");
 
 const findAndUpdate = async (decodedEmail, updatedFields) => {
   const club = await clubModel.findOne({ email: decodedEmail });
@@ -212,3 +213,14 @@ exports.getClubById = async (req, res) => {
     })
   }
 }; 
+
+exports.clubResources = async function (req, res) {
+  try{
+    return resourceFunction(req, res,"club-resources-embark");
+  }
+  catch(err){
+    return res.status(400).json({
+      message: err.message
+    })
+  }
+}

@@ -12,6 +12,7 @@ const {
   addPostComment,
   getPostComments,
   getPostsbyUser,
+  addResource
 } = require("../helpers/posts");
 
 const { getPostsPage } = require("../helpers/postsPagination");
@@ -26,6 +27,10 @@ router.get("/saved", authorize, getSavedPosts);
 // likes
 router.post("/likes", authorize, addPostLike);
 router.get("/likes", authorize, getPostLikes);
+
+//resources
+router.post("/resource", authorize, addResource);
+
 
 // comments
 /**

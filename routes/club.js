@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const resourceFunction = require("../helpers/resources-busboy");
+//const resourceFunction = require("../helpers/resources");
 
 const {
   editProfile,
@@ -10,11 +10,12 @@ const {
   getFollowedClubs,
   discover,
   getResources,
-  getClubById
+  getClubById,
+  clubResources
 } = require("../helpers/club");
 const authorize = require("../helpers/authMiddleware");
 
-router.post("/resources", authorize, resourceFunction);
+router.post("/resources", authorize, clubResources);
 router.get("/resources", authorize, getResources); //add some resouces array to club model
 // router.get("/profile/image")
 

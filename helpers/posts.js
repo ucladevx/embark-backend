@@ -6,6 +6,7 @@ const { getPostsPage, getComments } = require("../helpers/postsPagination");
 const { decodeToken } = require("../helpers/utils");
 const jwt = require("jsonwebtoken");
 const MongoPaging = require("mongo-cursor-pagination");
+const resourceFunction = require("../helpers/resources");
 
 exports.createPosts = async function (req, res, next) {
   const { title, body, timestamp, tags, accountType } = req.body;
@@ -387,3 +388,14 @@ exports.getPostComments = async function (req, res) {
     return res.send({ message: err.message });
   }
 };
+
+exports.addResource = async function (req, res) {
+  try{
+    return resourceFunction(req, res,"post-resource-bucket");
+  }
+  catch(err){
+    return res.status(400).json({
+      message: err.message
+    })
+  }
+}

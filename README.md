@@ -418,11 +418,7 @@ Returns:
 ## POST /club/resources
 
 In:Authorization`header, in the format`Bearer <token>`
-Query: linkFile=link (uploading a link) or linkFile=file (uploading a file)
-Query: userNamed = string name that the user named the file
-Request Body (file): files with key 'file' if uploading file (uses Form Data)
-Request Body: string link given like so: link: "string link"
-Returns: if Successful for File:
+Body: 'file': [followed by the file]
 
 ```
 {
@@ -453,18 +449,18 @@ Returns: if Successful for Link:
 ## GET /club/resources
 
 In: Authorization`header, in the format`Bearer <token>`
-Request Body: Nothing
+Request Body: 'file':[followed by file]
 Returns: if Successful:
 
 ```
 {
-    "success": true,
-    "resources": [
+    "files": [
         {
-            "Location": <location URL as a string>,
-            "Key": <key name in AWS S3> ex. "1617244725547club.pdf",
-            "Bucket": <bucket name> ex. "club-resources-embark",
-            "Name": <file name> ex. "club.pdf"
+            "fieldname": "file",
+            "originalname": [name of the file],
+            "encoding": "7bit",
+            "mimetype": [type of the file],
+            "location": [location in aws]
         }
     ]
 }

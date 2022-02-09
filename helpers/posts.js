@@ -188,6 +188,7 @@ exports.addPostLike = async function (req, res) {
       resMessage = "Removed user's like.";
     }
     await post.save();
+    postContent = await postModel.findById(post_id);
 
     return res.status(201).json({
       message: resMessage,

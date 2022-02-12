@@ -12,6 +12,7 @@ const {
   addPostComment,
   getPostComments,
   getPostsbyUser,
+  getPostById,
 } = require("../helpers/posts");
 
 const { getPostsPage } = require("../helpers/postsPagination");
@@ -90,5 +91,8 @@ router.get("/comments", authorize, getPostComments);
 
 // posts authored by user
 router.get("/me", authorize, getPostsbyUser);
+
+// post by id
+router.get("/postById", authorize, getPostById);
 
 module.exports = router;

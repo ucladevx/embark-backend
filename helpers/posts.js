@@ -15,14 +15,13 @@ exports.createPosts = async function (req, res, next) {
   const decoded = jwt.decode(token, { complete: true });
   let id = decoded.payload.id;
   let email = decoded.payload.email;
-  let profilePicURL="";
-  if (accountType==="student"){
+  let profilePicURL = "";
+  if (accountType === "student") {
     let user = await studentModel.findOne({ _id: id });
-    profilePicURL=user.profilePicURL;
-  }
-  else{
+    profilePicURL = user.profilePicURL;
+  } else {
     let user = await clubModel.findOne({ _id: id });
-    profilePicURL=user.profilePicURL;
+    profilePicURL = user.profilePicURL;
   }
   // save post to db
   const post = new postModel({
@@ -119,18 +118,18 @@ exports.addPostComment = async function (req, res) {
   const { authorID, post_id, commentBody, authorName } = req.body;
   let author;
   author = await clubModel.findOne({ _id: authorID });
-  if (author==null){
+  if (author == null) {
     author = await studentModel.findOne({ _id: authorID });
   }
-  
+
   console.log(author);
   try {
     const comment = new commentModel({
       postID: post_id,
       author: authorID,
       body: commentBody,
-      authorName:authorName,
-      authorProfilePic:author.profilePicURL,
+      authorName: authorName,
+      authorProfilePic: author.profilePicURL,
       timestamp: new Date(),
     });
     await comment.save();
@@ -385,5 +384,15 @@ exports.getPostComments = async function (req, res) {
     return res.json(result);
   } catch (err) {
     return res.send({ message: err.message });
+  }
+};
+
+exports.getPostById = async function (req, res) {
+  const { postID } = req.query;
+  try {
+    const post = await postModel.findById(postID);
+    return res.json({ post });
+  } catch (err) {
+    return res.status(400).send({ message: err.message });
   }
 };

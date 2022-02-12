@@ -1,5 +1,6 @@
 const clubModel = require("../models/club");
 const studentModel = require("../models/student");
+const postModel = require("../models/post");
 const eventModel = require("../models/event");
 
 exports.completeSearch = async function (req, res) {
@@ -67,5 +68,19 @@ exports.completeSearch = async function (req, res) {
     return res.status(400).json({
       message: e.message,
     });
+  }
+};
+
+exports.postSearch = async function (req, res) {
+  try {
+    const { searchString } = req.body;
+    const searchPosts = await postModel.find({
+      $text: { $search: searchString },
+    });
+    return res.status(200).json({
+      posts: searchPosts,
+    });
+  } catch (err) {
+    return res.status(400).json({ message: err.message });
   }
 };

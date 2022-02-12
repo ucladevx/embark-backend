@@ -36,9 +36,9 @@ const postSchema = new mongoose.Schema({
     type: [Comment],
   },
   authorProfilePic: {
-    type:String,
+    type: String,
   },
 });
-
+postSchema.index({ title: "text", body: "text" });
 const Post = mongoose.model("Post", postSchema);
 module.exports = Post;

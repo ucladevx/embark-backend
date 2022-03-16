@@ -12,7 +12,7 @@ async function uploadFile(buffer, fileParams) {
     // let mkey=parseInt(Math.random()*1000).toString()+fileParams.fileName; //just to make sure files with same name are differentiated
     let mmkey = parseInt(Date.now()).toString() + fileParams.fileName;
     const params = {
-      Bucket: "club-resources-embark",
+      Bucket: "post-resource-bucket",
       Key: mmkey,
       Body: buffer,
       ACL: "public-read",
@@ -60,21 +60,19 @@ const parseForm = async (req) => {
 
 module.exports = async (req, res) => {
   const { linkFile, userNamed } = req.query;
-
-  // or module.exports = async (req, res) => {
   try {
     if (linkFile == "file") {
       const files = await parseForm(req);
       //storing the names and the types of the files
       const fileResult = [];
-      for (file of files) {
+      for (let file of files) {
         fileResult.push({ file: file.fileName, fileType: file.fileType });
       }
 
       //figure this one out
       let locations = [];
-      for (i = 0; i < files.length; i++) {
-        file = files[i];
+      for (let i = 0; i < files.length; i++) {
+        let file = files[i];
         const { fileBuffer, ...fileParams } = file;
         const result = await uploadFile(fileBuffer, fileParams);
         //console.log(result)
@@ -83,9 +81,7 @@ module.exports = async (req, res) => {
       }
       //clean output
       // console.log(locations);
-      var i;
-      console.log("here", userNamed);
-      for (i = 0; i < locations.length; i++) {
+      for (let i = 0; i < locations.length; i++) {
         locations[i]["Name"] = locations[i]["Key"].substr(13);
         locations[i]["userNamed"] = userNamed;
         delete locations[i]["ETag"];
@@ -97,7 +93,6 @@ module.exports = async (req, res) => {
       return res.status(200).json({ success: true, fileUrls: locations });
     } else {
       const { link } = req.body;
-      console.log(link);
       return res.status(200).json({ success: true, fileUrls: { link } });
     }
   } catch (err) {

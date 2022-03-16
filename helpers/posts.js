@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const MongoPaging = require("mongo-cursor-pagination");
 
 exports.createPosts = async function (req, res, next) {
-  const { title, body, timestamp, tags, accountType } = req.body;
+  const { title, body, timestamp, tags, accountType, files } = req.body;
 
   // pull email from jwt
   const token = req.headers.authorization.split(" ")[1];
@@ -32,7 +32,7 @@ exports.createPosts = async function (req, res, next) {
     authorEmail: email,
     authorName: decoded.payload.name,
     authorProfilePic: profilePicURL,
-
+    files,
     likes: 0,
   });
   console.log(decoded.payload);

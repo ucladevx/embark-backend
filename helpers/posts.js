@@ -18,10 +18,10 @@ exports.createPosts = async function (req, res, next) {
   let profilePicURL = "";
   if (accountType === "student") {
     let user = await studentModel.findOne({ _id: id });
-    profilePicURL = user.profilePicURL;
+    profilePicURL = user?.profilePicURL;
   } else {
     let user = await clubModel.findOne({ _id: id });
-    profilePicURL = user.profilePicURL;
+    profilePicURL = user?.profilePicURL;
   }
   // save post to db
   const post = new postModel({

@@ -34,7 +34,7 @@
     "passport": "^0.4.1",
     "passport-google-oauth20": "^2.0.0",
     "passport-linkedin-oauth2": "^2.0.0",
-    "prettier": "^2.2.1",
+    "prettier": "^2.6.1",
     "swagger-jsdoc": "6.1.0",
     "swagger-ui-express": "^4.1.6",
     "uuid": "^8.3.2",
@@ -45,6 +45,6 @@
   "devDependencies": {
     "husky": "^5.0.9",
     "nodemon": "^2.0.6",
-    "pretty-quick": "^3.1.1"
+    "pretty-quick": "^3.1.3"
   }
 }

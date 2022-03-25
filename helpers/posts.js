@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const MongoPaging = require("mongo-cursor-pagination");
 
 exports.createPosts = async function (req, res, next) {
-  const { title, body, timestamp, tags, accountType } = req.body;
+  const { title, body, timestamp, tags, accountType, files } = req.body;
 
   // pull email from jwt
   const token = req.headers.authorization.split(" ")[1];
@@ -18,10 +18,10 @@ exports.createPosts = async function (req, res, next) {
   let profilePicURL = "";
   if (accountType === "student") {
     let user = await studentModel.findOne({ _id: id });
-    profilePicURL = user.profilePicURL;
+    profilePicURL = user?.profilePicURL;
   } else {
     let user = await clubModel.findOne({ _id: id });
-    profilePicURL = user.profilePicURL;
+    profilePicURL = user?.profilePicURL;
   }
   // save post to db
   const post = new postModel({
@@ -32,7 +32,7 @@ exports.createPosts = async function (req, res, next) {
     authorEmail: email,
     authorName: decoded.payload.name,
     authorProfilePic: profilePicURL,
-
+    files,
     likes: 0,
   });
   console.log(decoded.payload);

@@ -17,7 +17,9 @@ const {
 
 const { getPostsPage } = require("../helpers/postsPagination");
 const authorize = require("../helpers/authMiddleware");
+const resourceFunction = require("../helpers/resources-busboy-posts");
 
+router.post("/resources", authorize, resourceFunction);
 router.post("/", authorize, createPosts);
 router.get("/", authorize, getPosts);
 

@@ -38,6 +38,9 @@ const postSchema = new mongoose.Schema({
   authorProfilePic: {
     type: String,
   },
+  files: {
+    type: [String],
+  },
 });
 postSchema.index({ title: "text", body: "text" });
 const Post = mongoose.model("Post", postSchema);

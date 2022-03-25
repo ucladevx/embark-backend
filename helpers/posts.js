@@ -24,21 +24,37 @@ exports.createPosts = async function (req, res, next) {
     profilePicURL = user?.profilePicURL;
   }
   // save post to db
-  const post = new postModel({
-    title,
-    body,
-    timestamp: new Date(),
-    tags,
-    authorEmail: email,
-    authorName: decoded.payload.name,
-    authorProfilePic: profilePicURL,
-    files,
-    likes: 0,
-  });
+  let post;
+  const cleanedFiles = files.filter((file) => typeof file == "string");
+  if (cleanedFiles && cleanedFiles.length > 0) {
+    post = new postModel({
+      title,
+      body,
+      timestamp: new Date(),
+      tags,
+      authorEmail: email,
+      authorName: decoded.payload.name,
+      authorProfilePic: profilePicURL,
+      files: cleanedFiles,
+      likes: 0,
+    });
+  } else {
+    post = new postModel({
+      title,
+      body,
+      timestamp: new Date(),
+      tags,
+      authorEmail: email,
+      authorName: decoded.payload.name,
+      authorProfilePic: profilePicURL,
+      likes: 0,
+    });
+  }
   console.log(decoded.payload);
   try {
     await post.save();
   } catch (err) {
+    console.log(err);
     return res.status(400).json({
       message: err.message,
     });

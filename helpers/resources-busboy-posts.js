@@ -12,7 +12,7 @@ async function uploadFile(buffer, fileParams) {
     // let mkey=parseInt(Math.random()*1000).toString()+fileParams.fileName; //just to make sure files with same name are differentiated
     let mmkey = parseInt(Date.now()).toString() + fileParams.fileName;
     const params = {
-      Bucket: "post-resource-bucket",
+      Bucket: "post-resources-bucket",
       Key: mmkey,
       Body: buffer,
       ACL: "public-read",

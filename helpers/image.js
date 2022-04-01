@@ -52,7 +52,7 @@ module.exports = async (req, res, next) => {
       storage: multerS3({
         acl: "public-read",
         s3,
-        bucket: "profile-pictures-embark",
+        bucket: "profile-picture-embark",
         metadata: function (req, file, cb) {
           cb(null, { fieldName: "TESTING_METADATA" });
         },
